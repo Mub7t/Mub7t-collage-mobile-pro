@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="app-card">
+  <div class="hero">
+    <div>
+      <span class="badge">Python + Flask + Pillow</span>
+      <h1>Collage Mobile Pro</h1>
+      <p class="lead">Create a high-quality image collage from multiple photos, optimized for sharing on mobile devices.</p>
+    </div>
+  </div>
+
+  {% if error %}
+    <div class="notice error">{{ error }}</div>
+  {% endif %}
+
+  {% if success %}
+    <div class="notice success">
+      <strong>Done!</strong> Collage created from {{ image_count }} images. Final size: {{ final_size }} MB
+      <div class="actions top-gap">
+        <a class="btn primary" href="{{ download_url }}">Download Result</a>
+        <a class="btn secondary" href="{{ preview_url }}" target="_blank" rel="noopener">Preview</a>
+      </div>
+      <p class="hint">On phones, after downloading, save it to Photos/Gallery if your device asks.</p>
+    </div>
+  {% endif %}
+
+  <form class="form-grid" method="post" action="/create" enctype="multipart/form-data">
+    <label class="field field-full">
+      <span>Images</span>
+      <input type="file" name="images" accept="image/*" multiple required>
+      <small>Select 10 or more images if needed.</small>
+    </label>
+
+    <label class="field field-full">
+      <span>Title</span>
+      <input type="text" name="title" placeholder="Daily report / عنوان التقرير">
+    </label>
+
+    <label class="field">
+      <span>Alignment</span>
+      <select name="align">
+        <option value="left">Left</option>
+        <option value="center" selected>Center</option>
+        <option value="right">Right</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <span>Font Size</span>
+      <input type="number" name="font_size" value="40" min="12" max="160">
+    </label>
+
+    <label class="field">
+      <span>Cell Size</span>
+      <input type="number" name="cell_size" value="420" min="120" max="1600">
+    </label>
+
+    <label class="field">
+      <span>Padding</span>
+      <input type="number" name="padding" value="14" min="0" max="100">
+    </label>
+
+    <label class="field field-full">
+      <span>Max File Size (MB)</span>
+      <input type="number" name="max_size_mb" value="8" min="1" step="0.5">
+      <small>The app will try to keep the final file under this limit with smart compression.</small>
+    </label>
+
+    <div class="actions field-full">
+      <button class="btn primary" type="submit">Create Collage</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

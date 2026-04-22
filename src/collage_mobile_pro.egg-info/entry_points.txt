@@ -1,0 +1,2 @@
+[console_scripts]
+collage-mobile-pro = collage_web.app:main

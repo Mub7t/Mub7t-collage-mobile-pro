@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "collage-mobile-pro"
+version = "1.0.0"
+description = "Professional mobile-friendly Python web app for creating image collages with smart compression."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "OpenAI Assistant"}]
+dependencies = [
+  "Flask>=3.0.0",
+  "Pillow>=10.0.0",
+  "Werkzeug>=3.0.0"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
+
+[project.scripts]
+collage-mobile-pro = "collage_web.app:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
