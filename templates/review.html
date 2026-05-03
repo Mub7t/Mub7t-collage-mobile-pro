@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Review Report — RL Report Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="page-review">
+
+  <header class="topbar">
+    <a href="{{ url_for('index') }}" class="topbar-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Home
+    </a>
+    <span class="topbar-title">RL Maintenance Report Generator</span>
+  </header>
+
+  <main class="page-content">
+
+    {% if not manual_mode and ocr_error %}
+    <div class="banner banner-warning">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div>
+        <strong>OCR extraction had issues.</strong>
+        Please review and fill in any missing fields below.
+        {% if raw_text %}
+        Expand <strong>OCR Text Preview</strong> below to see what was read.
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if not manual_mode and not ocr_error and tasks|length == 1 and not tasks[0].sap_notification %}
+    <div class="banner banner-info">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <div>
+        <strong>No tasks were automatically detected.</strong>
+        The image may be unclear. Fill in the table manually or
+        {% if raw_text %}expand <strong>OCR Text Preview</strong> below.{% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if raw_text %}
+    <details class="ocr-preview-details">
+      <summary class="ocr-preview-summary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+             style="width:14px;height:14px;flex-shrink:0;">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+        OCR Text Preview
+        <span class="ocr-preview-hint">— click to see what was read from the image</span>
+      </summary>
+      <pre class="ocr-preview-text">{{ raw_text }}</pre>
+    </details>
+    {% endif %}
+
+    <!-- Validation errors -->
+    <div class="banner banner-error" id="validation-banner" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      <div>
+        <strong>Please fix the following:</strong>
+        <ul id="validation-errors"></ul>
+      </div>
+    </div>
+
+    <!-- Report header fields -->
+    <section class="card report-header-card">
+      <h2 class="card-title">Report Details</h2>
+      <div class="header-fields">
+        <div class="field-group">
+          <label for="supervisor">Supervisor Name</label>
+          <input type="text" id="supervisor" class="field-input"
+                 value="{{ supervisor }}" placeholder="e.g. Saif Mohamed Al-Affan" />
+        </div>
+        <div class="field-group">
+          <label for="team">Team / Technicians</label>
+          <input type="text" id="team" class="field-input"
+                 value="{{ team }}" placeholder="e.g. Mohamed &amp; Rayan" />
+        </div>
+        <div class="field-group">
+          <label for="shift">Shift</label>
+          <input type="text" id="shift" class="field-input"
+                 value="{{ shift }}" placeholder="Overnight" />
+        </div>
+        <div class="field-group">
+          <label for="time_range">Time</label>
+          <input type="text" id="time_range" class="field-input"
+                 value="{{ time_range }}" placeholder="12 AM - 8 AM" />
+        </div>
+        <div class="field-group">
+          <label for="date">Date</label>
+          <input type="text" id="date" class="field-input"
+                 value="{{ date }}" placeholder="May 3, 2026" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Task table -->
+    <section class="card task-card">
+      <div class="task-card-header">
+        <h2 class="card-title">
+          Tasks
+          {% if tasks|length > 0 and tasks[0].sap_notification %}
+          <span class="task-count-badge">{{ tasks|length }} extracted</span>
+          {% endif %}
+        </h2>
+        <button type="button" class="btn btn-secondary btn-sm" id="add-row-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Row
+        </button>
+      </div>
+      <div class="table-scroll">
+        <table class="task-table" id="task-table">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th class="col-task">Task</th>
+              <th class="col-site">Site ID</th>
+              <th class="col-approach">Approach</th>
+              <th class="col-problem">Problem</th>
+              <th class="col-vendor">Vendor</th>
+              <th class="col-sap">SAP Notification</th>
+              <th class="col-action">Action Taken</th>
+              <th class="col-status">Current Status</th>
+              <th class="col-comments">Comments</th>
+              <th class="col-del"></th>
+            </tr>
+          </thead>
+          <tbody id="task-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="generate-bar">
+      <a href="{{ url_for('upload') }}" class="btn btn-ghost">&#8592; Back</a>
+      <button type="button" class="btn btn-primary btn-xl" id="generate-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+        </svg>
+        Generate Copyable Report
+      </button>
+    </div>
+
+  </main>
+
+  <form id="report-form" action="{{ url_for('report_preview') }}" method="POST" style="display:none;">
+    <input type="hidden" name="supervisor"  id="f-supervisor" />
+    <input type="hidden" name="team"        id="f-team" />
+    <input type="hidden" name="shift"       id="f-shift" />
+    <input type="hidden" name="time_range"  id="f-time-range" />
+    <input type="hidden" name="date"        id="f-date" />
+    <input type="hidden" name="tasks_json"  id="f-tasks-json" />
+  </form>
+
+  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations</footer>
+
+  <script>window.INITIAL_TASKS = {{ tasks_json | safe }};</script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

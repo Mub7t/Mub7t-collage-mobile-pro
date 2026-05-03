@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report Preview — RL Report Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="page-preview">
+
+  <header class="topbar">
+    <a href="{{ url_for('index') }}" class="topbar-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Home
+    </a>
+    <span class="topbar-title">RL Maintenance Report Generator</span>
+  </header>
+
+  <main class="page-content preview-content">
+
+    <!-- Action bar -->
+    <div class="preview-action-bar card">
+      <div class="preview-action-info">
+        <span class="preview-badge preview-badge--ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               style="width:13px;height:13px;" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Report Ready
+        </span>
+        <span class="preview-meta">
+          Click <strong>Copy Report</strong>, then paste directly into Outlook or Word.
+        </span>
+      </div>
+      <div class="preview-action-btns">
+        <button type="button" id="back-edit-btn" class="btn btn-ghost">
+          &#8592; Back to Edit
+        </button>
+        <button type="button" id="copy-btn" class="btn btn-primary btn-xl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+          Copy Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Success toast -->
+    <div class="banner banner-success" id="copy-success" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <div>
+        <strong>Report copied!</strong>
+        You can now paste it directly into Outlook or Word.
+        The table formatting will be preserved.
+      </div>
+    </div>
+
+    <!-- ── Visible styled preview (for screen only) ──────────────────────── -->
+    <div class="card report-email-card" id="report-screen-preview">
+      <p class="report-salutation">Dear {{ supervisor }},</p>
+      <p class="report-intro">Please find below the details of the RL tasks completed today:</p>
+      <h2 class="report-title">Red-Light Maintenance Tasks Report</h2>
+
+      <table class="rpt-info-table">
+        <tr>
+          <td class="rpt-info-label">Shift</td><td class="rpt-info-value">{{ shift }}</td>
+          <td class="rpt-info-label">Time</td><td class="rpt-info-value">{{ time_range }}</td>
+          <td class="rpt-info-label">Date</td><td class="rpt-info-value">{{ date }}</td>
+          <td class="rpt-info-label">Team</td><td class="rpt-info-value">{{ team }}</td>
+        </tr>
+      </table>
+
+      <table class="rpt-main-table">
+        <thead>
+          <tr>
+            <th>#</th><th>Task</th><th>Site ID</th><th>Approach</th>
+            <th>Problem</th><th>Vendor</th><th>SAP Notification</th>
+            <th>Action Taken</th><th>Current Status</th><th>Comments</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+          <tr>
+            <td class="rpt-center">{{ loop.index }}</td>
+            <td>{{ task.task }}</td>
+            <td>{{ task.site_id }}</td>
+            <td class="rpt-center">{{ task.approach }}</td>
+            <td>{{ task.problem }}</td>
+            <td>{{ task.vendor }}</td>
+            <td class="rpt-center rpt-mono">{{ task.sap_notification }}</td>
+            <td>{{ task.action_taken }}</td>
+            <td class="rpt-center {% if task.current_status|lower == 'solved' %}rpt-solved{% else %}rpt-pending{% endif %}">
+              {{ task.current_status }}
+            </td>
+            <td class="rpt-highlight">{{ task.comments }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <p class="report-closing">Best regards,<br><strong>{{ team }}</strong></p>
+    </div>
+
+  </main>
+
+  <!--
+    ── Hidden clipboard-ready HTML ──────────────────────────────────────────
+    This div uses FULL INLINE STYLES so the table keeps its formatting
+    when pasted into Outlook / Word (which strip external CSS).
+    It is hidden on screen but copied to clipboard via JS.
+  -->
+  <div id="report-clipboard-html" style="display:none;">
+    <div style="font-family:Arial,Calibri,sans-serif;font-size:12px;color:#000;max-width:900px;">
+
+      <p style="margin:0 0 6px 0;">Dear {{ supervisor }},</p>
+      <p style="margin:0 0 14px 0;">Please find below the details of the RL tasks completed today:</p>
+
+      <p style="font-size:16px;font-weight:bold;text-align:center;margin:0 0 12px 0;">
+        Red-Light Maintenance Tasks Report
+      </p>
+
+      <!-- Header info table -->
+      <table style="border-collapse:collapse;width:100%;margin-bottom:10px;">
+        <tr>
+          <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;">Shift</td>
+          <td style="border:1px solid #000;padding:5px 8px;font-size:11px;">{{ shift }}</td>
+          <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;">Time</td>
+          <td style="border:1px solid #000;padding:5px 8px;font-size:11px;">{{ time_range }}</td>
+          <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;">Date</td>
+          <td style="border:1px solid #000;padding:5px 8px;font-size:11px;">{{ date }}</td>
+          <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;">Team</td>
+          <td style="border:1px solid #000;padding:5px 8px;font-size:11px;">{{ team }}</td>
+        </tr>
+      </table>
+
+      <!-- Main task table -->
+      <table style="border-collapse:collapse;width:100%;table-layout:fixed;margin-bottom:14px;">
+        <thead>
+          <tr>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:28px;">#</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;">Task</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;">Site ID</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:55px;">Approach</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;">Problem</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;">Vendor</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;">SAP Notification</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;">Action Taken</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:65px;">Status</th>
+            <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;">Comments</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+          <tr style="{% if loop.index is odd %}background:#ffffff;{% else %}background:#f5f8ff;{% endif %}">
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;text-align:center;">{{ loop.index }}</td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;">{{ task.task }}</td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;">{{ task.site_id }}</td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;text-align:center;">{{ task.approach }}</td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;word-wrap:break-word;">{{ task.problem }}</td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;">{{ task.vendor }}</td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;text-align:center;font-family:Courier New,monospace;">{{ task.sap_notification }}</td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;word-wrap:break-word;">{{ task.action_taken }}</td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;text-align:center;font-weight:bold;
+                {% if task.current_status|lower == 'solved' %}color:#176b2d;{% else %}color:#c65f00;{% endif %}">
+              {{ task.current_status }}
+            </td>
+            <td style="border:1px solid #000;padding:5px 4px;font-size:10px;background:#fffde7;font-weight:bold;word-wrap:break-word;">{{ task.comments }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <p style="margin:12px 0 2px 0;font-size:12px;">Best regards,</p>
+      <p style="margin:0;font-size:12px;font-weight:bold;">{{ team }}</p>
+
+    </div>
+  </div>
+
+  <!-- Store data for back-to-edit -->
+  <script>
+    window.REPORT_DATA = {
+      supervisor: {{ supervisor | tojson }},
+      team:       {{ team       | tojson }},
+      shift:      {{ shift      | tojson }},
+      time_range: {{ time_range | tojson }},
+      date:       {{ date       | tojson }},
+      tasks_json: {{ tasks_json | tojson }},
+    };
+  </script>
+
+  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations</footer>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

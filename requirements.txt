@@ -1,0 +1,8 @@
+flask>=3.0.0
+werkzeug>=3.0.0
+python-docx>=1.1.0
+pytesseract>=0.3.10
+Pillow>=10.0.0
+# easyocr>=1.7.0    # Uncomment as an alternative to pytesseract
+# openai>=1.0.0     # Uncomment to use OpenAI Vision API
+# anthropic>=0.25.0 # Uncomment to use Claude Vision API
