@@ -5,80 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Report Preview — RL Report Generator</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-
   <style>
-    /* Report mobile fix: keep the official table wide enough and allow horizontal scroll */
-    .report-scroll-shell {
+    .report-preview-scroll {
       width: 100%;
-      max-width: 100%;
       overflow-x: auto;
       overflow-y: hidden;
       -webkit-overflow-scrolling: touch;
-      padding: 0 0 14px 0;
+      padding-bottom: 10px;
     }
 
-    .report-scroll-shell::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    .report-scroll-shell::-webkit-scrollbar-thumb {
-      background: #c7c7c7;
-      border-radius: 999px;
-    }
-
-    #report-screen-preview.report-fixed-preview {
-      width: 860px;
-      min-width: 860px;
-      max-width: none;
+    .report-email-card.report-one-block {
+      width: 920px;
+      min-width: 920px;
+      max-width: 920px;
+      margin: 0;
       box-sizing: border-box;
-      margin-left: auto;
-      margin-right: auto;
     }
 
-    .report-fixed-preview .rpt-info-table,
-    .report-fixed-preview .rpt-main-table {
+    .report-email-card.report-one-block .report-salutation {
+      margin: 0 0 8px 0;
+    }
+
+    .report-email-card.report-one-block .report-intro {
+      margin: 0 0 10px 0;
+    }
+
+    .report-email-card.report-one-block .report-title {
+      margin: 6px 0 12px 0;
+    }
+
+    .report-email-card.report-one-block .rpt-info-table,
+    .report-email-card.report-one-block .rpt-main-table {
       width: 100%;
       min-width: 100%;
       table-layout: fixed;
+      border-collapse: collapse;
     }
 
-    .report-fixed-preview .rpt-info-table td,
-    .report-fixed-preview .rpt-main-table th,
-    .report-fixed-preview .rpt-main-table td {
-      word-break: normal !important;
-      overflow-wrap: normal !important;
-      white-space: normal !important;
-      box-sizing: border-box;
+    .report-email-card.report-one-block .rpt-info-table {
+      margin-bottom: 10px;
     }
 
-    .report-fixed-preview .rpt-main-table th {
-      white-space: nowrap !important;
-      font-size: 10px;
-      line-height: 1.2;
+    .report-email-card.report-one-block .rpt-main-table {
+      margin-bottom: 12px;
     }
 
-    .report-fixed-preview .rpt-mono {
-      white-space: nowrap !important;
-      font-size: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .preview-content {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-
-      .report-scroll-shell {
-        margin-left: -10px;
-        margin-right: -10px;
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-
-      #report-screen-preview.report-fixed-preview {
-        margin-left: 0;
-        margin-right: 0;
-      }
+    .report-email-card.report-one-block .report-closing {
+      margin: 0;
     }
   </style>
 </head>
@@ -97,7 +70,6 @@
 
   <main class="page-content preview-content">
 
-    <!-- Action bar -->
     <div class="preview-action-bar card">
       <div class="preview-action-info">
         <span class="preview-badge preview-badge--ok">
@@ -125,7 +97,6 @@
       </div>
     </div>
 
-    <!-- Success toast -->
     <div class="banner banner-success" id="copy-success" style="display:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <polyline points="20 6 9 17 4 12"/>
@@ -137,179 +108,132 @@
       </div>
     </div>
 
-    <!-- ── Visible styled preview (for screen only) ──────────────────────── -->
-    <div class="report-scroll-shell" aria-label="Scrollable report preview">
-    <div class="card report-email-card report-fixed-preview" id="report-screen-preview">
-      <p class="report-salutation">Dear {{ supervisor }},</p>
-      <p class="report-intro">Please find below the details of the RL tasks completed today:</p>
-      <h2 class="report-title" style="margin-top:8px;margin-bottom:10px;">Red-Light Maintenance Tasks Report</h2>
+    <div class="report-preview-scroll">
+      <div class="card report-email-card report-one-block" id="report-screen-preview">
+        <p class="report-salutation">Dear {{ supervisor }},</p>
+        <p class="report-intro">Please find below the details of the RL tasks completed today:</p>
+        <h2 class="report-title">Red-Light Maintenance Tasks Report</h2>
 
-      <table class="rpt-info-table">
-        <colgroup>
-          <col style="width:70px;" />
-          <col style="width:120px;" />
-          <col style="width:70px;" />
-          <col style="width:140px;" />
-          <col style="width:70px;" />
-          <col style="width:130px;" />
-          <col style="width:70px;" />
-          <col style="width:190px;" />
-        </colgroup>
-        <tr>
-          <td class="rpt-info-label">Shift</td><td class="rpt-info-value">{{ shift }}</td>
-          <td class="rpt-info-label">Time</td><td class="rpt-info-value">{{ time_range }}</td>
-          <td class="rpt-info-label">Date</td><td class="rpt-info-value">{{ date }}</td>
-          <td class="rpt-info-label">Team</td><td class="rpt-info-value">{{ team }}</td>
-        </tr>
-      </table>
-
-      <table class="rpt-main-table">
-        <colgroup>
-          <col style="width:35px;" />
-          <col style="width:85px;" />
-          <col style="width:105px;" />
-          <col style="width:70px;" />
-          <col style="width:120px;" />
-          <col style="width:80px;" />
-          <col style="width:110px;" />
-          <col style="width:120px;" />
-          <col style="width:75px;" />
-          <col style="width:90px;" />
-        </colgroup>
-        <thead>
+        <table class="rpt-info-table">
           <tr>
-            <th>#</th><th>Task</th><th>Site ID</th><th>Approach</th>
-            <th>Problem</th><th>Vendor</th><th>SAP Notification</th>
-            <th>Action Taken</th><th>Current Status</th><th>Comments</th>
+            <td class="rpt-info-label">Shift</td><td class="rpt-info-value">{{ shift }}</td>
+            <td class="rpt-info-label">Time</td><td class="rpt-info-value">{{ time_range }}</td>
+            <td class="rpt-info-label">Date</td><td class="rpt-info-value">{{ date }}</td>
+            <td class="rpt-info-label">Team</td><td class="rpt-info-value">{{ team }}</td>
           </tr>
-        </thead>
-        <tbody>
-          {% for task in tasks %}
-          <tr>
-            <td class="rpt-center">{{ loop.index }}</td>
-            <td>{{ task.task }}</td>
-            <td>{{ task.site_id }}</td>
-            <td class="rpt-center">{{ task.approach }}</td>
-            <td>{{ task.problem }}</td>
-            <td>{{ task.vendor }}</td>
-            <td class="rpt-center rpt-mono">{{ task.sap_notification }}</td>
-            <td>{{ task.action_taken }}</td>
-            <td class="rpt-center {% if task.current_status|lower == 'solved' %}rpt-solved{% else %}rpt-pending{% endif %}">
-              {{ task.current_status }}
-            </td>
-            <td class="rpt-highlight">{{ task.comments }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+        </table>
 
-      <p class="report-closing">Best regards,<br><strong>{{ team }}</strong></p>
-    </div>
+        <table class="rpt-main-table">
+          <thead>
+            <tr>
+              <th style="width:40px;">#</th>
+              <th style="width:95px;">Task</th>
+              <th style="width:110px;">Site ID</th>
+              <th style="width:75px;">Approach</th>
+              <th style="width:130px;">Problem</th>
+              <th style="width:90px;">Vendor</th>
+              <th style="width:120px;">SAP Notification</th>
+              <th style="width:170px;">Action Taken</th>
+              <th style="width:105px;">Current Status</th>
+              <th style="width:145px;">Comments</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+            <tr>
+              <td class="rpt-center">{{ loop.index }}</td>
+              <td>{{ task.task }}</td>
+              <td>{{ task.site_id }}</td>
+              <td class="rpt-center">{{ task.approach }}</td>
+              <td>{{ task.problem }}</td>
+              <td>{{ task.vendor }}</td>
+              <td class="rpt-center rpt-mono">{{ task.sap_notification }}</td>
+              <td>{{ task.action_taken }}</td>
+              <td class="rpt-center {% if task.current_status|lower == 'solved' %}rpt-solved{% else %}rpt-pending{% endif %}">
+                {{ task.current_status }}
+              </td>
+              <td class="rpt-highlight">{{ task.comments }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <p class="report-closing">Best regards,<br><strong>{{ team }}</strong></p>
+      </div>
     </div>
 
   </main>
 
-  <!--
-    ── Hidden clipboard-ready HTML ──────────────────────────────────────────
-    This div uses FULL INLINE STYLES so the table keeps its formatting
-    when pasted into Outlook / Word (which strip external CSS).
-    It is hidden on screen but copied to clipboard via JS.
-  -->
   <div id="report-clipboard-html" style="display:none;">
-    <!--
-      Clipboard version:
-      - Fixed 860px width so mobile mail apps do not squeeze columns.
-      - Outer block allows horizontal scrolling where supported.
-      - All styles are inline for Outlook/Word compatibility.
-    -->
-    <div style="font-family:Arial,Calibri,sans-serif;font-size:12px;color:#000;width:860px;min-width:860px;max-width:860px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;display:block;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+           style="border-collapse:collapse;width:920px;max-width:920px;min-width:920px;font-family:Arial,Calibri,sans-serif;font-size:12px;color:#000;">
+      <tr>
+        <td style="padding:0;vertical-align:top;">
 
-      <p style="margin:0 0 6px 0;font-size:12px;line-height:1.35;">Dear {{ supervisor }},</p>
-      <p style="margin:0 0 8px 0;font-size:12px;line-height:1.35;">Please find below the details of the RL tasks completed today:</p>
+          <p style="margin:0 0 6px 0;font-size:12px;line-height:1.4;">Dear {{ supervisor }},</p>
+          <p style="margin:0 0 10px 0;font-size:12px;line-height:1.4;">Please find below the details of the RL tasks completed today:</p>
+          <p style="font-size:16px;font-weight:bold;text-align:center;margin:0 0 10px 0;line-height:1.3;">
+            Red-Light Maintenance Tasks Report
+          </p>
 
-      <p style="font-size:15px;font-weight:bold;text-align:center;margin:0 0 8px 0;line-height:1.3;">
-        Red-Light Maintenance Tasks Report
-      </p>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                 style="border-collapse:collapse;width:920px;min-width:920px;max-width:920px;margin:0 0 10px 0;table-layout:fixed;">
+            <tr>
+              <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;width:65px;">Shift</td>
+              <td style="border:1px solid #000;padding:5px 8px;font-size:11px;width:150px;">{{ shift }}</td>
+              <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;width:65px;">Time</td>
+              <td style="border:1px solid #000;padding:5px 8px;font-size:11px;width:150px;">{{ time_range }}</td>
+              <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;width:65px;">Date</td>
+              <td style="border:1px solid #000;padding:5px 8px;font-size:11px;width:140px;">{{ date }}</td>
+              <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;width:65px;">Team</td>
+              <td style="border:1px solid #000;padding:5px 8px;font-size:11px;width:220px;">{{ team }}</td>
+            </tr>
+          </table>
 
-      <!-- Header info table -->
-      <table style="border-collapse:collapse;width:860px;min-width:860px;max-width:860px;table-layout:fixed;margin-bottom:8px;font-family:Arial,Calibri,sans-serif;">
-        <colgroup>
-          <col style="width:70px;" />
-          <col style="width:120px;" />
-          <col style="width:70px;" />
-          <col style="width:140px;" />
-          <col style="width:70px;" />
-          <col style="width:130px;" />
-          <col style="width:70px;" />
-          <col style="width:190px;" />
-        </colgroup>
-        <tr>
-          <td style="border:1px solid #000;padding:6px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;line-height:1.25;text-align:left;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Shift</td>
-          <td style="border:1px solid #000;padding:6px 8px;font-size:11px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ shift }}</td>
-          <td style="border:1px solid #000;padding:6px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;line-height:1.25;text-align:left;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Time</td>
-          <td style="border:1px solid #000;padding:6px 8px;font-size:11px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ time_range }}</td>
-          <td style="border:1px solid #000;padding:6px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;line-height:1.25;text-align:left;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Date</td>
-          <td style="border:1px solid #000;padding:6px 8px;font-size:11px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ date }}</td>
-          <td style="border:1px solid #000;padding:6px 8px;background:#d9d9d9;font-weight:bold;font-size:11px;line-height:1.25;text-align:left;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Team</td>
-          <td style="border:1px solid #000;padding:6px 8px;font-size:11px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ team }}</td>
-        </tr>
-      </table>
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                 style="border-collapse:collapse;width:920px;min-width:920px;max-width:920px;table-layout:fixed;margin:0 0 12px 0;">
+            <thead>
+              <tr>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:28px;">#</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:85px;">Task</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:100px;">Site ID</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:65px;">Approach</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:120px;">Problem</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:78px;">Vendor</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:102px;">SAP Notification</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:160px;">Action Taken</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:94px;">Current Status</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;width:140px;">Comments</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for task in tasks %}
+              <tr style="{% if loop.index is odd %}background:#ffffff;{% else %}background:#f5f8ff;{% endif %}">
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;text-align:center;vertical-align:middle;">{{ loop.index }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;vertical-align:middle;">{{ task.task }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;vertical-align:middle;">{{ task.site_id }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;text-align:center;vertical-align:middle;">{{ task.approach }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;word-wrap:break-word;vertical-align:middle;">{{ task.problem }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;vertical-align:middle;">{{ task.vendor }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;text-align:center;font-family:Courier New,monospace;vertical-align:middle;">{{ task.sap_notification }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;word-wrap:break-word;vertical-align:middle;">{{ task.action_taken }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;text-align:center;font-weight:bold;vertical-align:middle;{% if task.current_status|lower == 'solved' %}color:#176b2d;{% else %}color:#c65f00;{% endif %}">
+                  {{ task.current_status }}
+                </td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:10px;background:#fffde7;font-weight:bold;word-wrap:break-word;vertical-align:middle;">{{ task.comments }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
 
-      <!-- Main task table -->
-      <table style="border-collapse:collapse;width:860px;min-width:860px;max-width:860px;table-layout:fixed;margin-bottom:10px;font-family:Arial,Calibri,sans-serif;">
-        <colgroup>
-          <col style="width:35px;" />
-          <col style="width:85px;" />
-          <col style="width:105px;" />
-          <col style="width:70px;" />
-          <col style="width:120px;" />
-          <col style="width:80px;" />
-          <col style="width:110px;" />
-          <col style="width:120px;" />
-          <col style="width:75px;" />
-          <col style="width:90px;" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">#</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Task</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Site ID</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Approach</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Problem</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Vendor</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">SAP Notification</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Action Taken</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Status</th>
-            <th style="border:1px solid #000;padding:6px 5px;background:#1a2b4a;color:#fff;font-size:10px;line-height:1.2;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;">Comments</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for task in tasks %}
-          <tr style="{% if loop.index is odd %}background:#ffffff;{% else %}background:#f5f8ff;{% endif %}">
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;text-align:center;white-space:nowrap;word-break:normal;overflow-wrap:normal;">{{ loop.index }}</td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ task.task }}</td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ task.site_id }}</td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;text-align:center;white-space:nowrap;word-break:normal;overflow-wrap:normal;">{{ task.approach }}</td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ task.problem }}</td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ task.vendor }}</td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;text-align:center;font-family:Courier New,monospace;white-space:nowrap;word-break:normal;overflow-wrap:normal;">{{ task.sap_notification }}</td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ task.action_taken }}</td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;text-align:center;font-weight:bold;white-space:nowrap;word-break:normal;overflow-wrap:normal;{% if task.current_status|lower == 'solved' %}color:#176b2d;{% else %}color:#c65f00;{% endif %}">
-              {{ task.current_status }}
-            </td>
-            <td style="border:1px solid #000;padding:6px 5px;font-size:10px;line-height:1.25;background:#fffde7;font-weight:bold;white-space:normal;word-break:normal;overflow-wrap:normal;">{{ task.comments }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          <p style="margin:0 0 2px 0;font-size:12px;line-height:1.4;">Best regards,</p>
+          <p style="margin:0;font-size:12px;font-weight:bold;line-height:1.4;">{{ team }}</p>
 
-      <p style="margin:8px 0 2px 0;font-size:12px;line-height:1.35;">Best regards,</p>
-      <p style="margin:0;font-size:12px;line-height:1.35;font-weight:bold;">{{ team }}</p>
-
-    </div>
+        </td>
+      </tr>
+    </table>
   </div>
 
-  <!-- Store data for back-to-edit -->
   <script>
     window.REPORT_DATA = {
       supervisor: {{ supervisor | tojson }},
