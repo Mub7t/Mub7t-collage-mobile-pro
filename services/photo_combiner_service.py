@@ -1,21 +1,12 @@
 """
-photo_combiner_service.py  v4
-──────────────────────────────
-Fixed-cell grid layout matching the reference image (RYDRL 4202 sheet):
+photo_combiner_service.py
+Memory-safe photo combiner for RL Maintenance Services.
 
-Layout rules
-────────────
-• Canvas: 1800 px wide, 60 px outer padding, 18 px gap between cells
-• Column count: 1→1 col, 2→2 col, 3→3 col, 4+→4 col
-• Every cell is the SAME fixed size:
-      cell_width  = (canvas_width - 2*padding - gap*(cols-1)) / cols
-      cell_height = round(cell_width * CELL_ASPECT)   (default 0.72 ≈ 4:3 landscape)
-• Each image is scaled with thumbnail() (keeps ratio, fits inside cell)
-  then centred on a white cell background.
-• Rows are laid out top→bottom; the last partial row is left-aligned.
-• Optional site-name header: black text, white bg, centred, ~100 px tall.
-• Optional full-canvas 45° tiled watermark applied after grid is built.
-• JPEG output compressed to ≤ 2 MB.
+Why this version:
+- It uses the same efficient idea as the older collage project.
+- It does NOT keep all original high-resolution photos in RAM.
+- It opens one image at a time, creates a fitted thumbnail, pastes it, then closes it.
+- Final output is compressed to 2 MB or less whenever possible.
 """
 
 from __future__ import annotations
@@ -26,251 +17,292 @@ from typing import List, Tuple
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
-# ── Layout constants ───────────────────────────────────────────────────────────
-CANVAS_WIDTH   = 1800
-OUTER_PADDING  = 60
-CELL_GAP       = 18
-CELL_ASPECT    = 0.72    # cell_height = cell_width * CELL_ASPECT  (landscape bias)
-BG_COLOR       = (255, 255, 255)
-HEADER_HEIGHT  = 100     # px for site-name header
-HEADER_FG      = (20, 20, 20)
 
-MAX_FILE_BYTES   = 2 * 1024 * 1024
-QUALITY_STEPS    = [92, 88, 83, 78, 72, 65, 58]
-DIMENSION_SCALES = [0.90, 0.80, 0.70, 0.60]
+# ── Output target ──────────────────────────────────────────────────────────────
+MAX_FILE_BYTES = 2 * 1024 * 1024  # 2 MB
 
-WATERMARK_SIZES  = {"small": 36, "medium": 58, "large": 86}
-DEFAULT_WM_SIZE  = "medium"
+# ── Layout: close to the old fast project ──────────────────────────────────────
+CANVAS_WIDTH = 1800
+OUTER_PADDING = 60
+CELL_GAP = 18
+CELL_ASPECT = 0.72  # landscape cell height = width * 0.72
+BG_COLOR = (255, 255, 255)
+CELL_BG = (255, 255, 255)
+CELL_BORDER = (225, 225, 225)
+
+HEADER_HEIGHT = 100
+HEADER_FG = (20, 20, 20)
+
+# ── Compression steps ──────────────────────────────────────────────────────────
+QUALITY_STEPS = [92, 88, 84, 80, 76, 72, 68, 64, 60, 56, 52, 48, 44]
+DIMENSION_SCALES = [0.94, 0.88, 0.82, 0.76, 0.70, 0.64, 0.58, 0.52]
+
+# ── Watermark ──────────────────────────────────────────────────────────────────
+WATERMARK_SIZES = {"small": 36, "medium": 58, "large": 86}
+DEFAULT_WM_SIZE = "medium"
 DEFAULT_WM_OPACITY = 15
 
 
-# ── Public API ─────────────────────────────────────────────────────────────────
+# ════════════════════════════════════════════════════════════════════════════════
+# Public API used by app.py
+# ════════════════════════════════════════════════════════════════════════════════
 
 def combine_photos(
     image_paths: List[str],
-    site_name: str       = "",
-    watermark_text: str  = "",
+    site_name: str = "",
+    watermark_text: str = "",
     watermark_opacity: int = DEFAULT_WM_OPACITY,
-    watermark_size: str  = DEFAULT_WM_SIZE,
-    canvas_width: int    = CANVAS_WIDTH,
+    watermark_size: str = DEFAULT_WM_SIZE,
+    canvas_width: int = CANVAS_WIDTH,
 ) -> Tuple[bytes, int]:
+    """
+    Combine many uploaded photos into one compressed JPEG.
+
+    This function intentionally does not load all original photos into memory.
+    It calculates the grid first, creates the canvas, then processes images one by one.
+    """
     if not image_paths:
         raise ValueError("No images provided.")
 
-    images = _load_images(image_paths)
-    canvas = _build_grid(images, site_name, canvas_width)
+    n = len(image_paths)
+    cols = _choose_cols(n)
+    rows = math.ceil(n / cols)
 
-    if watermark_text and watermark_text.strip():
-        opacity  = max(5, min(40, watermark_opacity))
-        sz_label = watermark_size.lower() if watermark_size.lower() in WATERMARK_SIZES else DEFAULT_WM_SIZE
-        canvas   = _apply_watermark(canvas, watermark_text.strip(), opacity, sz_label)
+    pad = OUTER_PADDING
+    gap = CELL_GAP
 
-    data = _compress(canvas, canvas_width)
-    return data, len(data)
-
-
-# ── Image loading ──────────────────────────────────────────────────────────────
-
-def _load_images(paths: List[str]) -> List[Image.Image]:
-    out = []
-    for p in paths:
-        img = Image.open(p)
-        img = ImageOps.exif_transpose(img)   # fix phone EXIF rotation
-        img = img.convert("RGB")
-        out.append(img)
-    return out
-
-
-# ── Grid builder ───────────────────────────────────────────────────────────────
-
-def _choose_cols(n: int) -> int:
-    if n <= 1: return 1
-    if n == 2: return 2
-    if n == 3: return 3
-    return 4
-
-
-def _build_grid(
-    images: List[Image.Image],
-    site_name: str,
-    canvas_width: int,
-) -> Image.Image:
-    n      = len(images)
-    cols   = _choose_cols(n)
-    pad    = OUTER_PADDING
-    gap    = CELL_GAP
-
-    # Fixed cell dimensions
     cell_w = (canvas_width - 2 * pad - gap * (cols - 1)) // cols
     cell_h = round(cell_w * CELL_ASPECT)
 
-    # Number of rows needed
-    rows = math.ceil(n / cols)
+    has_header = bool(site_name and site_name.strip())
+    header_h = HEADER_HEIGHT if has_header else 0
 
-    # Total canvas height
-    has_header  = bool(site_name and site_name.strip())
-    header_h    = HEADER_HEIGHT if has_header else 0
-    canvas_h    = (header_h
-                   + pad
-                   + rows * cell_h
-                   + (rows - 1) * gap
-                   + pad)
-
+    canvas_h = header_h + pad + rows * cell_h + (rows - 1) * gap + pad
     canvas = Image.new("RGB", (canvas_width, canvas_h), BG_COLOR)
-    draw   = ImageDraw.Draw(canvas)
+    draw = ImageDraw.Draw(canvas)
 
-    # Draw site-name header
     if has_header:
         _draw_header(draw, site_name.strip(), canvas_width, header_h)
 
-    # Starting y for first image row
     y0 = header_h + pad
 
-    for idx, img in enumerate(images):
+    # Critical memory fix: open → thumbnail → paste → close, one file at a time.
+    for idx, path in enumerate(image_paths):
         row = idx // cols
-        col = idx  % cols
+        col = idx % cols
 
         x = pad + col * (cell_w + gap)
-        y = y0  + row * (cell_h + gap)
+        y = y0 + row * (cell_h + gap)
 
-        _paste_in_cell(canvas, img, x, y, cell_w, cell_h)
+        _draw_cell_background(draw, x, y, cell_w, cell_h)
+        _paste_image_file_in_cell(canvas, path, x, y, cell_w, cell_h)
 
-    return canvas
+    if watermark_text and watermark_text.strip():
+        opacity = max(5, min(40, int(watermark_opacity or DEFAULT_WM_OPACITY)))
+        size_label = (watermark_size or DEFAULT_WM_SIZE).lower()
+        if size_label not in WATERMARK_SIZES:
+            size_label = DEFAULT_WM_SIZE
+        canvas = _apply_watermark(canvas, watermark_text.strip(), opacity, size_label)
+
+    data = _compress_under_2mb(canvas)
+    canvas.close()
+    return data, len(data)
 
 
-def _paste_in_cell(
+# ════════════════════════════════════════════════════════════════════════════════
+# Grid helpers
+# ════════════════════════════════════════════════════════════════════════════════
+
+def _choose_cols(n: int) -> int:
+    if n <= 1:
+        return 1
+    if n == 2:
+        return 2
+    if n == 3:
+        return 3
+    return 4
+
+
+def _draw_cell_background(draw: ImageDraw.ImageDraw, x: int, y: int, w: int, h: int) -> None:
+    draw.rectangle([x, y, x + w, y + h], fill=CELL_BG, outline=CELL_BORDER, width=1)
+
+
+def _paste_image_file_in_cell(
     canvas: Image.Image,
-    img: Image.Image,
-    cx: int, cy: int,
-    cell_w: int, cell_h: int,
+    path: str,
+    cx: int,
+    cy: int,
+    cell_w: int,
+    cell_h: int,
 ) -> None:
-    """
-    Scale img so it fits entirely inside the cell (no cropping, no distortion),
-    then centre it.  White padding fills any remaining space.
-    """
-    iw, ih = img.size
+    """Open one image, fix orientation, fit it into the cell, paste it, then close it."""
+    with Image.open(path) as img:
+        img = ImageOps.exif_transpose(img)
 
-    # Scale to fit inside cell, preserving ratio
-    scale  = min(cell_w / iw, cell_h / ih)
-    new_w  = max(1, round(iw * scale))
-    new_h  = max(1, round(ih * scale))
+        # Convert safely to RGB, including transparent PNGs.
+        if img.mode == "RGBA":
+            bg = Image.new("RGB", img.size, BG_COLOR)
+            bg.paste(img, mask=img.getchannel("A"))
+            img = bg
+        elif img.mode != "RGB":
+            img = img.convert("RGB")
 
-    resized = img.resize((new_w, new_h), Image.LANCZOS)
+        # Work only on a cell-sized thumbnail, not the full-resolution original.
+        thumb = img.copy()
+        thumb.thumbnail((cell_w, cell_h), Image.Resampling.LANCZOS)
 
-    # Centre offset within cell
-    off_x = cx + (cell_w - new_w) // 2
-    off_y = cy + (cell_h - new_h) // 2
+        px = cx + (cell_w - thumb.width) // 2
+        py = cy + (cell_h - thumb.height) // 2
+        canvas.paste(thumb, (px, py))
+        thumb.close()
 
-    canvas.paste(resized, (off_x, off_y))
 
-
-# ── Header ─────────────────────────────────────────────────────────────────────
-
-def _draw_header(
-    draw: ImageDraw.ImageDraw,
-    text: str,
-    canvas_width: int,
-    header_h: int,
-) -> None:
+def _draw_header(draw: ImageDraw.ImageDraw, text: str, canvas_width: int, header_h: int) -> None:
     font_size = max(32, header_h // 2)
-    font      = _load_font(font_size, bold=True)
-    bbox      = draw.textbbox((0, 0), text, font=font)
-    tw        = bbox[2] - bbox[0]
-    th        = bbox[3] - bbox[1]
-    tx        = (canvas_width - tw) // 2
-    ty        = (header_h - th) // 2
+    font = _load_font(font_size, bold=True)
+    bbox = draw.textbbox((0, 0), text, font=font)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    tx = (canvas_width - tw) // 2
+    ty = (header_h - th) // 2
     draw.text((tx, ty), text, fill=HEADER_FG, font=font)
 
 
-# ── Watermark ──────────────────────────────────────────────────────────────────
+# ════════════════════════════════════════════════════════════════════════════════
+# Watermark
+# ════════════════════════════════════════════════════════════════════════════════
 
-def _apply_watermark(
-    canvas: Image.Image,
-    text: str,
-    opacity_pct: int,
-    size_label: str,
-) -> Image.Image:
+def _apply_watermark(canvas: Image.Image, text: str, opacity_pct: int, size_label: str) -> Image.Image:
     font_size = WATERMARK_SIZES.get(size_label, WATERMARK_SIZES[DEFAULT_WM_SIZE])
     alpha_val = int(255 * opacity_pct / 100)
-    w, h      = canvas.size
-    font      = _load_font(font_size, bold=True)
+    w, h = canvas.size
+    font = _load_font(font_size, bold=True)
 
-    # Measure text
-    tmp  = Image.new("RGBA", (1, 1))
+    tmp = Image.new("RGBA", (1, 1))
     tdraw = ImageDraw.Draw(tmp)
-    bbox  = tdraw.textbbox((0, 0), text, font=font)
-    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    bbox = tdraw.textbbox((0, 0), text, font=font)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
 
     step_x = max(int(tw * 1.8), font_size * 8)
     step_y = max(int(th * 3.5), font_size * 5)
 
-    # Build oversized transparent tile layer
-    diag  = int(math.sqrt(w * w + h * h)) + step_x * 2
+    diag = int(math.sqrt(w * w + h * h)) + step_x * 2
     layer = Image.new("RGBA", (diag, diag), (0, 0, 0, 0))
-    ld    = ImageDraw.Draw(layer)
+    ld = ImageDraw.Draw(layer)
+
     for yy in range(-step_y, diag + step_y, step_y):
         for xx in range(-step_x, diag + step_x, step_x):
             ld.text((xx, yy), text, font=font, fill=(50, 50, 50, alpha_val))
 
-    rotated = layer.rotate(45, expand=False, resample=Image.BICUBIC)
-    rx, ry  = rotated.size
-    cx      = max(0, (rx - w) // 2)
-    cy      = max(0, (ry - h) // 2)
+    rotated = layer.rotate(45, expand=False, resample=Image.Resampling.BICUBIC)
+    rx, ry = rotated.size
+    cx = max(0, (rx - w) // 2)
+    cy = max(0, (ry - h) // 2)
     cropped = rotated.crop((cx, cy, cx + w, cy + h))
+
     if cropped.size != (w, h):
-        cropped = cropped.resize((w, h), Image.LANCZOS)
+        cropped = cropped.resize((w, h), Image.Resampling.LANCZOS)
 
     base = canvas.convert("RGBA")
     base = Image.alpha_composite(base, cropped)
+
+    layer.close()
+    rotated.close()
+    cropped.close()
+
     return base.convert("RGB")
 
 
-# ── Compression ────────────────────────────────────────────────────────────────
+# ════════════════════════════════════════════════════════════════════════════════
+# Compression
+# ════════════════════════════════════════════════════════════════════════════════
 
-def _compress(canvas: Image.Image, original_width: int) -> bytes:
+def _compress_under_2mb(canvas: Image.Image) -> bytes:
+    rgb = canvas.convert("RGB")
+
     for quality in QUALITY_STEPS:
         buf = io.BytesIO()
-        canvas.save(buf, format="JPEG", quality=quality, optimize=True)
+        rgb.save(
+            buf,
+            format="JPEG",
+            quality=quality,
+            optimize=True,
+            progressive=True,
+            subsampling="4:2:0",
+        )
         data = buf.getvalue()
         if len(data) <= MAX_FILE_BYTES:
+            rgb.close()
             return data
 
+    original_w, original_h = rgb.size
+
     for scale in DIMENSION_SCALES:
-        nw = int(original_width * scale)
-        nh = int(canvas.size[1] * scale)
-        shrunk = canvas.resize((nw, nh), Image.LANCZOS)
+        nw = max(800, int(original_w * scale))
+        nh = max(800, int(original_h * scale))
+        shrunk = rgb.resize((nw, nh), Image.Resampling.LANCZOS)
+
         for quality in QUALITY_STEPS:
             buf = io.BytesIO()
-            shrunk.save(buf, format="JPEG", quality=quality, optimize=True)
+            shrunk.save(
+                buf,
+                format="JPEG",
+                quality=quality,
+                optimize=True,
+                progressive=True,
+                subsampling="4:2:0",
+            )
             data = buf.getvalue()
             if len(data) <= MAX_FILE_BYTES:
+                rgb.close()
+                shrunk.close()
                 return data
 
-    raise ValueError(
-        "Could not compress the combined image to under 2 MB. "
-        "Please use fewer photos or smaller images."
+        shrunk.close()
+
+    # Last fallback: return compressed output even if extremely detailed images resist 2 MB.
+    buf = io.BytesIO()
+    rgb.save(
+        buf,
+        format="JPEG",
+        quality=40,
+        optimize=True,
+        progressive=True,
+        subsampling="4:2:0",
     )
+    data = buf.getvalue()
+    rgb.close()
+    return data
 
 
-# ── Font loader ────────────────────────────────────────────────────────────────
+# ════════════════════════════════════════════════════════════════════════════════
+# Fonts
+# ════════════════════════════════════════════════════════════════════════════════
 
-def _load_font(size: int, bold: bool = False) -> ImageFont.FreeTypeFont:
+def _load_font(size: int, bold: bool = False):
     candidates = (
         [
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
             "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
             "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+            "/Library/Fonts/Arial Bold.ttf",
             "C:/Windows/Fonts/arialbd.ttf",
-        ] if bold else [
+        ]
+        if bold
+        else [
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
             "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-            "/System/Library/Fonts/Helvetica.ttc",
+            "/System/Library/Fonts/Supplemental/Arial.ttf",
+            "/Library/Fonts/Arial.ttf",
             "C:/Windows/Fonts/arial.ttf",
         ]
     )
+
     for path in candidates:
         try:
             return ImageFont.truetype(path, size)
-        except (IOError, OSError):
+        except Exception:
             continue
+
     return ImageFont.load_default()
