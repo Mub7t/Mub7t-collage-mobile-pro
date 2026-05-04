@@ -309,5 +309,10 @@ def too_large(_):
     return redirect(url_for("upload"))
 
 
+@app.route("/preventive-table")
+def preventive_table():
+    return render_template("preventive_table.html")
+
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True)

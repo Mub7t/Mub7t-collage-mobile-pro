@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PM Table — RL Maintenance</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <style>
+    .pm-content { max-width: 1100px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+
+    .pm-site-bar {
+      display: flex; align-items: center; gap: .75rem;
+      flex-wrap: wrap; margin-bottom: 1.2rem;
+    }
+    .pm-site-bar label { font-weight: 600; font-size: .9rem; white-space: nowrap; }
+    .pm-site-bar input {
+      border: 1px solid rgba(0,0,0,.18); border-radius: 6px;
+      padding: .4rem .7rem; font-size: .95rem; width: 120px;
+      background: transparent; color: inherit;
+    }
+    .pm-site-bar input:focus { outline: 2px solid #6366f1; border-color: transparent; }
+
+    .pm-scroll {
+      width: 100%; overflow-x: auto; overflow-y: hidden;
+      -webkit-overflow-scrolling: touch; padding-bottom: 12px;
+    }
+
+    .pm-table {
+      border-collapse: collapse;
+      min-width: 1060px;
+      width: 100%;
+      font-size: .8rem;
+      table-layout: fixed;
+    }
+    .pm-table th, .pm-table td {
+      border: 1px solid rgba(0,0,0,.18);
+      padding: 5px 6px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .pm-table thead tr:first-child th {
+      background: #111111; color: #fff; font-size: .72rem; font-weight: 700;
+    }
+    .pm-table thead tr:last-child th {
+      background: #2a2a2a; color: #e5e5e5; font-size: .7rem; font-weight: 600;
+    }
+    .pm-table tbody tr:nth-child(odd)  { background: rgba(255,255,255,.06); }
+    .pm-table tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
+
+    .pm-col-desc   { width: 120px; }
+    .pm-col-chk    { width: 54px; }
+    .pm-col-sign   { width: 120px; }
+    .pm-col-pct    { width: 72px; }
+    .pm-col-tl     { width: 130px; }
+
+    .sign-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 2px; }
+    .sign-cell select {
+      width: 100%; font-size: .68rem; padding: 2px 3px;
+      border: 1px solid rgba(0,0,0,.2); border-radius: 4px;
+      background: transparent; color: inherit; cursor: pointer;
+    }
+    .sign-cell img {
+      width: 80px; height: 56px; object-fit: contain;
+      border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+    }
+    .sign-cell .sign-avail {
+      font-size: .65rem; padding: 1px 4px; border-radius: 3px;
+      border: 1px solid rgba(0,0,0,.15); width: 100%;
+      background: transparent; color: inherit; cursor: pointer;
+    }
+    .sign-cell .sign-avail.not-avail { color: #ef4444; border-color: #ef4444; }
+
+    .chk-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; cursor: pointer;
+      border: 2px solid rgba(0,0,0,.2); border-radius: 5px;
+      font-size: 1rem; user-select: none; transition: background .15s, border-color .15s;
+    }
+    .chk-toggle.checked   { background: rgba(22,163,74,.15); border-color: #16a34a; color: #16a34a; }
+    .chk-toggle.unchecked { background: rgba(239,68,68,.08); border-color: #ef4444; color: #ef4444; }
+
+    .pct-input {
+      width: 56px; text-align: center; font-size: .8rem;
+      border: 1px solid rgba(0,0,0,.18); border-radius: 4px;
+      padding: 3px 4px; background: transparent; color: inherit;
+    }
+    .pct-input:focus { outline: 2px solid #6366f1; border-color: transparent; }
+
+    .tl-select {
+      width: 100%; font-size: .72rem; padding: 3px 4px;
+      border: 1px solid rgba(0,0,0,.18); border-radius: 4px;
+      background: transparent; color: inherit; cursor: pointer;
+    }
+    .tl-select.both-avail { color: #16a34a; }
+    .tl-select.not-avail  { color: #ef4444; }
+
+    .desc-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+    .desc-prefix { font-size: .7rem; font-weight: 700; white-space: nowrap; }
+    .desc-suffix { font-size: .75rem; font-weight: 600; color: #6366f1; }
+
+    .pm-copy-success { display: none; }
+  </style>
+</head>
+<body class="page-preview">
+
+  <header class="topbar">
+    <a href="{{ url_for('index') }}" class="topbar-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Home
+    </a>
+    <span class="topbar-title">PM Table — Preventive Maintenance</span>
+  </header>
+
+  <main class="page-content pm-content">
+
+    <div class="preview-action-bar card" style="margin-bottom:1rem;">
+      <div class="preview-action-info">
+        <span class="preview-badge preview-badge--ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               style="width:13px;height:13px;" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
+          </svg>
+          PM Table
+        </span>
+        <span class="preview-meta">
+          Add direction rows, fill in data, then <strong>Copy Table</strong> to paste into email.
+        </span>
+      </div>
+      <div class="preview-action-btns">
+        <button type="button" id="add-row-btn" class="btn btn-ghost">
+          + Add Direction
+        </button>
+        <button type="button" id="copy-pm-btn" class="btn btn-primary btn-xl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+          Copy Table
+        </button>
+      </div>
+    </div>
+
+    <div class="pm-site-bar card" style="padding:.75rem 1rem;">
+      <label for="site-number">Site Number (RYDRL):</label>
+      <input type="text" id="site-number" placeholder="e.g. 4175" maxlength="10" />
+      <span style="font-size:.8rem;opacity:.6;">Direction letters (A, B, C…) are assigned automatically per row.</span>
+    </div>
+
+    <div class="banner banner-success pm-copy-success" id="pm-copy-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <div><strong>Table copied!</strong> Paste directly into Outlook or Word — formatting is preserved.</div>
+    </div>
+
+    <div class="pm-scroll">
+      <table class="pm-table" id="pm-table">
+        <thead>
+          <tr>
+            <th rowspan="2" class="pm-col-desc">Description</th>
+            <th colspan="2">Protection Poles</th>
+            <th colspan="2">Traffic Sign Boards</th>
+            <th rowspan="2" class="pm-col-pct">Pedestrian<br>Lanes</th>
+            <th rowspan="2" class="pm-col-tl">Traffic Light</th>
+            <th colspan="2">Sign Board's Pole</th>
+            <th colspan="2">Sign Board's Base</th>
+          </tr>
+          <tr>
+            <th class="pm-col-chk">RCU</th>
+            <th class="pm-col-chk">FCU</th>
+            <th class="pm-col-sign">L</th>
+            <th class="pm-col-sign">R</th>
+            <th class="pm-col-chk">L</th>
+            <th class="pm-col-chk">R</th>
+            <th class="pm-col-chk">L</th>
+            <th class="pm-col-chk">R</th>
+          </tr>
+        </thead>
+        <tbody id="pm-tbody"></tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <div id="pm-clipboard-html" style="display:none;"></div>
+
+  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations &mdash; Developed by Mubarak Al-Dawsari</footer>
+
+  <script>
+  (function () {
+    const SIGNS = {
+      'none':        { label: '— None —',                  src: '' },
+      'stop_left':   { label: 'Stop Line Left',            src: "{{ url_for('static', filename='images/signs/stop_left.png') }}" },
+      'stop_right':  { label: 'Stop Line Right',           src: "{{ url_for('static', filename='images/signs/stop_right.png') }}" },
+      'before_turn': { label: 'Stop Before Turning Right', src: "{{ url_for('static', filename='images/signs/before_turn.png') }}" },
+      'no_right':    { label: 'No Right Turn',             src: "{{ url_for('static', filename='images/signs/no_right_turn.png') }}" },
+    };
+
+    const DIRECTION_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let rowCount = 0;
+
+    function buildSignCell(rowIdx, side) {
+      const wrap = document.createElement('div');
+      wrap.className = 'sign-cell';
+
+      const avail = document.createElement('select');
+      avail.className = 'sign-avail';
+      avail.innerHTML = '<option value="available">Available</option><option value="not_available">Not Available</option>';
+      avail.addEventListener('change', function () {
+        avail.classList.toggle('not-avail', avail.value === 'not_available');
+      });
+
+      const sel = document.createElement('select');
+      Object.entries(SIGNS).forEach(([k, v]) => {
+        const o = document.createElement('option');
+        o.value = k; o.textContent = v.label; sel.appendChild(o);
+      });
+
+      const img = document.createElement('img');
+      img.alt = 'Sign'; img.style.display = 'none';
+
+      sel.addEventListener('change', function () {
+        const info = SIGNS[sel.value];
+        if (info && info.src) {
+          img.src = info.src; img.style.display = '';
+        } else {
+          img.src = ''; img.style.display = 'none';
+        }
+      });
+
+      wrap.appendChild(avail);
+      wrap.appendChild(sel);
+      wrap.appendChild(img);
+      return wrap;
+    }
+
+    function buildCheckbox() {
+      const el = document.createElement('div');
+      el.className = 'chk-toggle checked';
+      el.textContent = '✓';
+      el.setAttribute('role', 'checkbox');
+      el.setAttribute('aria-checked', 'true');
+      el.addEventListener('click', function () {
+        const isChecked = el.classList.contains('checked');
+        el.classList.toggle('checked',   !isChecked);
+        el.classList.toggle('unchecked',  isChecked);
+        el.textContent = isChecked ? '✗' : '✓';
+        el.setAttribute('aria-checked', String(!isChecked));
+      });
+      return el;
+    }
+
+    function addRow() {
+      const tbody = document.getElementById('pm-tbody');
+      const idx = rowCount++;
+      const letter = DIRECTION_LETTERS[idx % DIRECTION_LETTERS.length];
+      const siteNum = document.getElementById('site-number').value.trim() || '____';
+
+      const tr = document.createElement('tr');
+      tr.dataset.letter = letter;
+
+      const tdDesc = document.createElement('td');
+      tdDesc.className = 'pm-col-desc';
+      const dWrap = document.createElement('div');
+      dWrap.className = 'desc-cell';
+      const prefix = document.createElement('span');
+      prefix.className = 'desc-prefix';
+      prefix.textContent = 'RYDRL ' + siteNum;
+      const suffix = document.createElement('span');
+      suffix.className = 'desc-suffix';
+      suffix.textContent = letter;
+      dWrap.appendChild(prefix); dWrap.appendChild(suffix);
+      tdDesc.appendChild(dWrap);
+      tr.appendChild(tdDesc);
+
+      ['rcu','fcu'].forEach(function () {
+        const td = document.createElement('td');
+        td.className = 'pm-col-chk'; td.appendChild(buildCheckbox()); tr.appendChild(td);
+      });
+
+      ['L','R'].forEach(function (side) {
+        const td = document.createElement('td');
+        td.className = 'pm-col-sign'; td.appendChild(buildSignCell(idx, side)); tr.appendChild(td);
+      });
+
+      const tdPct = document.createElement('td');
+      tdPct.className = 'pm-col-pct';
+      const pctIn = document.createElement('input');
+      pctIn.type = 'number'; pctIn.min = '0'; pctIn.max = '100';
+      pctIn.className = 'pct-input'; pctIn.placeholder = '0';
+      const pctLabel = document.createElement('span');
+      pctLabel.textContent = ' %'; pctLabel.style.fontSize = '.75rem';
+      tdPct.appendChild(pctIn); tdPct.appendChild(pctLabel);
+      tr.appendChild(tdPct);
+
+      const tdTl = document.createElement('td');
+      tdTl.className = 'pm-col-tl';
+      const tlSel = document.createElement('select');
+      tlSel.className = 'tl-select both-avail';
+      tlSel.innerHTML = '<option value="both">Both sides Available</option><option value="none">Not Available</option>';
+      tlSel.addEventListener('change', function () {
+        tlSel.classList.toggle('both-avail', tlSel.value === 'both');
+        tlSel.classList.toggle('not-avail',  tlSel.value !== 'both');
+      });
+      tdTl.appendChild(tlSel); tr.appendChild(tdTl);
+
+      for (let i = 0; i < 4; i++) {
+        const td = document.createElement('td');
+        td.className = 'pm-col-chk'; td.appendChild(buildCheckbox()); tr.appendChild(td);
+      }
+
+      tbody.appendChild(tr);
+    }
+
+    document.getElementById('site-number').addEventListener('input', function () {
+      const val = this.value.trim() || '____';
+      document.querySelectorAll('#pm-tbody tr').forEach(function (tr) {
+        const prefix = tr.querySelector('.desc-prefix');
+        if (prefix) prefix.textContent = 'RYDRL ' + val;
+      });
+    });
+
+    addRow();
+
+    document.getElementById('add-row-btn').addEventListener('click', addRow);
+
+    document.getElementById('copy-pm-btn').addEventListener('click', function () {
+      const siteNum = document.getElementById('site-number').value.trim() || '____';
+
+      const th  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;font-family:Arial,sans-serif;font-weight:bold;';
+      const th2 = 'border:1px solid #000;padding:5px 6px;background:#2d3f5e;color:#e2e8f0;font-size:9px;text-align:center;font-family:Arial,sans-serif;font-weight:600;';
+      const td  = 'border:1px solid #000;padding:5px 6px;font-size:10px;text-align:center;vertical-align:middle;font-family:Arial,sans-serif;';
+
+      let html = '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;font-family:Arial,sans-serif;">';
+      html += '<thead><tr>';
+      html += '<th rowspan="2" style="' + th + 'width:110px;">Description</th>';
+      html += '<th colspan="2" style="' + th + '">Protection Poles</th>';
+      html += '<th colspan="2" style="' + th + '">Traffic Sign Boards</th>';
+      html += '<th rowspan="2" style="' + th + 'width:70px;">Pedestrian Lanes</th>';
+      html += '<th rowspan="2" style="' + th + 'width:120px;">Traffic Light</th>';
+      html += '<th colspan="2" style="' + th + '">Sign Board\'s Pole</th>';
+      html += '<th colspan="2" style="' + th + '">Sign Board\'s Base</th>';
+      html += '</tr><tr>';
+      html += '<th style="' + th2 + 'width:52px;">RCU</th>';
+      html += '<th style="' + th2 + 'width:52px;">FCU</th>';
+      html += '<th style="' + th2 + 'width:110px;">L</th>';
+      html += '<th style="' + th2 + 'width:110px;">R</th>';
+      html += '<th style="' + th2 + 'width:52px;">L</th>';
+      html += '<th style="' + th2 + 'width:52px;">R</th>';
+      html += '<th style="' + th2 + 'width:52px;">L</th>';
+      html += '<th style="' + th2 + 'width:52px;">R</th>';
+      html += '</tr></thead><tbody>';
+
+      document.querySelectorAll('#pm-tbody tr').forEach(function (tr, i) {
+        const bg = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
+        const letter = tr.dataset.letter || String.fromCharCode(65 + i);
+        html += '<tr style="background:' + bg + ';">';
+        html += '<td style="' + td + 'font-weight:bold;">RYDRL ' + siteNum + ' ' + letter + '</td>';
+
+        const chkBoxes = tr.querySelectorAll('.chk-toggle');
+        const chkVals = Array.from(chkBoxes).map(function (c) { return c.classList.contains('checked'); });
+
+        [0, 1].forEach(function (ci) {
+          const val = chkVals[ci] !== false;
+          const color = val ? '#16a34a' : '#ef4444';
+          html += '<td style="' + td + 'color:' + color + ';font-weight:bold;">' + (val ? '✓' : '✗') + '</td>';
+        });
+
+        const signCells = tr.querySelectorAll('.sign-cell');
+        [0, 1].forEach(function (si) {
+          const sc = signCells[si];
+          if (!sc) { html += '<td style="' + td + '">—</td>'; return; }
+          const availSel = sc.querySelector('.sign-avail');
+          const signSel  = sc.querySelector('select:not(.sign-avail)');
+          const isAvail  = !availSel || availSel.value !== 'not_available';
+          const signKey  = signSel ? signSel.value : 'none';
+          const signInfo = SIGNS[signKey];
+          let cellContent = '';
+          if (!isAvail) {
+            cellContent = '<span style="color:#ef4444;font-weight:bold;font-size:10px;">Not Available</span>';
+          } else if (signInfo && signInfo.src) {
+            cellContent = '<img src="' + signInfo.src + '" width="80" height="56" style="display:block;margin:0 auto;object-fit:contain;" alt="' + signInfo.label + '">';
+          } else {
+            cellContent = '<span style="color:#999;font-size:10px;">—</span>';
+          }
+          html += '<td style="' + td + '">' + cellContent + '</td>';
+        });
+
+        const pctIn = tr.querySelector('.pct-input');
+        const pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
+        const pctColor = (pctIn && parseInt(pctIn.value) > 0) ? '#c65f00' : '#333';
+        html += '<td style="' + td + 'color:' + pctColor + ';font-weight:bold;">' + pctVal + '</td>';
+
+        const tlSel = tr.querySelector('.tl-select');
+        const tlText = tlSel ? tlSel.options[tlSel.selectedIndex].text : 'Both sides Available';
+        const tlColor = (!tlSel || tlSel.value === 'both') ? '#16a34a' : '#ef4444';
+        html += '<td style="' + td + 'color:' + tlColor + ';font-weight:bold;">' + tlText + '</td>';
+
+        [2, 3, 4, 5].forEach(function (ci) {
+          const val = (ci < chkVals.length) ? chkVals[ci] !== false : true;
+          const color = val ? '#16a34a' : '#ef4444';
+          html += '<td style="' + td + 'color:' + color + ';font-weight:bold;">' + (val ? '✓' : '✗') + '</td>';
+        });
+
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+
+      const clipDiv = document.getElementById('pm-clipboard-html');
+      clipDiv.innerHTML = html;
+
+      if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+        const blob = new Blob([html], { type: 'text/html' });
+        navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })])
+          .then(showCopySuccess)
+          .catch(function () { fallbackCopy(html); });
+      } else {
+        fallbackCopy(html);
+      }
+    });
+
+    function showCopySuccess() {
+      const banner = document.getElementById('pm-copy-success');
+      banner.style.display = '';
+      setTimeout(function () { banner.style.display = 'none'; }, 4000);
+    }
+
+    function fallbackCopy(html) {
+      const clipDiv = document.getElementById('pm-clipboard-html');
+      clipDiv.style.display = '';
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(clipDiv);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try {
+        document.execCommand('copy');
+        showCopySuccess();
+      } catch (e) {
+        alert('Could not copy automatically. Please select the table below and copy manually.');
+      }
+      sel.removeAllRanges();
+      clipDiv.style.display = 'none';
+    }
+
+  })();
+  </script>
+
+</body>
+</html>
