@@ -571,15 +571,19 @@
 
       document.getElementById('pm-clipboard-html').innerHTML = html;
 
-      if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
-        const blob = new Blob([html], { type: 'text/html' });
-        navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })])
-          .then(showCopySuccess)
-          .catch(function () { fallbackCopy(); });
-      } else {
-        fallbackCopy();
-      }
-    });
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+    const blob = new Blob([html], { type: 'text/html' })
+    const clipDiv = document.getElementById('pm-clipboard-html');
+
+    navigator.clipboard.write([
+        new ClipboardItem({
+        'text/html': blob,
+        'text/plain': new Blob([clipDiv.innerText], { type: 'text/plain' })
+        })
+    ])
+        .then(showCopySuccess)
+        .catch(function () { fallbackCopy(); });
+    }
 
     function showCopySuccess() {
       const b = document.getElementById('pm-copy-success');
@@ -588,21 +592,28 @@
     }
 
     function fallbackCopy() {
-      const clipDiv = document.getElementById('pm-clipboard-html');
-      clipDiv.style.display = '';
-      const sel   = window.getSelection();
-      const range = document.createRange();
-      range.selectNodeContents(clipDiv);
-      sel.removeAllRanges();
-      sel.addRange(range);
-      try {
+    const clipDiv = document.getElementById('pm-clipboard-html');
+
+    const textarea = document.createElement('textarea');
+    textarea.value = clipDiv.innerText;
+    textarea.style.position = 'fixed';
+    textarea.style.top = '0';
+    textarea.style.left = '0';
+    textarea.style.opacity = '0';
+
+    document.body.appendChild(textarea);
+
+    textarea.focus();
+    textarea.select();
+
+    try {
         document.execCommand('copy');
         showCopySuccess();
-      } catch (e) {
-        alert('Auto-copy failed. Select the table below and press Ctrl+C / Cmd+C.');
-      }
-      sel.removeAllRanges();
-      clipDiv.style.display = 'none';
+    } catch (err) {
+        alert('Copy failed. Please copy manually.');
+    }
+
+    document.body.removeChild(textarea);
     }
 
   })();
