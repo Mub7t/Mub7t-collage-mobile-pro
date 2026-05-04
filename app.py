@@ -106,8 +106,6 @@ def extract():
     team       = parsed.get("team", "")
     tasks      = parsed.get("tasks", [])
 
-    # If nothing was extracted, start with one blank row so the user
-    # doesn't face an empty table with no way to see what happened
     if not tasks:
         tasks = [_empty_task()]
 
@@ -207,6 +205,15 @@ def api_extract():
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# SERVICE 3 — PREVENTIVE MAINTENANCE TABLE
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.route("/preventive-table")
+def preventive_table():
+    return render_template("preventive_table.html")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # SERVICE 2 — COMBINE PHOTOS
 # ══════════════════════════════════════════════════════════════════════════════
 
@@ -217,9 +224,7 @@ def combine_photos_page():
 
 @app.route("/combine-photos/preview", methods=["POST"])
 def combine_photos_preview():
-    # Collect all uploaded files from the 'photos' field
     all_files = request.files.getlist("photos")
-    # Filter out empty slots (browser may send empty file objects)
     files = [f for f in all_files if f and f.filename and f.filename.strip()]
 
     if not files:
@@ -309,12 +314,5 @@ def too_large(_):
     return redirect(url_for("upload"))
 
 
-@app.route("/preventive-table")
-def preventive_table():
-    return render_template("preventive_table.html")
-
-import os
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, port=5000)

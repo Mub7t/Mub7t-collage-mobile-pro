@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RL Maintenance — Field Operations Tools</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-    <!-- paste inside <head>, after the existing <link> tag -->
   <style>
     .service-card--purple:hover { background: rgba(99,102,241,.18); border-color: rgba(99,102,241,.5); }
     .service-card--purple .service-card__icon { background: rgba(99,102,241,.22); }
@@ -16,7 +15,6 @@
 
   <main class="home-center">
     <div class="home-card">
-
 
       <div class="home-logo">
          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RL Maintenance Logo">
@@ -67,7 +65,6 @@
           <div class="service-card__arrow">&#8594;</div>
         </a>
 
-                <!-- paste inside .home-services, after the second .service-card -->
         <a href="{{ url_for('preventive_table') }}" class="service-card service-card--purple" id="pm-table-btn">
           <div class="service-card__icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">

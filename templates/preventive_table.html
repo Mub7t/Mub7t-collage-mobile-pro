@@ -6,28 +6,44 @@
   <title>PM Table — RL Maintenance</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   <style>
-    .pm-content { max-width: 1100px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+    .pm-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.2rem 1rem 4rem;
+    }
 
     .pm-site-bar {
-      display: flex; align-items: center; gap: .75rem;
-      flex-wrap: wrap; margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
     }
     .pm-site-bar label { font-weight: 600; font-size: .9rem; white-space: nowrap; }
     .pm-site-bar input {
-      border: 1px solid rgba(0,0,0,.18); border-radius: 6px;
-      padding: .4rem .7rem; font-size: .95rem; width: 120px;
-      background: transparent; color: inherit;
+      border: 1px solid rgba(0,0,0,.18);
+      border-radius: 6px;
+      padding: .45rem .75rem;
+      font-size: .95rem;
+      width: 140px;
+      background: transparent;
+      color: inherit;
     }
     .pm-site-bar input:focus { outline: 2px solid #6366f1; border-color: transparent; }
+    .pm-site-hint { font-size: .78rem; opacity: .6; }
 
     .pm-scroll {
-      width: 100%; overflow-x: auto; overflow-y: hidden;
-      -webkit-overflow-scrolling: touch; padding-bottom: 12px;
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 14px;
+      margin-bottom: 1.5rem;
     }
 
     .pm-table {
       border-collapse: collapse;
-      min-width: 1060px;
+      min-width: 1120px;
       width: 100%;
       font-size: .8rem;
       table-layout: fixed;
@@ -39,7 +55,7 @@
       vertical-align: middle;
     }
     .pm-table thead tr:first-child th {
-      background: #111111; color: #fff; font-size: .72rem; font-weight: 700;
+      background: #111111; color: #ffffff; font-size: .72rem; font-weight: 700;
     }
     .pm-table thead tr:last-child th {
       background: #2a2a2a; color: #e5e5e5; font-size: .7rem; font-weight: 600;
@@ -47,40 +63,85 @@
     .pm-table tbody tr:nth-child(odd)  { background: rgba(255,255,255,.06); }
     .pm-table tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
 
-    .pm-col-desc   { width: 120px; }
-    .pm-col-chk    { width: 54px; }
-    .pm-col-sign   { width: 120px; }
-    .pm-col-pct    { width: 72px; }
-    .pm-col-tl     { width: 130px; }
+    .pm-col-desc { width: 115px; }
+    .pm-col-chk  { width: 52px; }
+    .pm-col-sign { width: 125px; }
+    .pm-col-pct  { width: 68px; }
+    .pm-col-tl   { width: 128px; }
+    .pm-col-del  { width: 44px; }
 
-    .sign-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 2px; }
+    .sign-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 2px;
+    }
+    .sign-avail {
+      font-size: .65rem;
+      padding: 2px 4px;
+      border-radius: 3px;
+      border: 1px solid rgba(0,0,0,.15);
+      width: 100%;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
+    }
+    .sign-avail.not-avail { color: #ef4444; border-color: #ef4444; }
     .sign-cell select {
-      width: 100%; font-size: .68rem; padding: 2px 3px;
-      border: 1px solid rgba(0,0,0,.2); border-radius: 4px;
-      background: transparent; color: inherit; cursor: pointer;
+      width: 100%;
+      font-size: .68rem;
+      padding: 2px 3px;
+      border: 1px solid rgba(0,0,0,.2);
+      border-radius: 4px;
+      background: transparent;
+      color: inherit;
+      cursor: pointer;
     }
+    .sign-img-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 84px;
+    }
+    .sign-status-badge {
+      display: none;
+      width: 100%;
+      text-align: center;
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .02em;
+      padding: 2px 4px;
+      border-radius: 3px 3px 0 0;
+    }
+    .sign-status-badge.avail  { display: block; background: #16a34a; color: #fff; }
+    .sign-status-badge.navail { display: block; background: #ef4444; color: #fff; }
     .sign-cell img {
-      width: 80px; height: 56px; object-fit: contain;
-      border: 1px solid rgba(0,0,0,.1); border-radius: 3px;
+      display: none;
+      width: 84px;
+      height: 58px;
+      object-fit: contain;
+      border: 1px solid rgba(0,0,0,.12);
+      border-radius: 0 0 3px 3px;
     }
-    .sign-cell .sign-avail {
-      font-size: .65rem; padding: 1px 4px; border-radius: 3px;
-      border: 1px solid rgba(0,0,0,.15); width: 100%;
-      background: transparent; color: inherit; cursor: pointer;
-    }
-    .sign-cell .sign-avail.not-avail { color: #ef4444; border-color: #ef4444; }
 
     .chk-toggle {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; cursor: pointer;
-      border: 2px solid rgba(0,0,0,.2); border-radius: 5px;
-      font-size: 1rem; user-select: none; transition: background .15s, border-color .15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      cursor: pointer;
+      border: 2px solid rgba(0,0,0,.2);
+      border-radius: 5px;
+      font-size: 1rem;
+      user-select: none;
+      transition: background .15s, border-color .15s;
     }
     .chk-toggle.checked   { background: rgba(22,163,74,.15); border-color: #16a34a; color: #16a34a; }
-    .chk-toggle.unchecked { background: rgba(239,68,68,.08); border-color: #ef4444; color: #ef4444; }
+    .chk-toggle.unchecked { background: rgba(239,68,68,.08);  border-color: #ef4444; color: #ef4444; }
 
     .pct-input {
-      width: 56px; text-align: center; font-size: .8rem;
+      width: 52px; text-align: center; font-size: .8rem;
       border: 1px solid rgba(0,0,0,.18); border-radius: 4px;
       padding: 3px 4px; background: transparent; color: inherit;
     }
@@ -95,10 +156,49 @@
     .tl-select.not-avail  { color: #ef4444; }
 
     .desc-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-    .desc-prefix { font-size: .7rem; font-weight: 700; white-space: nowrap; }
-    .desc-suffix { font-size: .75rem; font-weight: 600; color: #6366f1; }
+    .desc-prefix { font-size: .68rem; font-weight: 700; white-space: nowrap; }
+    .desc-suffix { font-size: .78rem; font-weight: 700; color: #6366f1; }
+
+    .btn-del-row {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: .85rem;
+      font-weight: 700;
+      transition: background .15s;
+    }
+    .btn-del-row:hover { background: #b91c1c; }
+
+    .pm-bottom-actions {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      margin-top: .5rem;
+    }
+    .pm-bottom-actions .btn {
+      width: 100%;
+      justify-content: center;
+      padding: .8rem 1rem;
+      font-size: 1rem;
+    }
 
     .pm-copy-success { display: none; }
+
+    @media (max-width: 600px) {
+      .pm-content { padding: .75rem .6rem 3rem; }
+      .pm-site-bar { flex-direction: column; align-items: flex-start; gap: .5rem; }
+      .pm-site-bar input { width: 100%; box-sizing: border-box; }
+      .pm-site-hint { display: none; }
+      .preview-action-bar { flex-direction: column; align-items: stretch !important; gap: .6rem; }
+      .preview-action-btns { display: flex; flex-direction: column; gap: .5rem; width: 100%; }
+      .preview-action-btns .btn { width: 100%; justify-content: center; }
+    }
   </style>
 </head>
 <body class="page-preview">
@@ -128,27 +228,18 @@
           PM Table
         </span>
         <span class="preview-meta">
-          Add direction rows, fill in data, then <strong>Copy Table</strong> to paste into email.
+          Fill the table, then tap <strong>Copy Table</strong> below to paste into email.
         </span>
       </div>
       <div class="preview-action-btns">
-        <button type="button" id="add-row-btn" class="btn btn-ghost">
-          + Add Direction
-        </button>
-        <button type="button" id="copy-pm-btn" class="btn btn-primary btn-xl">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <rect x="9" y="9" width="13" height="13" rx="2"/>
-            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
-          </svg>
-          Copy Table
-        </button>
+        <button type="button" id="add-row-btn" class="btn btn-ghost">+ Add Row</button>
       </div>
     </div>
 
-    <div class="pm-site-bar card" style="padding:.75rem 1rem;">
+    <div class="pm-site-bar card" style="padding:.75rem 1rem; margin-bottom:1rem;">
       <label for="site-number">Site Number (RYDRL):</label>
       <input type="text" id="site-number" placeholder="e.g. 4175" maxlength="10" />
-      <span style="font-size:.8rem;opacity:.6;">Direction letters (A, B, C…) are assigned automatically per row.</span>
+      <span class="pm-site-hint">Applies automatically to all rows.</span>
     </div>
 
     <div class="banner banner-success pm-copy-success" id="pm-copy-success">
@@ -169,6 +260,7 @@
             <th rowspan="2" class="pm-col-tl">Traffic Light</th>
             <th colspan="2">Sign Board's Pole</th>
             <th colspan="2">Sign Board's Base</th>
+            <th rowspan="2" class="pm-col-del"></th>
           </tr>
           <tr>
             <th class="pm-col-chk">RCU</th>
@@ -181,8 +273,21 @@
             <th class="pm-col-chk">R</th>
           </tr>
         </thead>
-        <tbody id="pm-tbody"></tbody>
+        <tbody id="pm-tbody">
+          <!-- Auto-populated by JS: A1 A2 B1 B2 C1 C2 D1 D2 -->
+        </tbody>
       </table>
+    </div>
+
+    <div class="pm-bottom-actions">
+      <button type="button" id="copy-pm-btn" class="btn btn-primary btn-xl">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+        </svg>
+        Copy Table
+      </button>
+      <a href="{{ url_for('index') }}" class="btn btn-ghost">&#8592; Back to Main Menu</a>
     </div>
 
   </main>
@@ -193,6 +298,7 @@
 
   <script>
   (function () {
+
     const SIGNS = {
       'none':        { label: '— None —',                  src: '' },
       'stop_left':   { label: 'Stop Line Left',            src: "{{ url_for('static', filename='images/signs/stop_left.png') }}" },
@@ -201,41 +307,62 @@
       'no_right':    { label: 'No Right Turn',             src: "{{ url_for('static', filename='images/signs/no_right_turn.png') }}" },
     };
 
-    const DIRECTION_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let rowCount = 0;
+    const DEFAULT_LABELS = ['A1','A2','B1','B2','C1','C2','D1','D2'];
+    let extraRowCount = 0;
 
-    function buildSignCell(rowIdx, side) {
+    function buildSignCell() {
       const wrap = document.createElement('div');
       wrap.className = 'sign-cell';
 
       const avail = document.createElement('select');
       avail.className = 'sign-avail';
-      avail.innerHTML = '<option value="available">Available</option><option value="not_available">Not Available</option>';
-      avail.addEventListener('change', function () {
-        avail.classList.toggle('not-avail', avail.value === 'not_available');
-      });
+      avail.innerHTML =
+        '<option value="available">Available</option>' +
+        '<option value="not_available">Not Available</option>';
 
       const sel = document.createElement('select');
-      Object.entries(SIGNS).forEach(([k, v]) => {
+      Object.entries(SIGNS).forEach(function([k, v]) {
         const o = document.createElement('option');
         o.value = k; o.textContent = v.label; sel.appendChild(o);
       });
 
-      const img = document.createElement('img');
-      img.alt = 'Sign'; img.style.display = 'none';
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'sign-img-wrap';
 
-      sel.addEventListener('change', function () {
-        const info = SIGNS[sel.value];
+      const badge = document.createElement('div');
+      badge.className = 'sign-status-badge';
+
+      const img = document.createElement('img');
+      img.alt = 'Sign';
+      img.style.display = 'none';
+
+      imgWrap.appendChild(badge);
+      imgWrap.appendChild(img);
+
+      function refresh() {
+        const info    = SIGNS[sel.value];
+        const isAvail = avail.value !== 'not_available';
+
+        avail.classList.toggle('not-avail', !isAvail);
+
         if (info && info.src) {
-          img.src = info.src; img.style.display = '';
+          img.src = info.src;
+          img.style.display = '';
+          badge.textContent = isAvail ? 'Available' : 'Not Available';
+          badge.className   = 'sign-status-badge ' + (isAvail ? 'avail' : 'navail');
         } else {
           img.src = ''; img.style.display = 'none';
+          badge.className = 'sign-status-badge';
+          badge.textContent = '';
         }
-      });
+      }
+
+      avail.addEventListener('change', refresh);
+      sel.addEventListener('change', refresh);
 
       wrap.appendChild(avail);
       wrap.appendChild(sel);
-      wrap.appendChild(img);
+      wrap.appendChild(imgWrap);
       return wrap;
     }
 
@@ -246,165 +373,195 @@
       el.setAttribute('role', 'checkbox');
       el.setAttribute('aria-checked', 'true');
       el.addEventListener('click', function () {
-        const isChecked = el.classList.contains('checked');
-        el.classList.toggle('checked',   !isChecked);
-        el.classList.toggle('unchecked',  isChecked);
-        el.textContent = isChecked ? '✗' : '✓';
-        el.setAttribute('aria-checked', String(!isChecked));
+        const on = el.classList.contains('checked');
+        el.classList.toggle('checked',   !on);
+        el.classList.toggle('unchecked',  on);
+        el.textContent = on ? '✗' : '✓';
+        el.setAttribute('aria-checked', String(!on));
       });
       return el;
     }
 
-    function addRow() {
-      const tbody = document.getElementById('pm-tbody');
-      const idx = rowCount++;
-      const letter = DIRECTION_LETTERS[idx % DIRECTION_LETTERS.length];
+    function addRow(labelOverride) {
+      const label = labelOverride || (function () {
+        const n = DEFAULT_LABELS.length + extraRowCount;
+        extraRowCount++;
+        return String.fromCharCode(65 + Math.floor(n / 2)) + ((n % 2) + 1);
+      })();
+
       const siteNum = document.getElementById('site-number').value.trim() || '____';
+      const tbody   = document.getElementById('pm-tbody');
+      const tr      = document.createElement('tr');
+      tr.dataset.label = label;
 
-      const tr = document.createElement('tr');
-      tr.dataset.letter = letter;
-
-      const tdDesc = document.createElement('td');
+      const tdDesc  = document.createElement('td');
       tdDesc.className = 'pm-col-desc';
-      const dWrap = document.createElement('div');
-      dWrap.className = 'desc-cell';
-      const prefix = document.createElement('span');
+      const dWrap   = document.createElement('div');
+      dWrap.className  = 'desc-cell';
+      const prefix  = document.createElement('span');
       prefix.className = 'desc-prefix';
       prefix.textContent = 'RYDRL ' + siteNum;
-      const suffix = document.createElement('span');
+      const suffix  = document.createElement('span');
       suffix.className = 'desc-suffix';
-      suffix.textContent = letter;
-      dWrap.appendChild(prefix); dWrap.appendChild(suffix);
+      suffix.textContent = label;
+      dWrap.appendChild(prefix);
+      dWrap.appendChild(suffix);
       tdDesc.appendChild(dWrap);
       tr.appendChild(tdDesc);
 
-      ['rcu','fcu'].forEach(function () {
+      ['RCU','FCU'].forEach(function () {
         const td = document.createElement('td');
-        td.className = 'pm-col-chk'; td.appendChild(buildCheckbox()); tr.appendChild(td);
+        td.className = 'pm-col-chk';
+        td.appendChild(buildCheckbox());
+        tr.appendChild(td);
       });
 
-      ['L','R'].forEach(function (side) {
+      ['L','R'].forEach(function () {
         const td = document.createElement('td');
-        td.className = 'pm-col-sign'; td.appendChild(buildSignCell(idx, side)); tr.appendChild(td);
+        td.className = 'pm-col-sign';
+        td.appendChild(buildSignCell());
+        tr.appendChild(td);
       });
 
-      const tdPct = document.createElement('td');
+      const tdPct  = document.createElement('td');
       tdPct.className = 'pm-col-pct';
-      const pctIn = document.createElement('input');
-      pctIn.type = 'number'; pctIn.min = '0'; pctIn.max = '100';
-      pctIn.className = 'pct-input'; pctIn.placeholder = '0';
-      const pctLabel = document.createElement('span');
-      pctLabel.textContent = ' %'; pctLabel.style.fontSize = '.75rem';
-      tdPct.appendChild(pctIn); tdPct.appendChild(pctLabel);
+      const pctIn  = document.createElement('input');
+      pctIn.type   = 'number'; pctIn.min = '0'; pctIn.max = '100';
+      pctIn.className  = 'pct-input'; pctIn.placeholder = '0';
+      const pctUnit = document.createElement('span');
+      pctUnit.textContent   = ' %';
+      pctUnit.style.fontSize = '.75rem';
+      tdPct.appendChild(pctIn);
+      tdPct.appendChild(pctUnit);
       tr.appendChild(tdPct);
 
-      const tdTl = document.createElement('td');
+      const tdTl  = document.createElement('td');
       tdTl.className = 'pm-col-tl';
       const tlSel = document.createElement('select');
       tlSel.className = 'tl-select both-avail';
-      tlSel.innerHTML = '<option value="both">Both sides Available</option><option value="none">Not Available</option>';
+      tlSel.innerHTML =
+        '<option value="both">Both sides Available</option>' +
+        '<option value="none">Not Available</option>';
       tlSel.addEventListener('change', function () {
         tlSel.classList.toggle('both-avail', tlSel.value === 'both');
         tlSel.classList.toggle('not-avail',  tlSel.value !== 'both');
       });
-      tdTl.appendChild(tlSel); tr.appendChild(tdTl);
+      tdTl.appendChild(tlSel);
+      tr.appendChild(tdTl);
 
       for (let i = 0; i < 4; i++) {
         const td = document.createElement('td');
-        td.className = 'pm-col-chk'; td.appendChild(buildCheckbox()); tr.appendChild(td);
+        td.className = 'pm-col-chk';
+        td.appendChild(buildCheckbox());
+        tr.appendChild(td);
       }
+
+      const tdDel  = document.createElement('td');
+      tdDel.className = 'pm-col-del';
+      const delBtn = document.createElement('button');
+      delBtn.type      = 'button';
+      delBtn.className = 'btn-del-row';
+      delBtn.title     = 'Delete row';
+      delBtn.textContent = '✕';
+      delBtn.addEventListener('click', function () { tbody.removeChild(tr); });
+      tdDel.appendChild(delBtn);
+      tr.appendChild(tdDel);
 
       tbody.appendChild(tr);
     }
 
     document.getElementById('site-number').addEventListener('input', function () {
       const val = this.value.trim() || '____';
-      document.querySelectorAll('#pm-tbody tr').forEach(function (tr) {
-        const prefix = tr.querySelector('.desc-prefix');
-        if (prefix) prefix.textContent = 'RYDRL ' + val;
+      document.querySelectorAll('#pm-tbody .desc-prefix').forEach(function (el) {
+        el.textContent = 'RYDRL ' + val;
       });
     });
 
-    addRow();
+    DEFAULT_LABELS.forEach(function (lbl) { addRow(lbl); });
 
-    document.getElementById('add-row-btn').addEventListener('click', addRow);
+    document.getElementById('add-row-btn').addEventListener('click', function () { addRow(); });
 
     document.getElementById('copy-pm-btn').addEventListener('click', function () {
       const siteNum = document.getElementById('site-number').value.trim() || '____';
 
-      const th  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;font-family:Arial,sans-serif;font-weight:bold;';
-      const th2 = 'border:1px solid #000;padding:5px 6px;background:#2d3f5e;color:#e2e8f0;font-size:9px;text-align:center;font-family:Arial,sans-serif;font-weight:600;';
-      const td  = 'border:1px solid #000;padding:5px 6px;font-size:10px;text-align:center;vertical-align:middle;font-family:Arial,sans-serif;';
+      const TH  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;font-family:Arial,sans-serif;font-weight:bold;';
+      const TH2 = 'border:1px solid #000;padding:5px 6px;background:#2d3f5e;color:#e2e8f0;font-size:9px;text-align:center;font-family:Arial,sans-serif;font-weight:600;';
+      const TD  = 'border:1px solid #000;padding:5px 6px;font-size:10px;text-align:center;vertical-align:middle;font-family:Arial,sans-serif;';
 
-      let html = '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;font-family:Arial,sans-serif;">';
-      html += '<thead><tr>';
-      html += '<th rowspan="2" style="' + th + 'width:110px;">Description</th>';
-      html += '<th colspan="2" style="' + th + '">Protection Poles</th>';
-      html += '<th colspan="2" style="' + th + '">Traffic Sign Boards</th>';
-      html += '<th rowspan="2" style="' + th + 'width:70px;">Pedestrian Lanes</th>';
-      html += '<th rowspan="2" style="' + th + 'width:120px;">Traffic Light</th>';
-      html += '<th colspan="2" style="' + th + '">Sign Board\'s Pole</th>';
-      html += '<th colspan="2" style="' + th + '">Sign Board\'s Base</th>';
-      html += '</tr><tr>';
-      html += '<th style="' + th2 + 'width:52px;">RCU</th>';
-      html += '<th style="' + th2 + 'width:52px;">FCU</th>';
-      html += '<th style="' + th2 + 'width:110px;">L</th>';
-      html += '<th style="' + th2 + 'width:110px;">R</th>';
-      html += '<th style="' + th2 + 'width:52px;">L</th>';
-      html += '<th style="' + th2 + 'width:52px;">R</th>';
-      html += '<th style="' + th2 + 'width:52px;">L</th>';
-      html += '<th style="' + th2 + 'width:52px;">R</th>';
-      html += '</tr></thead><tbody>';
+      let html =
+        '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;font-family:Arial,sans-serif;">' +
+        '<thead><tr>' +
+        '<th rowspan="2" style="' + TH + 'width:110px;">Description</th>' +
+        '<th colspan="2" style="' + TH + '">Protection Poles</th>' +
+        '<th colspan="2" style="' + TH + '">Traffic Sign Boards</th>' +
+        '<th rowspan="2" style="' + TH + 'width:70px;">Pedestrian Lanes</th>' +
+        '<th rowspan="2" style="' + TH + 'width:120px;">Traffic Light</th>' +
+        '<th colspan="2" style="' + TH + '">Sign Board\'s Pole</th>' +
+        '<th colspan="2" style="' + TH + '">Sign Board\'s Base</th>' +
+        '</tr><tr>' +
+        '<th style="' + TH2 + 'width:52px;">RCU</th>' +
+        '<th style="' + TH2 + 'width:52px;">FCU</th>' +
+        '<th style="' + TH2 + 'width:110px;">L</th>' +
+        '<th style="' + TH2 + 'width:110px;">R</th>' +
+        '<th style="' + TH2 + 'width:52px;">L</th>' +
+        '<th style="' + TH2 + 'width:52px;">R</th>' +
+        '<th style="' + TH2 + 'width:52px;">L</th>' +
+        '<th style="' + TH2 + 'width:52px;">R</th>' +
+        '</tr></thead><tbody>';
 
       document.querySelectorAll('#pm-tbody tr').forEach(function (tr, i) {
-        const bg = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
-        const letter = tr.dataset.letter || String.fromCharCode(65 + i);
+        const bg    = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
+        const label = tr.dataset.label || String.fromCharCode(65 + i);
         html += '<tr style="background:' + bg + ';">';
-        html += '<td style="' + td + 'font-weight:bold;">RYDRL ' + siteNum + ' ' + letter + '</td>';
+        html += '<td style="' + TD + 'font-weight:bold;">RYDRL ' + siteNum + ' ' + label + '</td>';
 
-        const chkBoxes = tr.querySelectorAll('.chk-toggle');
-        const chkVals = Array.from(chkBoxes).map(function (c) { return c.classList.contains('checked'); });
+        const chkVals = Array.from(tr.querySelectorAll('.chk-toggle')).map(function (c) {
+          return c.classList.contains('checked');
+        });
 
         [0, 1].forEach(function (ci) {
-          const val = chkVals[ci] !== false;
-          const color = val ? '#16a34a' : '#ef4444';
-          html += '<td style="' + td + 'color:' + color + ';font-weight:bold;">' + (val ? '✓' : '✗') + '</td>';
+          const v = chkVals[ci] !== false;
+          html += '<td style="' + TD + 'color:' + (v ? '#16a34a' : '#ef4444') + ';font-weight:bold;">' + (v ? '✓' : '✗') + '</td>';
         });
 
         const signCells = tr.querySelectorAll('.sign-cell');
         [0, 1].forEach(function (si) {
-          const sc = signCells[si];
-          if (!sc) { html += '<td style="' + td + '">—</td>'; return; }
-          const availSel = sc.querySelector('.sign-avail');
-          const signSel  = sc.querySelector('select:not(.sign-avail)');
-          const isAvail  = !availSel || availSel.value !== 'not_available';
-          const signKey  = signSel ? signSel.value : 'none';
-          const signInfo = SIGNS[signKey];
-          let cellContent = '';
-          if (!isAvail) {
-            cellContent = '<span style="color:#ef4444;font-weight:bold;font-size:10px;">Not Available</span>';
-          } else if (signInfo && signInfo.src) {
-            cellContent = '<img src="' + signInfo.src + '" width="80" height="56" style="display:block;margin:0 auto;object-fit:contain;" alt="' + signInfo.label + '">';
-          } else {
-            cellContent = '<span style="color:#999;font-size:10px;">—</span>';
-          }
-          html += '<td style="' + td + '">' + cellContent + '</td>';
+          const sc      = signCells[si];
+          if (!sc) { html += '<td style="' + TD + '">—</td>'; return; }
+          const availEl = sc.querySelector('.sign-avail');
+          const signSel = sc.querySelector('select:not(.sign-avail)');
+          const isAvail = !availEl || availEl.value !== 'not_available';
+          const info    = SIGNS[signSel ? signSel.value : 'none'];
+          let cell = '';
+
+          
+        if (info && info.src) {
+        cell =
+            '<div style="font-size:9px;font-weight:700;color:' + (isAvail ? '#16a34a' : '#ef4444') + ';font-family:Arial,sans-serif;margin-bottom:2px;">' +
+            (isAvail ? 'Available' : 'Not Available') +
+            '</div>' +
+            '<img src="' + info.src + '" width="80" height="56" style="display:block;margin:0 auto;object-fit:contain;" alt="' + info.label + '">';
+        } else if (!isAvail) {
+        cell = '<div style="color:#ef4444;font-weight:bold;font-size:10px;font-family:Arial,sans-serif;">Not Available</div>';
+        } else {
+        cell = '<span style="color:#999;font-size:10px;">—</span>';
+        }
+          html += '<td style="' + TD + '">' + cell + '</td>';
         });
 
-        const pctIn = tr.querySelector('.pct-input');
+        const pctIn  = tr.querySelector('.pct-input');
         const pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
-        const pctColor = (pctIn && parseInt(pctIn.value) > 0) ? '#c65f00' : '#333';
-        html += '<td style="' + td + 'color:' + pctColor + ';font-weight:bold;">' + pctVal + '</td>';
+        const pctCol = (pctIn && parseInt(pctIn.value) > 0) ? '#c65f00' : '#333';
+        html += '<td style="' + TD + 'color:' + pctCol + ';font-weight:bold;">' + pctVal + '</td>';
 
-        const tlSel = tr.querySelector('.tl-select');
-        const tlText = tlSel ? tlSel.options[tlSel.selectedIndex].text : 'Both sides Available';
-        const tlColor = (!tlSel || tlSel.value === 'both') ? '#16a34a' : '#ef4444';
-        html += '<td style="' + td + 'color:' + tlColor + ';font-weight:bold;">' + tlText + '</td>';
+        const tlEl   = tr.querySelector('.tl-select');
+        const tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
+        const tlCol  = (!tlEl || tlEl.value === 'both') ? '#16a34a' : '#ef4444';
+        html += '<td style="' + TD + 'color:' + tlCol + ';font-weight:bold;">' + tlText + '</td>';
 
         [2, 3, 4, 5].forEach(function (ci) {
-          const val = (ci < chkVals.length) ? chkVals[ci] !== false : true;
-          const color = val ? '#16a34a' : '#ef4444';
-          html += '<td style="' + td + 'color:' + color + ';font-weight:bold;">' + (val ? '✓' : '✗') + '</td>';
+          const v = (ci < chkVals.length) ? chkVals[ci] !== false : true;
+          html += '<td style="' + TD + 'color:' + (v ? '#16a34a' : '#ef4444') + ';font-weight:bold;">' + (v ? '✓' : '✗') + '</td>';
         });
 
         html += '</tr>';
@@ -412,29 +569,28 @@
 
       html += '</tbody></table>';
 
-      const clipDiv = document.getElementById('pm-clipboard-html');
-      clipDiv.innerHTML = html;
+      document.getElementById('pm-clipboard-html').innerHTML = html;
 
       if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
         const blob = new Blob([html], { type: 'text/html' });
         navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })])
           .then(showCopySuccess)
-          .catch(function () { fallbackCopy(html); });
+          .catch(function () { fallbackCopy(); });
       } else {
-        fallbackCopy(html);
+        fallbackCopy();
       }
     });
 
     function showCopySuccess() {
-      const banner = document.getElementById('pm-copy-success');
-      banner.style.display = '';
-      setTimeout(function () { banner.style.display = 'none'; }, 4000);
+      const b = document.getElementById('pm-copy-success');
+      b.style.display = '';
+      setTimeout(function () { b.style.display = 'none'; }, 4000);
     }
 
-    function fallbackCopy(html) {
+    function fallbackCopy() {
       const clipDiv = document.getElementById('pm-clipboard-html');
       clipDiv.style.display = '';
-      const sel = window.getSelection();
+      const sel   = window.getSelection();
       const range = document.createRange();
       range.selectNodeContents(clipDiv);
       sel.removeAllRanges();
@@ -443,7 +599,7 @@
         document.execCommand('copy');
         showCopySuccess();
       } catch (e) {
-        alert('Could not copy automatically. Please select the table below and copy manually.');
+        alert('Auto-copy failed. Select the table below and press Ctrl+C / Cmd+C.');
       }
       sel.removeAllRanges();
       clipDiv.style.display = 'none';
