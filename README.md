@@ -205,26 +205,7 @@ If you want to test the parser without an image, you can call
 ```python
 from services.parser_service import parse_email_text
 
-sample = """
-Dear Mohamed & Rayan,
 
-Kindly resolve the issues below and send a technical report:
-
-# | SAP Notification | Site ID       | Issue
-1 | 70445030         | RYDRL 4256 A1 | CCTV blurry issue
-2 | 70445031         | RYDRL 4108 A2 | Camera offline
-3 | 70445032         | RYDRL 4199    | No signal
-
-Also conduct PM Level A for sites RYDRL 4199 & RYDRL 4200
-
-Thank you,
-Saif Mohamed Al-Affan
-Acting RL Maintenance Team-Leader
-"""
-
-result = parse_email_text(sample)
-print(result)
-```
 
 ---
 
