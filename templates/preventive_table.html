@@ -8,10 +8,7 @@
   <style>
     .pm-content { max-width: 1100px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
 
-    /* ── Site bar ── */
-    .pm-site-bar {
-      display: flex; align-items: center; gap: .75rem; flex-wrap: wrap;
-    }
+    .pm-site-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
     .pm-site-bar label { font-weight: 600; font-size: .9rem; white-space: nowrap; }
     .pm-site-bar input {
       border: 1px solid rgba(0,0,0,.18); border-radius: 6px;
@@ -21,13 +18,11 @@
     .pm-site-bar input:focus { outline: 2px solid #6366f1; border-color: transparent; }
     .pm-site-hint { font-size: .78rem; opacity: .6; }
 
-    /* ── Scroll wrapper ── */
     .pm-scroll {
       width: 100%; overflow-x: auto; overflow-y: hidden;
       -webkit-overflow-scrolling: touch; padding-bottom: 14px; margin-bottom: 1.5rem;
     }
 
-    /* ── Main table ── */
     .pm-table {
       border-collapse: collapse; min-width: 1140px; width: 100%;
       font-size: .8rem; table-layout: fixed;
@@ -48,7 +43,6 @@
     .pm-col-pct  { width: 68px; }
     .pm-col-tl   { width: 128px; }
 
-    /* ── Sign cell ── */
     .sign-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 2px; }
     .sign-avail {
       font-size: .65rem; padding: 2px 4px; border-radius: 3px;
@@ -71,7 +65,6 @@
       border: 1px solid rgba(0,0,0,.12); border-radius: 0 0 3px 3px;
     }
 
-    /* ── Checkbox ── */
     .chk-toggle {
       display: inline-flex; align-items: center; justify-content: center;
       width: 28px; height: 28px; cursor: pointer; border: 2px solid rgba(0,0,0,.2);
@@ -80,14 +73,12 @@
     .chk-toggle.checked   { background: rgba(22,163,74,.15); border-color: #16a34a; color: #16a34a; }
     .chk-toggle.unchecked { background: rgba(239,68,68,.08);  border-color: #ef4444; color: #ef4444; }
 
-    /* ── Pct input ── */
     .pct-input {
       width: 52px; text-align: center; font-size: .8rem;
       border: 1px solid rgba(0,0,0,.18); border-radius: 4px; padding: 3px 4px; background: transparent; color: inherit;
     }
     .pct-input:focus { outline: 2px solid #6366f1; border-color: transparent; }
 
-    /* ── Traffic light ── */
     .tl-select {
       width: 100%; font-size: .72rem; padding: 3px 4px;
       border: 1px solid rgba(0,0,0,.18); border-radius: 4px; background: transparent; color: inherit; cursor: pointer;
@@ -95,12 +86,10 @@
     .tl-select.both-avail { color: #16a34a; }
     .tl-select.not-avail  { color: #ef4444; }
 
-    /* ── Description cell ── */
     .desc-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
     .desc-prefix { font-size: .68rem; font-weight: 700; white-space: nowrap; }
     .desc-suffix { font-size: .78rem; font-weight: 700; color: #6366f1; }
 
-    /* ── Delete button ── */
     .btn-del-row {
       display: inline-flex; align-items: center; justify-content: center;
       width: 28px; height: 28px; background: #ef4444; color: #fff; border: none;
@@ -108,15 +97,10 @@
     }
     .btn-del-row:hover { background: #b91c1c; }
 
-    /* ── Bottom actions ── */
     .pm-bottom-actions { display: flex; flex-direction: column; gap: .75rem; margin-top: .5rem; }
     .pm-bottom-actions .btn { width: 100%; justify-content: center; padding: .8rem 1rem; font-size: 1rem; }
-
     .pm-copy-success { display: none; }
 
-    /* ══════════════════════════════
-       MODALS
-    ══════════════════════════════ */
     .pm-modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.48);
       backdrop-filter: blur(4px); z-index: 1000;
@@ -137,37 +121,23 @@
     }
     .pm-modal-cancel:hover { color: #333; }
 
-    /* ══════════════════════════════
-       MOBILE ≤ 760px — Card layout
-    ══════════════════════════════ */
     @media (max-width: 760px) {
       .pm-content { padding: .75rem .6rem 3rem; }
-
-      /* Remove horizontal scroll */
       .pm-scroll { overflow-x: visible; padding-bottom: 0; }
-
-      /* Site bar: stacked, full-width input */
       .pm-site-bar { flex-direction: column; align-items: flex-start; gap: .45rem; }
       .pm-site-bar input { width: 100%; box-sizing: border-box; }
       .pm-site-hint { display: none; }
-
-      /* Top action bar */
       .preview-action-bar { flex-direction: column; align-items: stretch !important; gap: .5rem; }
       .preview-action-info { flex-direction: column; align-items: flex-start; gap: .3rem; }
-
-      /* TABLE → CARD */
       .pm-table { display: block; min-width: 0; width: 100%; }
       .pm-table thead { display: none; }
       .pm-table tbody { display: flex; flex-direction: column; gap: .9rem; }
-
       .pm-table tbody tr {
         display: flex; flex-wrap: wrap;
         border: 1px solid rgba(0,0,0,.13); border-radius: 12px;
         overflow: hidden; background: rgba(255,255,255,.97);
         box-shadow: 0 1px 6px rgba(0,0,0,.07);
       }
-
-      /* Delete + Desc → dark card header */
       .pm-table td.pm-col-del {
         background: #1a1a1a; color: #fff; border: none;
         padding: .6rem .85rem; display: flex; align-items: center;
@@ -180,90 +150,122 @@
       .pm-table td.pm-col-desc .desc-cell { flex-direction: row; gap: .4rem; align-items: center; }
       .pm-table td.pm-col-desc .desc-prefix { color: rgba(255,255,255,.7); font-size: .72rem; }
       .pm-table td.pm-col-desc .desc-suffix { color: #fff; font-size: .9rem; }
-
-      /* All other tds: full-width labeled rows */
       .pm-table td:not(.pm-col-del):not(.pm-col-desc) {
         width: 100%; display: flex; align-items: center;
         border: none; border-top: 1px solid rgba(0,0,0,.07);
         padding: .55rem .85rem; min-height: 46px; box-sizing: border-box;
       }
-
       .pm-table td[data-label]::before {
         content: attr(data-label);
         font-size: .7rem; font-weight: 700; color: #666;
         text-transform: uppercase; letter-spacing: .04em;
         min-width: 110px; flex-shrink: 0;
       }
-
-      /* Sign cells: stacked */
-      .pm-table td.pm-col-sign {
-        flex-direction: column; align-items: flex-start; gap: .4rem; padding: .7rem .85rem;
-      }
+      .pm-table td.pm-col-sign { flex-direction: column; align-items: flex-start; gap: .4rem; padding: .7rem .85rem; }
       .pm-table td.pm-col-sign::before { min-width: 0; }
       .pm-table td.pm-col-sign .sign-cell { width: 100%; }
       .pm-table td.pm-col-sign .sign-avail,
-      .pm-table td.pm-col-sign .sign-cell select {
-        width: 100%; font-size: .82rem; padding: .38rem .5rem;
-      }
+      .pm-table td.pm-col-sign .sign-cell select { width: 100%; font-size: .82rem; padding: .38rem .5rem; }
       .pm-table td.pm-col-sign .sign-img-wrap { width: 100%; }
       .pm-table td.pm-col-sign .sign-cell img { width: 100px; height: auto; max-width: 100%; }
-
-      /* Pct, TL */
       .pm-table td.pm-col-pct .pct-input { width: 80px; font-size: .9rem; padding: .38rem .5rem; }
       .pm-table td.pm-col-tl  .tl-select { flex: 1; font-size: .82rem; padding: .38rem .5rem; }
-
-      /* Larger checkboxes for touch */
       .chk-toggle  { width: 34px; height: 34px; font-size: 1.1rem; }
       .btn-del-row { width: 32px; height: 32px; font-size: 1rem; }
     }
 
-    /* ══════════════════════════════
-       PRINT / PDF
-    ══════════════════════════════ */
     @media print {
-      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      @page { size: A4 landscape; margin: 1cm; }
+
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
 
       .topbar, .preview-action-bar, .pm-site-bar-wrap,
-      .pm-bottom-actions, .pm-copy-success, .pm-modal-overlay,
-      .site-footer { display: none !important; }
+      .pm-bottom-actions, .pm-copy-success,
+      #extract-modal, #confirm-modal,
+      .site-footer, #pm-clipboard-html, .btn-del-row { display: none !important; }
 
-      body { background: #fff !important; }
-      .page-content { padding: 0 !important; max-width: none !important; margin: 0 !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; width: 100% !important; }
+      body, main, .page-content, .pm-content {
+        max-width: none !important; width: 100% !important;
+        padding: 0 !important; margin: 0 !important;
+        box-shadow: none !important; border: none !important;
+      }
 
       #pm-print-header { display: block !important; margin-bottom: .4cm; }
+      #pm-print-header h2 { font-size: 13pt !important; font-weight: 700 !important; margin: 0 0 3pt !important; color: #000 !important; }
+      #pm-print-header p  { font-size: 10pt !important; margin: 0 !important; color: #333 !important; }
 
-      .pm-scroll { overflow: visible !important; padding: 0 !important; margin: 0 !important; }
+      .pm-scroll { overflow: visible !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
 
-      /* Reset mobile card styles for print */
-      .pm-table { display: table !important; min-width: 0 !important; width: 100% !important; font-size: 8pt !important; table-layout: auto !important; }
+      .pm-table {
+        display: table !important; width: 100% !important; min-width: 0 !important;
+        font-size: 7pt !important; table-layout: auto !important; border-collapse: collapse !important;
+      }
       .pm-table thead { display: table-header-group !important; }
-      .pm-table tbody { display: table-row-group !important; flex-direction: initial !important; gap: 0 !important; }
+      .pm-table tbody { display: table-row-group !important; flex-direction: unset !important; gap: 0 !important; }
       .pm-table tbody tr {
-        display: table-row !important; flex-wrap: initial !important;
+        display: table-row !important; flex-wrap: unset !important;
         border: none !important; border-radius: 0 !important;
-        box-shadow: none !important; overflow: visible !important;
-        background: transparent !important;
+        box-shadow: none !important; overflow: visible !important; background: transparent !important;
+      }
+      .pm-table th {
+        display: table-cell !important; border: 1px solid #000 !important;
+        padding: 3pt 3pt !important; font-size: 7pt !important;
+        text-align: center !important; vertical-align: middle !important;
       }
       .pm-table td {
         display: table-cell !important; border: 1px solid #000 !important;
-        padding: 3pt 4pt !important; width: auto !important; min-height: 0 !important;
-        background: transparent !important; flex-direction: initial !important;
-        align-items: initial !important;
+        padding: 3pt 3pt !important; width: auto !important; min-height: 0 !important;
+        background: transparent !important; text-align: center !important;
+        vertical-align: middle !important; flex-direction: unset !important;
+        align-items: unset !important; min-width: 0 !important;
       }
-      .pm-table td::before { display: none !important; }
-      .pm-table td.pm-col-del { display: none !important; }
-      .pm-table td.pm-col-desc { background: transparent !important; color: #000 !important; }
-      .pm-table td.pm-col-desc .desc-prefix { color: #000 !important; }
-      .pm-table td.pm-col-desc .desc-suffix { color: #333 !important; }
-      .pm-table th { border: 1px solid #000 !important; padding: 3pt 4pt !important; font-size: 8pt !important; }
+      .pm-table td::before { display: none !important; content: none !important; }
+      .pm-col-del { display: none !important; }
+
       .pm-table thead tr:first-child th { background: #111 !important; color: #fff !important; }
       .pm-table thead tr:last-child th  { background: #333 !important; color: #eee !important; }
-      .sign-cell img { display: block !important; width: 55pt !important; height: auto !important; }
-      .sign-status-badge.avail,
-      .sign-status-badge.navail { display: block !important; }
-      /* Hide del column header */
-      .pm-table thead tr:first-child th:first-child,
-      .pm-table thead tr:last-child th:first-child { display: none !important; }
+
+      .pm-table td.pm-col-desc { background: transparent !important; color: #000 !important; text-align: left !important; }
+      .pm-table td.pm-col-desc .desc-cell { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 1pt !important; }
+      .pm-table td.pm-col-desc .desc-prefix { color: #555 !important; font-size: 5.5pt !important; white-space: nowrap !important; }
+      .pm-table td.pm-col-desc .desc-suffix { color: #000 !important; font-size: 7pt !important; }
+
+      .chk-toggle {
+        display: inline-flex !important; width: 14pt !important; height: 14pt !important;
+        font-size: 10pt !important; border: 1pt solid #aaa !important; border-radius: 2pt !important;
+      }
+      .chk-toggle.checked   { border-color: #16a34a !important; color: #16a34a !important; background: rgba(22,163,74,.1) !important; }
+      .chk-toggle.unchecked { border-color: #ef4444 !important; color: #ef4444 !important; background: rgba(239,68,68,.06) !important; }
+
+      .pct-input {
+        border: none !important; outline: none !important; font-size: 7pt !important;
+        width: auto !important; background: transparent !important; color: inherit !important; text-align: center !important;
+      }
+      .tl-select {
+        border: none !important; outline: none !important; font-size: 6.5pt !important;
+        width: auto !important; background: transparent !important; color: inherit !important;
+        -webkit-appearance: none !important; appearance: none !important;
+      }
+      .tl-select.both-avail { color: #16a34a !important; font-weight: 700 !important; }
+      .tl-select.not-avail  { color: #ef4444 !important; font-weight: 700 !important; }
+
+      .sign-cell { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 2pt !important; padding: 2pt !important; }
+      .sign-cell .sign-avail { display: none !important; }
+      .sign-cell select      { display: none !important; }
+      .sign-img-wrap { width: 100% !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
+      .sign-cell img {
+        display: block !important; width: 48pt !important; height: auto !important;
+        max-width: 100% !important; object-fit: contain !important;
+        border: 0.5pt solid #ccc !important; border-radius: 0 0 2pt 2pt !important;
+      }
+      .sign-status-badge {
+        display: none !important; font-size: 5.5pt !important; padding: 1pt 2pt !important;
+        border-radius: 2pt 2pt 0 0 !important; width: 48pt !important;
+        text-align: center !important; font-weight: 700 !important;
+      }
+      .sign-status-badge.avail  { display: block !important; background: #16a34a !important; color: #fff !important; }
+      .sign-status-badge.navail { display: block !important; background: #ef4444 !important; color: #fff !important; }
     }
   </style>
 </head>
@@ -282,7 +284,6 @@
 
   <main class="page-content pm-content">
 
-    <!-- Top bar -->
     <div class="preview-action-bar card" style="margin-bottom:1rem;">
       <div class="preview-action-info">
         <span class="preview-badge preview-badge--ok">
@@ -300,7 +301,6 @@
       </div>
     </div>
 
-    <!-- Site Number -->
     <div class="pm-site-bar-wrap card" style="padding:.75rem 1rem; margin-bottom:1rem;">
       <div class="pm-site-bar">
         <label for="site-number">Site Number (RYDRL):</label>
@@ -309,7 +309,6 @@
       </div>
     </div>
 
-    <!-- Copy success banner -->
     <div class="banner banner-success pm-copy-success" id="pm-copy-success">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <polyline points="20 6 9 17 4 12"/>
@@ -317,7 +316,6 @@
       <div><strong>Table copied!</strong> Paste directly into Outlook or Word — formatting is preserved.</div>
     </div>
 
-    <!-- Print area -->
     <div id="pm-print-area">
       <div id="pm-print-header" style="display:none;">
         <h2 style="font-size:14pt;font-weight:700;margin:0 0 4pt;">Preventive Maintenance Inspection</h2>
@@ -353,7 +351,6 @@
       </div>
     </div>
 
-    <!-- Bottom actions -->
     <div class="pm-bottom-actions">
       <button type="button" id="extract-btn" class="btn btn-primary btn-xl">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -372,7 +369,6 @@
 
   <footer class="site-footer">RL Maintenance Team &mdash; Field Operations &mdash; Developed by Mubarak Al-Dawsari</footer>
 
-  <!-- Extract modal -->
   <div id="extract-modal" class="pm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="pm-modal-card">
       <h3 class="pm-modal-title">Extract Table</h3>
@@ -399,7 +395,6 @@
     </div>
   </div>
 
-  <!-- Confirm copy modal -->
   <div id="confirm-modal" class="pm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="pm-modal-card">
       <h3 class="pm-modal-title">Confirm Copy</h3>
@@ -452,12 +447,15 @@
         const isAvail = avail.value !== 'not_available';
         avail.classList.toggle('not-avail', !isAvail);
         if (info && info.src) {
-          img.src = info.src; img.style.display = '';
+          img.src = info.src;
+          img.style.display = '';
           badge.textContent = isAvail ? 'Available' : 'Not Available';
           badge.className   = 'sign-status-badge ' + (isAvail ? 'avail' : 'navail');
         } else {
-          img.src = ''; img.style.display = 'none';
-          badge.className = 'sign-status-badge'; badge.textContent = '';
+          img.src = '';
+          img.style.display = 'none';
+          badge.className   = 'sign-status-badge';
+          badge.textContent = '';
         }
       }
       avail.addEventListener('change', refresh);
@@ -488,7 +486,6 @@
       const tr      = document.createElement('tr');
       tr.dataset.label = label;
 
-      /* 1 — Delete (FIRST column) */
       const tdDel = document.createElement('td');
       tdDel.className = 'pm-col-del';
       const delBtn = document.createElement('button');
@@ -498,7 +495,6 @@
       tdDel.appendChild(delBtn);
       tr.appendChild(tdDel);
 
-      /* 2 — Description */
       const tdDesc = document.createElement('td');
       tdDesc.className = 'pm-col-desc';
       const dWrap = document.createElement('div');
@@ -511,27 +507,22 @@
       tdDesc.appendChild(dWrap);
       tr.appendChild(tdDesc);
 
-      /* 3 — RCU */
       const tdRCU = document.createElement('td');
       tdRCU.className = 'pm-col-chk'; tdRCU.dataset.label = 'RCU';
       tdRCU.appendChild(buildCheckbox()); tr.appendChild(tdRCU);
 
-      /* 4 — FCU */
       const tdFCU = document.createElement('td');
       tdFCU.className = 'pm-col-chk'; tdFCU.dataset.label = 'FCU';
       tdFCU.appendChild(buildCheckbox()); tr.appendChild(tdFCU);
 
-      /* 5 — Sign L */
       const tdSL = document.createElement('td');
       tdSL.className = 'pm-col-sign'; tdSL.dataset.label = 'Sign Board L';
       tdSL.appendChild(buildSignCell()); tr.appendChild(tdSL);
 
-      /* 6 — Sign R */
       const tdSR = document.createElement('td');
       tdSR.className = 'pm-col-sign'; tdSR.dataset.label = 'Sign Board R';
       tdSR.appendChild(buildSignCell()); tr.appendChild(tdSR);
 
-      /* 7 — Pedestrian Lanes */
       const tdPct = document.createElement('td');
       tdPct.className = 'pm-col-pct'; tdPct.dataset.label = 'Pedestrian %';
       const pctIn = document.createElement('input');
@@ -542,7 +533,6 @@
       tdPct.appendChild(pctIn); tdPct.appendChild(pctUnit);
       tr.appendChild(tdPct);
 
-      /* 8 — Traffic Light */
       const tdTl = document.createElement('td');
       tdTl.className = 'pm-col-tl'; tdTl.dataset.label = 'Traffic Light';
       const tlSel = document.createElement('select');
@@ -554,7 +544,6 @@
       });
       tdTl.appendChild(tlSel); tr.appendChild(tdTl);
 
-      /* 9–12 — Pole L/R + Base L/R */
       [['pm-col-chk','Pole L'],['pm-col-chk','Pole R'],['pm-col-chk','Base L'],['pm-col-chk','Base R']].forEach(function (cfg) {
         const td = document.createElement('td');
         td.className = cfg[0]; td.dataset.label = cfg[1];
@@ -564,7 +553,6 @@
       tbody.appendChild(tr);
     }
 
-    /* Site number live update */
     document.getElementById('site-number').addEventListener('input', function () {
       const val = this.value.trim() || '____';
       document.querySelectorAll('#pm-tbody .desc-prefix').forEach(function (el) {
@@ -572,10 +560,8 @@
       });
     });
 
-    /* Generate default rows */
     DEFAULT_LABELS.forEach(function (lbl) { addRow(lbl); });
 
-    /* Reset form */
     function resetForm() {
       document.getElementById('site-number').value = '';
       const tbody = document.getElementById('pm-tbody');
@@ -583,7 +569,6 @@
       DEFAULT_LABELS.forEach(function (lbl) { addRow(lbl); });
     }
 
-    /* Build clipboard HTML (excludes delete column) */
     function buildClipboardHTML() {
       const siteNum = document.getElementById('site-number').value.trim() || '____';
       const TH  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;font-family:Arial,sans-serif;font-weight:bold;';
@@ -635,11 +620,13 @@
           const isAvail = !availEl || availEl.value !== 'not_available';
           const info    = SIGNS[signSel ? signSel.value : 'none'];
           let cell = '';
-          if (!isAvail) {
-            cell = '<div style="color:#ef4444;font-weight:bold;font-size:10px;font-family:Arial,sans-serif;">Not Available</div>';
-          } else if (info && info.src) {
-            cell = '<div style="font-size:9px;font-weight:700;color:#16a34a;font-family:Arial,sans-serif;margin-bottom:2px;">Available</div>' +
+          if (info && info.src) {
+            const lblColor = isAvail ? '#16a34a' : '#ef4444';
+            const lblText  = isAvail ? 'Available' : 'Not Available';
+            cell = '<div style="font-size:9px;font-weight:700;color:' + lblColor + ';font-family:Arial,sans-serif;margin-bottom:2px;">' + lblText + '</div>' +
                    '<img src="' + info.src + '" width="80" height="56" style="display:block;margin:0 auto;object-fit:contain;" alt="' + info.label + '">';
+          } else if (!isAvail) {
+            cell = '<div style="color:#ef4444;font-weight:bold;font-size:10px;font-family:Arial,sans-serif;">Not Available</div>';
           } else {
             cell = '<span style="color:#999;font-size:10px;">—</span>';
           }
@@ -668,7 +655,6 @@
       return html;
     }
 
-    /* Copy to clipboard */
     function doCopy(html, onSuccess) {
       document.getElementById('pm-clipboard-html').innerHTML = html;
       if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
@@ -700,42 +686,27 @@
       setTimeout(function () { b.style.display = 'none'; }, 4000);
     }
 
-    /* Modal helpers */
     function showModal(id) { document.getElementById(id).style.display = 'flex'; }
     function hideModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    /* Extract button */
-    document.getElementById('extract-btn').addEventListener('click', function () {
-      showModal('extract-modal');
-    });
+    document.getElementById('extract-btn').addEventListener('click', function () { showModal('extract-modal'); });
+    document.getElementById('extract-cancel-btn').addEventListener('click', function () { hideModal('extract-modal'); });
 
-    document.getElementById('extract-cancel-btn').addEventListener('click', function () {
-      hideModal('extract-modal');
-    });
-
-    /* Direct Copy → confirm */
     document.getElementById('modal-copy-btn').addEventListener('click', function () {
-      hideModal('extract-modal');
-      showModal('confirm-modal');
+      hideModal('extract-modal'); showModal('confirm-modal');
     });
 
-    /* Confirm Yes */
     document.getElementById('confirm-yes-btn').addEventListener('click', function () {
       var html = buildClipboardHTML();
       doCopy(html, function () {
-        hideModal('confirm-modal');
-        showCopySuccess();
-        resetForm();
+        hideModal('confirm-modal'); showCopySuccess(); resetForm();
       });
     });
 
-    /* Confirm No → back */
     document.getElementById('confirm-no-btn').addEventListener('click', function () {
-      hideModal('confirm-modal');
-      showModal('extract-modal');
+      hideModal('confirm-modal'); showModal('extract-modal');
     });
 
-    /* Export PDF */
     document.getElementById('modal-pdf-btn').addEventListener('click', function () {
       hideModal('extract-modal');
       var siteNum = document.getElementById('site-number').value.trim() || '____';
@@ -745,7 +716,6 @@
       document.getElementById('pm-print-header').style.display = 'none';
     });
 
-    /* Close modals on backdrop click */
     document.getElementById('extract-modal').addEventListener('click', function (e) {
       if (e.target === this) hideModal('extract-modal');
     });
