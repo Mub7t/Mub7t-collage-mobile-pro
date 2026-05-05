@@ -176,94 +176,48 @@
 
     @media print {
       @page { size: A4 landscape; margin: 1cm; }
-
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
-
       .topbar, .preview-action-bar, .pm-site-bar-wrap,
       .pm-bottom-actions, .pm-copy-success,
       #extract-modal, #confirm-modal,
       .site-footer, #pm-clipboard-html, .btn-del-row { display: none !important; }
-
       html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; width: 100% !important; }
       body, main, .page-content, .pm-content {
         max-width: none !important; width: 100% !important;
         padding: 0 !important; margin: 0 !important;
         box-shadow: none !important; border: none !important;
       }
-
       #pm-print-header { display: block !important; margin-bottom: .4cm; }
       #pm-print-header h2 { font-size: 13pt !important; font-weight: 700 !important; margin: 0 0 3pt !important; color: #000 !important; }
       #pm-print-header p  { font-size: 10pt !important; margin: 0 !important; color: #333 !important; }
-
       .pm-scroll { overflow: visible !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
-
-      .pm-table {
-        display: table !important; width: 100% !important; min-width: 0 !important;
-        font-size: 7pt !important; table-layout: auto !important; border-collapse: collapse !important;
-      }
+      .pm-table { display: table !important; width: 100% !important; min-width: 0 !important; font-size: 7pt !important; table-layout: auto !important; border-collapse: collapse !important; }
       .pm-table thead { display: table-header-group !important; }
       .pm-table tbody { display: table-row-group !important; flex-direction: unset !important; gap: 0 !important; }
-      .pm-table tbody tr {
-        display: table-row !important; flex-wrap: unset !important;
-        border: none !important; border-radius: 0 !important;
-        box-shadow: none !important; overflow: visible !important; background: transparent !important;
-      }
-      .pm-table th {
-        display: table-cell !important; border: 1px solid #000 !important;
-        padding: 3pt 3pt !important; font-size: 7pt !important;
-        text-align: center !important; vertical-align: middle !important;
-      }
-      .pm-table td {
-        display: table-cell !important; border: 1px solid #000 !important;
-        padding: 3pt 3pt !important; width: auto !important; min-height: 0 !important;
-        background: transparent !important; text-align: center !important;
-        vertical-align: middle !important; flex-direction: unset !important;
-        align-items: unset !important; min-width: 0 !important;
-      }
+      .pm-table tbody tr { display: table-row !important; flex-wrap: unset !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; overflow: visible !important; background: transparent !important; }
+      .pm-table th { display: table-cell !important; border: 1px solid #000 !important; padding: 3pt 3pt !important; font-size: 7pt !important; text-align: center !important; vertical-align: middle !important; }
+      .pm-table td { display: table-cell !important; border: 1px solid #000 !important; padding: 3pt 3pt !important; width: auto !important; min-height: 0 !important; background: transparent !important; text-align: center !important; vertical-align: middle !important; flex-direction: unset !important; align-items: unset !important; min-width: 0 !important; }
       .pm-table td::before { display: none !important; content: none !important; }
       .pm-col-del { display: none !important; }
-
       .pm-table thead tr:first-child th { background: #111 !important; color: #fff !important; }
       .pm-table thead tr:last-child th  { background: #333 !important; color: #eee !important; }
-
       .pm-table td.pm-col-desc { background: transparent !important; color: #000 !important; text-align: left !important; }
       .pm-table td.pm-col-desc .desc-cell { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 1pt !important; }
       .pm-table td.pm-col-desc .desc-prefix { color: #555 !important; font-size: 5.5pt !important; white-space: nowrap !important; }
       .pm-table td.pm-col-desc .desc-suffix { color: #000 !important; font-size: 7pt !important; }
-
-      .chk-toggle {
-        display: inline-flex !important; width: 14pt !important; height: 14pt !important;
-        font-size: 10pt !important; border: 1pt solid #aaa !important; border-radius: 2pt !important;
-      }
+      .chk-toggle { display: inline-flex !important; width: 14pt !important; height: 14pt !important; font-size: 10pt !important; border: 1pt solid #aaa !important; border-radius: 2pt !important; }
       .chk-toggle.checked   { border-color: #16a34a !important; color: #16a34a !important; background: rgba(22,163,74,.1) !important; }
       .chk-toggle.unchecked { border-color: #ef4444 !important; color: #ef4444 !important; background: rgba(239,68,68,.06) !important; }
-
-      .pct-input {
-        border: none !important; outline: none !important; font-size: 7pt !important;
-        width: auto !important; background: transparent !important; color: inherit !important; text-align: center !important;
-      }
-      .tl-select {
-        border: none !important; outline: none !important; font-size: 6.5pt !important;
-        width: auto !important; background: transparent !important; color: inherit !important;
-        -webkit-appearance: none !important; appearance: none !important;
-      }
+      .pct-input { border: none !important; outline: none !important; font-size: 7pt !important; width: auto !important; background: transparent !important; color: inherit !important; text-align: center !important; }
+      .tl-select { border: none !important; outline: none !important; font-size: 6.5pt !important; width: auto !important; background: transparent !important; color: inherit !important; -webkit-appearance: none !important; appearance: none !important; }
       .tl-select.both-avail { color: #16a34a !important; font-weight: 700 !important; }
       .tl-select.not-avail  { color: #ef4444 !important; font-weight: 700 !important; }
-
       .sign-cell { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 2pt !important; padding: 2pt !important; }
       .sign-cell .sign-avail { display: none !important; }
       .sign-cell select      { display: none !important; }
       .sign-img-wrap { width: 100% !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
-      .sign-cell img {
-        display: block !important; width: 48pt !important; height: auto !important;
-        max-width: 100% !important; object-fit: contain !important;
-        border: 0.5pt solid #ccc !important; border-radius: 0 0 2pt 2pt !important;
-      }
-      .sign-status-badge {
-        display: none !important; font-size: 5.5pt !important; padding: 1pt 2pt !important;
-        border-radius: 2pt 2pt 0 0 !important; width: 48pt !important;
-        text-align: center !important; font-weight: 700 !important;
-      }
+      .sign-cell img { display: block !important; width: 48pt !important; height: auto !important; max-width: 100% !important; object-fit: contain !important; border: 0.5pt solid #ccc !important; border-radius: 0 0 2pt 2pt !important; }
+      .sign-status-badge { display: none !important; font-size: 5.5pt !important; padding: 1pt 2pt !important; border-radius: 2pt 2pt 0 0 !important; width: 48pt !important; text-align: center !important; font-weight: 700 !important; }
       .sign-status-badge.avail  { display: block !important; background: #16a34a !important; color: #fff !important; }
       .sign-status-badge.navail { display: block !important; background: #ef4444 !important; color: #fff !important; }
     }
@@ -409,7 +363,7 @@
   <script>
   (function () {
 
-    const SIGNS = {
+    var SIGNS = {
       'none':        { label: '— None —',                  src: '' },
       'stop_left':   { label: 'Stop Line Left',            src: "{{ url_for('static', filename='images/signs/stop_left.png') }}" },
       'stop_right':  { label: 'Stop Line Right',           src: "{{ url_for('static', filename='images/signs/stop_right.png') }}" },
@@ -417,34 +371,34 @@
       'no_right':    { label: 'No Right Turn',             src: "{{ url_for('static', filename='images/signs/no_right_turn.png') }}" },
     };
 
-    const DEFAULT_LABELS = ['A1','A2','B1','B2','C1','C2','D1','D2'];
+    var DEFAULT_LABELS = ['A1','A2','B1','B2','C1','C2','D1','D2'];
 
     function buildSignCell() {
-      const wrap  = document.createElement('div');
+      var wrap = document.createElement('div');
       wrap.className = 'sign-cell';
 
-      const avail = document.createElement('select');
+      var avail = document.createElement('select');
       avail.className = 'sign-avail';
       avail.innerHTML = '<option value="available">Available</option><option value="not_available">Not Available</option>';
 
-      const sel = document.createElement('select');
-      Object.entries(SIGNS).forEach(function([k, v]) {
-        const o = document.createElement('option');
-        o.value = k; o.textContent = v.label; sel.appendChild(o);
+      var sel = document.createElement('select');
+      Object.keys(SIGNS).forEach(function(k) {
+        var o = document.createElement('option');
+        o.value = k; o.textContent = SIGNS[k].label; sel.appendChild(o);
       });
 
-      const imgWrap = document.createElement('div');
+      var imgWrap = document.createElement('div');
       imgWrap.className = 'sign-img-wrap';
-      const badge = document.createElement('div');
+      var badge = document.createElement('div');
       badge.className = 'sign-status-badge';
-      const img = document.createElement('img');
+      var img = document.createElement('img');
       img.alt = 'Sign'; img.style.display = 'none';
       imgWrap.appendChild(badge);
       imgWrap.appendChild(img);
 
       function refresh() {
-        const info    = SIGNS[sel.value];
-        const isAvail = avail.value !== 'not_available';
+        var info    = SIGNS[sel.value];
+        var isAvail = avail.value !== 'not_available';
         avail.classList.toggle('not-avail', !isAvail);
         if (info && info.src) {
           img.src = info.src;
@@ -465,13 +419,13 @@
     }
 
     function buildCheckbox() {
-      const el = document.createElement('div');
+      var el = document.createElement('div');
       el.className = 'chk-toggle checked';
       el.textContent = '✓';
       el.setAttribute('role', 'checkbox');
       el.setAttribute('aria-checked', 'true');
       el.addEventListener('click', function () {
-        const on = el.classList.contains('checked');
+        var on = el.classList.contains('checked');
         el.classList.toggle('checked',   !on);
         el.classList.toggle('unchecked',  on);
         el.textContent = on ? '✗' : '✓';
@@ -481,61 +435,61 @@
     }
 
     function addRow(label) {
-      const siteNum = document.getElementById('site-number').value.trim() || '____';
-      const tbody   = document.getElementById('pm-tbody');
-      const tr      = document.createElement('tr');
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+      var tbody   = document.getElementById('pm-tbody');
+      var tr      = document.createElement('tr');
       tr.dataset.label = label;
 
-      const tdDel = document.createElement('td');
+      var tdDel = document.createElement('td');
       tdDel.className = 'pm-col-del';
-      const delBtn = document.createElement('button');
+      var delBtn = document.createElement('button');
       delBtn.type = 'button'; delBtn.className = 'btn-del-row';
       delBtn.title = 'Delete row'; delBtn.textContent = '✕';
       delBtn.addEventListener('click', function () { tbody.removeChild(tr); });
       tdDel.appendChild(delBtn);
       tr.appendChild(tdDel);
 
-      const tdDesc = document.createElement('td');
+      var tdDesc = document.createElement('td');
       tdDesc.className = 'pm-col-desc';
-      const dWrap = document.createElement('div');
+      var dWrap = document.createElement('div');
       dWrap.className = 'desc-cell';
-      const prefix = document.createElement('span');
+      var prefix = document.createElement('span');
       prefix.className = 'desc-prefix'; prefix.textContent = 'RYDRL ' + siteNum;
-      const suffix = document.createElement('span');
+      var suffix = document.createElement('span');
       suffix.className = 'desc-suffix'; suffix.textContent = label;
       dWrap.appendChild(prefix); dWrap.appendChild(suffix);
       tdDesc.appendChild(dWrap);
       tr.appendChild(tdDesc);
 
-      const tdRCU = document.createElement('td');
+      var tdRCU = document.createElement('td');
       tdRCU.className = 'pm-col-chk'; tdRCU.dataset.label = 'RCU';
       tdRCU.appendChild(buildCheckbox()); tr.appendChild(tdRCU);
 
-      const tdFCU = document.createElement('td');
+      var tdFCU = document.createElement('td');
       tdFCU.className = 'pm-col-chk'; tdFCU.dataset.label = 'FCU';
       tdFCU.appendChild(buildCheckbox()); tr.appendChild(tdFCU);
 
-      const tdSL = document.createElement('td');
+      var tdSL = document.createElement('td');
       tdSL.className = 'pm-col-sign'; tdSL.dataset.label = 'Sign Board L';
       tdSL.appendChild(buildSignCell()); tr.appendChild(tdSL);
 
-      const tdSR = document.createElement('td');
+      var tdSR = document.createElement('td');
       tdSR.className = 'pm-col-sign'; tdSR.dataset.label = 'Sign Board R';
       tdSR.appendChild(buildSignCell()); tr.appendChild(tdSR);
 
-      const tdPct = document.createElement('td');
+      var tdPct = document.createElement('td');
       tdPct.className = 'pm-col-pct'; tdPct.dataset.label = 'Pedestrian %';
-      const pctIn = document.createElement('input');
+      var pctIn = document.createElement('input');
       pctIn.type = 'number'; pctIn.min = '0'; pctIn.max = '100';
       pctIn.className = 'pct-input'; pctIn.placeholder = '0';
-      const pctUnit = document.createElement('span');
+      var pctUnit = document.createElement('span');
       pctUnit.textContent = ' %'; pctUnit.style.fontSize = '.75rem';
       tdPct.appendChild(pctIn); tdPct.appendChild(pctUnit);
       tr.appendChild(tdPct);
 
-      const tdTl = document.createElement('td');
+      var tdTl = document.createElement('td');
       tdTl.className = 'pm-col-tl'; tdTl.dataset.label = 'Traffic Light';
-      const tlSel = document.createElement('select');
+      var tlSel = document.createElement('select');
       tlSel.className = 'tl-select both-avail';
       tlSel.innerHTML = '<option value="both">Both sides Available</option><option value="none">Not Available</option>';
       tlSel.addEventListener('change', function () {
@@ -545,7 +499,7 @@
       tdTl.appendChild(tlSel); tr.appendChild(tdTl);
 
       [['pm-col-chk','Pole L'],['pm-col-chk','Pole R'],['pm-col-chk','Base L'],['pm-col-chk','Base R']].forEach(function (cfg) {
-        const td = document.createElement('td');
+        var td = document.createElement('td');
         td.className = cfg[0]; td.dataset.label = cfg[1];
         td.appendChild(buildCheckbox()); tr.appendChild(td);
       });
@@ -554,7 +508,7 @@
     }
 
     document.getElementById('site-number').addEventListener('input', function () {
-      const val = this.value.trim() || '____';
+      var val = this.value.trim() || '____';
       document.querySelectorAll('#pm-tbody .desc-prefix').forEach(function (el) {
         el.textContent = 'RYDRL ' + val;
       });
@@ -564,18 +518,19 @@
 
     function resetForm() {
       document.getElementById('site-number').value = '';
-      const tbody = document.getElementById('pm-tbody');
+      var tbody = document.getElementById('pm-tbody');
       while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
       DEFAULT_LABELS.forEach(function (lbl) { addRow(lbl); });
     }
 
+    /* ── HTML for clipboard (desktop Word/Outlook) ── */
     function buildClipboardHTML() {
-      const siteNum = document.getElementById('site-number').value.trim() || '____';
-      const TH  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;font-family:Arial,sans-serif;font-weight:bold;';
-      const TH2 = 'border:1px solid #000;padding:5px 6px;background:#2d3f5e;color:#e2e8f0;font-size:9px;text-align:center;font-family:Arial,sans-serif;font-weight:600;';
-      const TD  = 'border:1px solid #000;padding:5px 6px;font-size:10px;text-align:center;vertical-align:middle;font-family:Arial,sans-serif;';
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+      var TH  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;font-family:Arial,sans-serif;font-weight:bold;';
+      var TH2 = 'border:1px solid #000;padding:5px 6px;background:#2d3f5e;color:#e2e8f0;font-size:9px;text-align:center;font-family:Arial,sans-serif;font-weight:600;';
+      var TD  = 'border:1px solid #000;padding:5px 6px;font-size:10px;text-align:center;vertical-align:middle;font-family:Arial,sans-serif;';
 
-      let html =
+      var html =
         '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;font-family:Arial,sans-serif;">' +
         '<thead><tr>' +
         '<th rowspan="2" style="' + TH + 'width:110px;">Description</th>' +
@@ -597,32 +552,32 @@
         '</tr></thead><tbody>';
 
       document.querySelectorAll('#pm-tbody tr').forEach(function (tr, i) {
-        const bg    = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
-        const label = tr.dataset.label || String.fromCharCode(65 + i);
+        var bg    = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
+        var label = tr.dataset.label || String.fromCharCode(65 + i);
         html += '<tr style="background:' + bg + ';">';
         html += '<td style="' + TD + 'font-weight:bold;">RYDRL ' + siteNum + ' ' + label + '</td>';
 
-        const chkVals = Array.from(tr.querySelectorAll('.chk-toggle')).map(function (c) {
+        var chkVals = Array.from(tr.querySelectorAll('.chk-toggle')).map(function (c) {
           return c.classList.contains('checked');
         });
 
         [0, 1].forEach(function (ci) {
-          const v = chkVals[ci] !== false;
+          var v = chkVals[ci] !== false;
           html += '<td style="' + TD + 'color:' + (v ? '#16a34a' : '#ef4444') + ';font-weight:bold;">' + (v ? '✓' : '✗') + '</td>';
         });
 
-        const signCells = tr.querySelectorAll('.sign-cell');
+        var signCells = tr.querySelectorAll('.sign-cell');
         [0, 1].forEach(function (si) {
-          const sc      = signCells[si];
+          var sc      = signCells[si];
           if (!sc) { html += '<td style="' + TD + '">—</td>'; return; }
-          const availEl = sc.querySelector('.sign-avail');
-          const signSel = sc.querySelector('select:not(.sign-avail)');
-          const isAvail = !availEl || availEl.value !== 'not_available';
-          const info    = SIGNS[signSel ? signSel.value : 'none'];
-          let cell = '';
+          var availEl = sc.querySelector('.sign-avail');
+          var signSel = sc.querySelector('select:not(.sign-avail)');
+          var isAvail = !availEl || availEl.value !== 'not_available';
+          var info    = SIGNS[signSel ? signSel.value : 'none'];
+          var cell = '';
           if (info && info.src) {
-            const lblColor = isAvail ? '#16a34a' : '#ef4444';
-            const lblText  = isAvail ? 'Available' : 'Not Available';
+            var lblColor = isAvail ? '#16a34a' : '#ef4444';
+            var lblText  = isAvail ? 'Available' : 'Not Available';
             cell = '<div style="font-size:9px;font-weight:700;color:' + lblColor + ';font-family:Arial,sans-serif;margin-bottom:2px;">' + lblText + '</div>' +
                    '<img src="' + info.src + '" width="80" height="56" style="display:block;margin:0 auto;object-fit:contain;" alt="' + info.label + '">';
           } else if (!isAvail) {
@@ -633,18 +588,18 @@
           html += '<td style="' + TD + '">' + cell + '</td>';
         });
 
-        const pctIn  = tr.querySelector('.pct-input');
-        const pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
-        const pctCol = (pctIn && parseInt(pctIn.value) > 0) ? '#c65f00' : '#333';
+        var pctIn  = tr.querySelector('.pct-input');
+        var pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
+        var pctCol = (pctIn && parseInt(pctIn.value) > 0) ? '#c65f00' : '#333';
         html += '<td style="' + TD + 'color:' + pctCol + ';font-weight:bold;">' + pctVal + '</td>';
 
-        const tlEl   = tr.querySelector('.tl-select');
-        const tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
-        const tlCol  = (!tlEl || tlEl.value === 'both') ? '#16a34a' : '#ef4444';
+        var tlEl   = tr.querySelector('.tl-select');
+        var tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
+        var tlCol  = (!tlEl || tlEl.value === 'both') ? '#16a34a' : '#ef4444';
         html += '<td style="' + TD + 'color:' + tlCol + ';font-weight:bold;">' + tlText + '</td>';
 
         [2, 3, 4, 5].forEach(function (ci) {
-          const v = (ci < chkVals.length) ? chkVals[ci] !== false : true;
+          var v = (ci < chkVals.length) ? chkVals[ci] !== false : true;
           html += '<td style="' + TD + 'color:' + (v ? '#16a34a' : '#ef4444') + ';font-weight:bold;">' + (v ? '✓' : '✗') + '</td>';
         });
 
@@ -655,29 +610,100 @@
       return html;
     }
 
-    function doCopy(html, onSuccess) {
-      document.getElementById('pm-clipboard-html').innerHTML = html;
+    /* ── Plain text for mobile fallback ── */
+    function buildPlainText() {
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+      var lines = [];
+      lines.push('Preventive Maintenance Inspection');
+      lines.push('Site: RYDRL ' + siteNum);
+      lines.push('');
+      lines.push(['Description','RCU','FCU','Sign L','Sign R','Pedestrian %','Traffic Light','Pole L','Pole R','Base L','Base R'].join('\t'));
+
+      document.querySelectorAll('#pm-tbody tr').forEach(function (tr) {
+        var label = tr.dataset.label || '';
+        var desc  = 'RYDRL ' + siteNum + ' ' + label;
+
+        var chkVals = Array.from(tr.querySelectorAll('.chk-toggle')).map(function (c) {
+          return c.classList.contains('checked') ? '✓' : '✗';
+        });
+
+        var signCells = tr.querySelectorAll('.sign-cell');
+        var signTexts = [0, 1].map(function (si) {
+          var sc = signCells[si];
+          if (!sc) return '—';
+          var availEl = sc.querySelector('.sign-avail');
+          var signSel = sc.querySelector('select:not(.sign-avail)');
+          var isAvail = !availEl || availEl.value !== 'not_available';
+          var info = SIGNS[signSel ? signSel.value : 'none'];
+          if (info && info.src) return (isAvail ? 'Available' : 'Not Available') + ': ' + info.label;
+          if (!isAvail) return 'Not Available';
+          return '—';
+        });
+
+        var pctIn  = tr.querySelector('.pct-input');
+        var pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
+        var tlEl   = tr.querySelector('.tl-select');
+        var tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
+
+        lines.push([
+          desc,
+          chkVals[0] || '✓', chkVals[1] || '✓',
+          signTexts[0], signTexts[1],
+          pctVal, tlText,
+          chkVals[2] || '✓', chkVals[3] || '✓',
+          chkVals[4] || '✓', chkVals[5] || '✓'
+        ].join('\t'));
+      });
+
+      return lines.join('\n');
+    }
+
+    /* ── Tier 1: ClipboardItem (desktop Chrome/Firefox) ── */
+    function doCopy(htmlContent, plainText, onSuccess) {
       if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
-        var blob = new Blob([html], { type: 'text/html' });
-        navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })])
-          .then(onSuccess)
-          .catch(function () { fallbackCopy(onSuccess); });
+        try {
+          var htmlBlob  = new Blob([htmlContent], { type: 'text/html' });
+          var textBlob  = new Blob([plainText],   { type: 'text/plain' });
+          navigator.clipboard.write([new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })])
+            .then(function () { onSuccess(); })
+            .catch(function () { tier2(plainText, onSuccess); });
+        } catch (e) {
+          tier2(plainText, onSuccess);
+        }
       } else {
-        fallbackCopy(onSuccess);
+        tier2(plainText, onSuccess);
       }
     }
 
-    function fallbackCopy(onSuccess) {
-      var clipDiv = document.getElementById('pm-clipboard-html');
-      clipDiv.style.display = '';
-      var sel = window.getSelection();
-      var range = document.createRange();
-      range.selectNodeContents(clipDiv);
-      sel.removeAllRanges(); sel.addRange(range);
-      try { document.execCommand('copy'); if (onSuccess) onSuccess(); }
-      catch (e) { alert('Auto-copy failed. Select the table and press Ctrl+C / Cmd+C.'); }
-      sel.removeAllRanges();
-      clipDiv.style.display = 'none';
+    /* ── Tier 2: writeText (iOS Safari 13.4+, Android Chrome) ── */
+    function tier2(plainText, onSuccess) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(plainText)
+          .then(function () { onSuccess(); })
+          .catch(function () { tier3(plainText, onSuccess); });
+      } else {
+        tier3(plainText, onSuccess);
+      }
+    }
+
+    /* ── Tier 3: textarea + execCommand (broadest mobile support) ── */
+    function tier3(plainText, onSuccess) {
+      var ta = document.createElement('textarea');
+      ta.value = plainText;
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;opacity:0;';
+      ta.setAttribute('readonly', '');
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { ta.setSelectionRange(0, 99999); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      if (ok) {
+        onSuccess();
+      } else {
+        alert('Copy failed. Please long-press the page, select all text, and copy manually.');
+      }
     }
 
     function showCopySuccess() {
@@ -693,18 +719,23 @@
     document.getElementById('extract-cancel-btn').addEventListener('click', function () { hideModal('extract-modal'); });
 
     document.getElementById('modal-copy-btn').addEventListener('click', function () {
-      hideModal('extract-modal'); showModal('confirm-modal');
+      hideModal('extract-modal');
+      showModal('confirm-modal');
     });
 
     document.getElementById('confirm-yes-btn').addEventListener('click', function () {
-      var html = buildClipboardHTML();
-      doCopy(html, function () {
-        hideModal('confirm-modal'); showCopySuccess(); resetForm();
+      var html      = buildClipboardHTML();
+      var plainText = buildPlainText();
+      doCopy(html, plainText, function () {
+        hideModal('confirm-modal');
+        showCopySuccess();
+        resetForm();
       });
     });
 
     document.getElementById('confirm-no-btn').addEventListener('click', function () {
-      hideModal('confirm-modal'); showModal('extract-modal');
+      hideModal('confirm-modal');
+      showModal('extract-modal');
     });
 
     document.getElementById('modal-pdf-btn').addEventListener('click', function () {
