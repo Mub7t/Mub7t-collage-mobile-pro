@@ -147,6 +147,14 @@
       autoGrow(ta);
     });
 
+    // Numeric-only enforcement for site_id and sap_notification
+    tr.querySelectorAll("[data-numeric='1']").forEach(inp => {
+      inp.addEventListener("input", function () {
+        const v = this.value.replace(/[^0-9]/g, "");
+        if (this.value !== v) this.value = v;
+      });
+    });
+
     const sel = tr.querySelector(".status-select");
     if (sel) {
       updateStatusColor(sel);
@@ -173,8 +181,9 @@
                placeholder="Field Service" data-field="task" />
       </td>
       <td class="col-site">
-        <input type="text" value="${esc(task.site_id)}"
-               placeholder="Site ID" data-field="site_id" />
+        <input type="text" inputmode="numeric" pattern="[0-9]*"
+               value="${esc(task.site_id)}"
+               placeholder="Site ID" data-field="site_id" data-numeric="1" />
       </td>
       <td class="col-approach">
         <input type="text" value="${esc(task.approach)}"
@@ -189,8 +198,9 @@
                placeholder="N/A" data-field="vendor" />
       </td>
       <td class="col-sap">
-        <input type="text" value="${esc(task.sap_notification)}"
-               placeholder="SAP number" data-field="sap_notification" />
+        <input type="text" inputmode="numeric" pattern="[0-9]*"
+               value="${esc(task.sap_notification)}"
+               placeholder="SAP number" data-field="sap_notification" data-numeric="1" />
       </td>
       <td class="col-action">
         <textarea placeholder="Enter action taken…"

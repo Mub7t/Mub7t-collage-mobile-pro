@@ -15,43 +15,81 @@
     }
 
     .report-email-card.report-one-block {
-      width: 920px;
-      min-width: 920px;
-      max-width: 920px;
+      width: 980px;
+      min-width: 980px;
+      max-width: 980px;
       margin: 0;
       box-sizing: border-box;
     }
 
-    .report-email-card.report-one-block .report-salutation {
-      margin: 0 0 8px 0;
-    }
-
-    .report-email-card.report-one-block .report-intro {
-      margin: 0 0 10px 0;
-    }
-
-    .report-email-card.report-one-block .report-title {
-      margin: 6px 0 12px 0;
-    }
+    .report-email-card.report-one-block .report-salutation { margin: 0 0 8px 0; }
+    .report-email-card.report-one-block .report-intro      { margin: 0 0 10px 0; }
+    .report-email-card.report-one-block .report-title      { margin: 6px 0 12px 0; }
 
     .report-email-card.report-one-block .rpt-info-table,
     .report-email-card.report-one-block .rpt-main-table {
-      width: 100%;
-      min-width: 100%;
-      table-layout: fixed;
-      border-collapse: collapse;
+      width: 100%; min-width: 100%;
+      table-layout: fixed; border-collapse: collapse;
+    }
+    .report-email-card.report-one-block .rpt-info-table  { margin-bottom: 10px; }
+    .report-email-card.report-one-block .rpt-main-table  { margin-bottom: 12px; }
+    .report-email-card.report-one-block .report-closing  { margin: 0; }
+
+    /* ── On-screen preview: Times New Roman + larger font ─────────── */
+    .rpt-info-table,
+    .rpt-main-table {
+      font-family: "Times New Roman", Times, serif !important;
+      font-size: .95rem !important;
     }
 
-    .report-email-card.report-one-block .rpt-info-table {
-      margin-bottom: 10px;
+    /* Info table label cells */
+    .rpt-info-label {
+      background: #bfbfbf !important;
+      color: #000000 !important;
     }
 
-    .report-email-card.report-one-block .rpt-main-table {
-      margin-bottom: 12px;
+    /* Main table header: light gray, black text */
+    .rpt-main-table thead tr {
+      background: #bfbfbf !important;
+      color: #000000 !important;
+    }
+    .rpt-main-table thead th {
+      color: #000000 !important;
+      font-family: "Times New Roman", Times, serif !important;
+      font-size: .88rem !important;
+      text-align: center !important;
+      border: 1px solid #999999 !important;
     }
 
-    .report-email-card.report-one-block .report-closing {
-      margin: 0;
+    /* All body rows white — no alternating colors */
+    .rpt-main-table tbody tr,
+    .rpt-main-table tbody tr:nth-child(even) {
+      background: #ffffff !important;
+    }
+
+    /* Body cells: center by default */
+    .rpt-main-table td {
+      text-align: center !important;
+      vertical-align: middle !important;
+      font-family: "Times New Roman", Times, serif !important;
+      font-size: .95rem !important;
+    }
+
+    /* Action Taken (col 8) and Comments (col 10): left-align */
+    .rpt-main-table td:nth-child(8),
+    .rpt-main-table td:nth-child(10) {
+      text-align: left !important;
+    }
+
+    /* Remove yellow highlight from comments */
+    .rpt-highlight {
+      background: #ffffff !important;
+    }
+
+    /* Closing paragraph */
+    .report-closing {
+      font-family: "Times New Roman", Times, serif;
+      font-size: .95rem;
     }
   </style>
 </head>
@@ -110,7 +148,7 @@
 
     <div class="report-preview-scroll">
       <div class="card report-email-card report-one-block" id="report-screen-preview">
-        <p class="report-salutation">Dear {{ supervisor }},</p>
+        <p class="report-salutation">Dear <strong>{{ supervisor }}</strong>,</p>
         <p class="report-intro">Please find below the details of the RL tasks completed today:</p>
         <h2 class="report-title">Red-Light Maintenance Tasks Report</h2>
 
@@ -119,40 +157,40 @@
             <td class="rpt-info-label">Shift</td><td class="rpt-info-value">{{ shift }}</td>
             <td class="rpt-info-label">Time</td><td class="rpt-info-value">{{ time_range }}</td>
             <td class="rpt-info-label">Date</td><td class="rpt-info-value">{{ date }}</td>
-            <td class="rpt-info-label">Team</td><td class="rpt-info-value">{{ team }}</td>
+            <td class="rpt-info-label">Team</td><td class="rpt-info-value"><strong>{{ team }}</strong></td>
           </tr>
         </table>
 
         <table class="rpt-main-table">
           <thead>
             <tr>
-              <th style="width:40px;">#</th>
-              <th style="width:95px;">Task</th>
-              <th style="width:110px;">Site ID</th>
-              <th style="width:75px;">Approach</th>
-              <th style="width:130px;">Problem</th>
-              <th style="width:90px;">Vendor</th>
-              <th style="width:120px;">SAP Notification</th>
-              <th style="width:170px;">Action Taken</th>
-              <th style="width:105px;">Current Status</th>
-              <th style="width:145px;">Comments</th>
+              <th style="width:36px;">#</th>
+              <th style="width:90px;">Task</th>
+              <th style="width:105px;">Site ID</th>
+              <th style="width:72px;">Approach</th>
+              <th style="width:125px;">Problem</th>
+              <th style="width:85px;">Vendor</th>
+              <th style="width:115px;">SAP Notification</th>
+              <th style="width:175px;">Action Taken</th>
+              <th style="width:100px;">Current Status</th>
+              <th style="width:150px;">Comments</th>
             </tr>
           </thead>
           <tbody>
             {% for task in tasks %}
             <tr>
               <td class="rpt-center">{{ loop.index }}</td>
-              <td>{{ task.task }}</td>
-              <td>{{ task.site_id }}</td>
+              <td class="rpt-center">{{ task.task }}</td>
+              <td class="rpt-center">{{ task.site_id }}</td>
               <td class="rpt-center">{{ task.approach }}</td>
-              <td>{{ task.problem }}</td>
-              <td>{{ task.vendor }}</td>
+              <td class="rpt-center">{{ task.problem }}</td>
+              <td class="rpt-center">{{ task.vendor }}</td>
               <td class="rpt-center rpt-mono">{{ task.sap_notification }}</td>
               <td>{{ task.action_taken }}</td>
               <td class="rpt-center {% if task.current_status|lower == 'solved' %}rpt-solved{% else %}rpt-pending{% endif %}">
                 {{ task.current_status }}
               </td>
-              <td class="rpt-highlight">{{ task.comments }}</td>
+              <td>{{ task.comments }}</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -164,70 +202,75 @@
 
   </main>
 
+  <!-- ══════════════════════════════════════════════════════════
+       CLIPBOARD HTML — inline-styled, Outlook-compatible
+  ══════════════════════════════════════════════════════════ -->
   <div id="report-clipboard-html" style="display:none;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"
-           style="border-collapse:collapse;width:920px;max-width:920px;min-width:920px;font-family:'Times New Roman', Times, serif;font-size:13px;color:#000;">
+           style="border-collapse:collapse;width:980px;max-width:980px;min-width:980px;font-family:'Times New Roman', Times, serif;font-size:13px;color:#000;">
       <tr>
         <td style="padding:0;vertical-align:top;">
 
-          <p style="margin:0 0 6px 0;font-size:12px;line-height:1.4;">Dear {{ supervisor }},</p>
-          <p style="margin:0 0 10px 0;font-size:12px;line-height:1.4;">Please find below the details of the RL tasks completed today:</p>
-          <p style="font-size:16px;font-weight:bold;text-align:center;margin:0 0 10px 0;line-height:1.3;">
+          <p style="margin:0 0 6px 0;font-size:13px;line-height:1.4;font-family:'Times New Roman', Times, serif;">Dear <strong>{{ supervisor }}</strong>,</p>
+          <p style="margin:0 0 10px 0;font-size:13px;line-height:1.4;font-family:'Times New Roman', Times, serif;">Please find below the details of the RL tasks completed today:</p>
+          <p style="font-size:16px;font-weight:bold;text-align:center;margin:0 0 10px 0;line-height:1.3;font-family:'Times New Roman', Times, serif;">
             Red-Light Maintenance Tasks Report
           </p>
 
+          <!-- Info row -->
           <table role="presentation" cellpadding="0" cellspacing="0" border="0"
-                 style="border-collapse:collapse;width:920px;min-width:920px;max-width:920px;margin:0 0 10px 0;table-layout:fixed;">
+                 style="border-collapse:collapse;width:980px;min-width:980px;max-width:980px;margin:0 0 10px 0;table-layout:fixed;font-family:'Times New Roman', Times, serif;">
             <tr>
-              <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:12px;width:65px;">Shift</td>
-              <td style="border:1px solid #000;padding:5px 8px;font-size:12px;width:150px;">{{ shift }}</td>
-              <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:12px;width:65px;">Time</td>
-              <td style="border:1px solid #000;padding:5px 8px;font-size:12px;width:150px;">{{ time_range }}</td>
-              <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:12px;width:65px;">Date</td>
-              <td style="border:1px solid #000;padding:5px 8px;font-size:12px;width:140px;">{{ date }}</td>
-              <td style="border:1px solid #000;padding:5px 8px;background:#d9d9d9;font-weight:bold;font-size:12px;width:65px;">Team</td>
-              <td style="border:1px solid #000;padding:5px 8px;font-size:12px;width:220px;">{{ team }}</td>
+              <td style="border:1px solid #000;padding:5px 8px;background:#bfbfbf;color:#000000;font-weight:bold;font-size:13px;width:60px;font-family:'Times New Roman', Times, serif;">Shift</td>
+              <td style="border:1px solid #000;padding:5px 8px;font-size:13px;width:145px;font-family:'Times New Roman', Times, serif;">{{ shift }}</td>
+              <td style="border:1px solid #000;padding:5px 8px;background:#bfbfbf;color:#000000;font-weight:bold;font-size:13px;width:60px;font-family:'Times New Roman', Times, serif;">Time</td>
+              <td style="border:1px solid #000;padding:5px 8px;font-size:13px;width:145px;font-family:'Times New Roman', Times, serif;">{{ time_range }}</td>
+              <td style="border:1px solid #000;padding:5px 8px;background:#bfbfbf;color:#000000;font-weight:bold;font-size:13px;width:60px;font-family:'Times New Roman', Times, serif;">Date</td>
+              <td style="border:1px solid #000;padding:5px 8px;font-size:13px;width:135px;font-family:'Times New Roman', Times, serif;">{{ date }}</td>
+              <td style="border:1px solid #000;padding:5px 8px;background:#bfbfbf;color:#000000;font-weight:bold;font-size:13px;width:60px;font-family:'Times New Roman', Times, serif;">Team</td>
+              <td style="border:1px solid #000;padding:5px 8px;font-size:13px;font-weight:bold;width:215px;font-family:'Times New Roman', Times, serif;">{{ team }}</td>
             </tr>
           </table>
 
+          <!-- Main tasks table -->
           <table role="presentation" cellpadding="0" cellspacing="0" border="0"
-                 style="border-collapse:collapse;width:920px;min-width:920px;max-width:920px;table-layout:fixed;margin:0 0 12px 0;">
+                 style="border-collapse:collapse;width:980px;min-width:980px;max-width:980px;table-layout:fixed;margin:0 0 12px 0;font-family:'Times New Roman', Times, serif;">
             <thead>
               <tr>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:28px;">#</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:85px;">Task</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:100px;">Site ID</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:65px;">Approach</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:120px;">Problem</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:78px;">Vendor</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:102px;">SAP Notification</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:160px;">Action Taken</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:94px;">Current Status</th>
-                <th style="border:1px solid #000;padding:5px 4px;background:#1a2b4a;color:#fff;font-size:11px;text-align:center;width:140px;">Comments</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:28px;font-family:'Times New Roman', Times, serif;">#</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:88px;font-family:'Times New Roman', Times, serif;">Task</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:100px;font-family:'Times New Roman', Times, serif;">Site ID</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:64px;font-family:'Times New Roman', Times, serif;">Approach</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:118px;font-family:'Times New Roman', Times, serif;">Problem</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:75px;font-family:'Times New Roman', Times, serif;">Vendor</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:100px;font-family:'Times New Roman', Times, serif;">SAP Notification</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:168px;font-family:'Times New Roman', Times, serif;">Action Taken</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:92px;font-family:'Times New Roman', Times, serif;">Current Status</th>
+                <th style="border:1px solid #000;padding:5px 4px;background:#bfbfbf;color:#000000;font-size:13px;text-align:center;width:147px;font-family:'Times New Roman', Times, serif;">Comments</th>
               </tr>
             </thead>
             <tbody>
               {% for task in tasks %}
-              <tr style="{% if loop.index is odd %}background:#ffffff;{% else %}background:#f5f8ff;{% endif %}">
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;text-align:center;vertical-align:middle;">{{ loop.index }}</td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;vertical-align:middle;">{{ task.task }}</td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;vertical-align:middle;">{{ task.site_id }}</td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;text-align:center;vertical-align:middle;">{{ task.approach }}</td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;word-wrap:break-word;vertical-align:middle;">{{ task.problem }}</td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;vertical-align:middle;">{{ task.vendor }}</td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;text-align:center;font-family:Courier New,monospace;vertical-align:middle;">{{ task.sap_notification }}</td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;word-wrap:break-word;vertical-align:middle;">{{ task.action_taken }}</td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;text-align:center;font-weight:bold;vertical-align:middle;{% if task.current_status|lower == 'solved' %}color:#176b2d;{% else %}color:#c65f00;{% endif %}">
+              <tr style="background:#ffffff;">
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:center;vertical-align:middle;font-family:'Times New Roman', Times, serif;">{{ loop.index }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:center;vertical-align:middle;font-family:'Times New Roman', Times, serif;">{{ task.task }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:center;vertical-align:middle;font-family:'Times New Roman', Times, serif;">{{ task.site_id }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:center;vertical-align:middle;font-family:'Times New Roman', Times, serif;">{{ task.approach }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:center;vertical-align:middle;word-wrap:break-word;font-family:'Times New Roman', Times, serif;">{{ task.problem }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:center;vertical-align:middle;font-family:'Times New Roman', Times, serif;">{{ task.vendor }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:center;vertical-align:middle;font-family:'Times New Roman', Times, serif;">{{ task.sap_notification }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:left;vertical-align:middle;word-wrap:break-word;font-family:'Times New Roman', Times, serif;">{{ task.action_taken }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:center;vertical-align:middle;font-weight:bold;font-family:'Times New Roman', Times, serif;{% if task.current_status|lower == 'solved' %}color:#176b2d;{% else %}color:#c65f00;{% endif %}">
                   {{ task.current_status }}
                 </td>
-                <td style="border:1px solid #000;padding:5px 4px;font-size:12px;background:#fffde7;font-weight:bold;word-wrap:break-word;vertical-align:middle;">{{ task.comments }}</td>
+                <td style="border:1px solid #000;padding:5px 4px;font-size:13px;text-align:left;vertical-align:middle;word-wrap:break-word;font-family:'Times New Roman', Times, serif;">{{ task.comments }}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
 
-          <p style="margin:0 0 2px 0;font-size:12px;line-height:1.4;">Best regards,</p>
-          <p style="margin:0;font-size:12px;font-weight:bold;line-height:1.4;">{{ team }}</p>
+          <p style="margin:0 0 2px 0;font-size:13px;line-height:1.4;font-family:'Times New Roman', Times, serif;">Best regards,</p>
+          <p style="margin:0;font-size:13px;font-weight:bold;line-height:1.4;font-family:'Times New Roman', Times, serif;">{{ team }}</p>
 
         </td>
       </tr>
