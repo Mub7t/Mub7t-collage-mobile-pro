@@ -41,6 +41,7 @@ USERS = {
     "user7":  {"display_name": "Technician 7",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
     "user8":  {"display_name": "Technician 8",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
     "user9":  {"display_name": "Technician 9",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user10":  {"display_name": "Technician 9",  "role": "tech",  "password": generate_password_hash("Tech@2026")}
 }
 
 login_manager = LoginManager()
