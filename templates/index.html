@@ -5,31 +5,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RL Maintenance — Field Operations Tools</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
   <style>
-    .service-card--purple:hover { background: rgba(99,102,241,.18); border-color: rgba(99,102,241,.5); }
-    .service-card--purple .service-card__icon { background: rgba(99,102,241,.22); }
-    .service-card--purple .service-card__icon svg { stroke: #818cf8; }
+    .service-card--purple:hover {
+      background: rgba(99,102,241,.18);
+      border-color: rgba(99,102,241,.5);
+    }
+
+    .service-card--purple .service-card__icon {
+      background: rgba(99,102,241,.22);
+    }
+
+    .service-card--purple .service-card__icon svg {
+      stroke: #818cf8;
+    }
+
+    /* Sign out button - black/white identity */
+    .logout-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.15rem;
+    }
+
+    .logout-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+      padding: .72rem 1.15rem;
+      border-radius: 14px;
+      background: #111;
+      color: #fff;
+      border: 1px solid #111;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+      letter-spacing: -.01em;
+      box-shadow: 0 10px 24px rgba(0,0,0,.16);
+      transition: background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease;
+    }
+
+    .logout-btn:hover {
+      background: #000;
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.22);
+    }
+
+    .logout-btn:active {
+      transform: none;
+      box-shadow: 0 6px 14px rgba(0,0,0,.14);
+    }
   </style>
 </head>
+
 <body class="page-home">
 
   <main class="home-center">
     <div class="home-card">
 
-
-      <div class="home-logo">
-         <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RL Maintenance Logo">
-      </div>
-
-      <div class="home0-logo">
-        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect width="48" height="48" rx="12" fill="#1A2B4A"/>
-          <path d="M12 34V14h10c3.3 0 5.8.7 7.5 2.1 1.7 1.4 2.5 3.3 2.5 5.9 0 1.8-.4 3.3-1.3 4.6-.9 1.3-2.1 2.2-3.7 2.7L32 34h-5.5l-4.3-8H17v8h-5zm5-12h4.8c1.5 0 2.6-.3 3.4-1 .8-.7 1.2-1.6 1.2-2.9s-.4-2.2-1.2-2.8c-.8-.6-2-.9-3.5-.9H17v7.6z" fill="#FF6B35"/>
-          <rect x="10" y="38" width="28" height="2" rx="1" fill="#FF6B35" opacity="0.5"/>
-        </svg>
-      </div>
-
-      <h1 class="home-title">RL Maintenance<br> Services </h1>
+      <h1 class="home-title">RL Maintenance<br>Services</h1>
       <p class="home-subtitle">Select a tool to get started.</p>
 
       <div class="home-services">
@@ -44,7 +79,7 @@
             </svg>
           </div>
           <div class="service-card__body">
-            <span class="service-card__title">Prepare Report  | إعداد التقرير </span>
+            <span class="service-card__title">Prepare Report | إعداد التقرير</span>
             <span class="service-card__desc">إنشاء تقارير اليومية بسهولة، متوافق مع الجوال والمتصفح</span>
           </div>
           <div class="service-card__arrow">&#8594;</div>
@@ -60,7 +95,7 @@
             </svg>
           </div>
           <div class="service-card__body">
-            <span class="service-card__title">Combine Photos | تجميع الصور </span>
+            <span class="service-card__title">Combine Photos | تجميع الصور</span>
             <span class="service-card__desc">دمج عدة صور في صورة واحدة مضغوطة وسهلة المشاركة</span>
           </div>
           <div class="service-card__arrow">&#8594;</div>
@@ -84,12 +119,9 @@
 
       </div>
 
-      <a href="{{ url_for('logout') }}"
-         style="font-size:.78rem;color:rgba(255,255,255,.35);text-decoration:none;margin-top:-.5rem;transition:color .2s;"
-         onmouseover="this.style.color='rgba(255,255,255,.7)'"
-         onmouseout="this.style.color='rgba(255,255,255,.35)'">
-        Sign out
-      </a>
+      <div class="logout-wrap">
+        <a href="{{ url_for('logout') }}" class="logout-btn">Sign out</a>
+      </div>
 
     </div>
   </main>
