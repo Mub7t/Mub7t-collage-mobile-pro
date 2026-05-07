@@ -5,56 +5,146 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login — RL Maintenance</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
   <style>
+    body.page-home {
+      background: #f5f5f5 !important;
+      color: #111 !important;
+    }
+
     .login-card {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.1);
+      background: #ffffff;
+      border: 1px solid #e5e5e5;
       border-radius: 24px;
       padding: 2.75rem 2.25rem;
       max-width: 420px;
       width: 100%;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 25px 80px rgba(0,0,0,.4);
-      display: flex; flex-direction: column; gap: 1.4rem;
+      box-shadow: 0 24px 70px rgba(0,0,0,.12);
+      display: flex;
+      flex-direction: column;
+      gap: 1.4rem;
       animation: fadeInUp .5s cubic-bezier(.2,.8,.4,1) both;
     }
-    .login-header { display: flex; flex-direction: column; align-items: center; gap: .5rem; }
-    .login-title  { font-size: 1.65rem; font-weight: 700; color: #fff; text-align: center; letter-spacing: -.02em; }
-    .login-sub    { font-size: .875rem; color: rgba(255,255,255,.45); text-align: center; }
+
+    .login-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .55rem;
+    }
+
+    .home-logo {
+      background: #ffffff !important;
+      border: 1px solid #eeeeee;
+      box-shadow: 0 12px 30px rgba(0,0,0,.08);
+    }
+
+    .home-logo img {
+      filter: grayscale(100%) contrast(1.15);
+    }
+
+    .login-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #111111;
+      text-align: center;
+      letter-spacing: -.03em;
+      margin: 0;
+    }
+
+    .login-sub {
+      font-size: .9rem;
+      color: #666666;
+      text-align: center;
+      margin: 0;
+    }
+
     .login-error {
-      background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3);
-      border-radius: 10px; padding: .65rem 1rem;
-      color: #fca5a5; font-size: .875rem; text-align: center; line-height: 1.4;
+      background: #f4f4f4;
+      border: 1px solid #d4d4d4;
+      border-radius: 12px;
+      padding: .7rem 1rem;
+      color: #111111;
+      font-size: .875rem;
+      text-align: center;
+      line-height: 1.4;
     }
-    .login-form  { display: flex; flex-direction: column; gap: 1rem; }
-    .login-field { display: flex; flex-direction: column; gap: .35rem; }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .login-field {
+      display: flex;
+      flex-direction: column;
+      gap: .4rem;
+    }
+
     .login-field label {
-      font-size: .8rem; font-weight: 600;
-      color: rgba(255,255,255,.6); letter-spacing: .03em; text-transform: uppercase;
+      font-size: .78rem;
+      font-weight: 800;
+      color: #222222;
+      letter-spacing: .04em;
+      text-transform: uppercase;
     }
+
     .login-field input {
-      padding: .7rem .95rem; border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.07); color: #fff;
-      font-size: .975rem; font-family: inherit;
-      transition: border-color .2s, box-shadow .2s;
+      padding: .82rem 1rem;
+      border-radius: 12px;
+      border: 1px solid #d6d6d6;
+      background: #ffffff;
+      color: #111111;
+      font-size: .98rem;
+      font-family: inherit;
+      transition: border-color .2s, box-shadow .2s, background .2s;
     }
+
     .login-field input:focus {
-      outline: none; border-color: rgba(99,102,241,.55);
-      box-shadow: 0 0 0 3px rgba(99,102,241,.14);
+      outline: none;
+      border-color: #111111;
+      box-shadow: 0 0 0 3px rgba(0,0,0,.08);
+      background: #ffffff;
     }
-    .login-field input::placeholder { color: rgba(255,255,255,.22); }
+
+    .login-field input::placeholder {
+      color: #9a9a9a;
+    }
+
     .login-btn {
-      width: 100%; padding: .78rem; border-radius: 10px;
-      background: #FF6B35; color: #fff; border: none;
-      font-size: 1rem; font-weight: 700; font-family: inherit;
-      cursor: pointer; transition: background .2s, transform .15s, box-shadow .2s;
-      box-shadow: 0 4px 16px rgba(255,107,53,.3);
+      width: 100%;
+      padding: .88rem;
+      border-radius: 12px;
+      background: #111111;
+      color: #ffffff;
+      border: 1px solid #111111;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background .2s, color .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
     }
-    .login-btn:hover  { background: #e85a22; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,107,53,.4); }
-    .login-btn:active { transform: none; box-shadow: none; }
+
+    .login-btn:hover {
+      background: #000000;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.22);
+    }
+
+    .login-btn:active {
+      transform: none;
+      box-shadow: 0 6px 14px rgba(0,0,0,.14);
+    }
+
+    .site-footer {
+      color: #777777 !important;
+    }
   </style>
 </head>
+
 <body class="page-home">
 
   <main class="home-center">
@@ -64,6 +154,7 @@
         <div class="home-logo">
           <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RL Maintenance Logo">
         </div>
+
         <h1 class="login-title">RL Maintenance</h1>
         <p class="login-sub">Sign in to continue</p>
       </div>
@@ -79,19 +170,21 @@
                  placeholder="Enter your username"
                  autocomplete="username" required autofocus />
         </div>
+
         <div class="login-field">
           <label for="password">Password</label>
           <input type="password" id="password" name="password"
                  placeholder="Enter your password"
                  autocomplete="current-password" required />
         </div>
+
         <button type="submit" class="login-btn">Sign In</button>
       </form>
 
     </div>
   </main>
 
-  <footer class="site-footer" style="color:rgba(255,255,255,.2);">
+  <footer class="site-footer">
     RL Maintenance Team &mdash; Field Operations
   </footer>
 
