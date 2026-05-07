@@ -25,7 +25,8 @@
 
     .pm-table {
       border-collapse: collapse; min-width: 1140px; width: 100%;
-      font-size: .8rem; table-layout: fixed;
+      font-size: .9rem; table-layout: fixed;
+      font-family: "Times New Roman", Times, serif;
     }
     .pm-table th, .pm-table td {
       border: 1px solid rgba(0,0,0,.18); padding: 5px 6px;
@@ -198,7 +199,8 @@
       .pm-scroll { overflow: visible !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
       .pm-table {
         display: table !important; width: 100% !important; min-width: 0 !important;
-        font-size: 7pt !important; table-layout: auto !important; border-collapse: collapse !important;
+        font-size: 9pt !important; table-layout: auto !important;
+        font-family: "Times New Roman", Times, serif !important; border-collapse: collapse !important;
       }
       .pm-table thead { display: table-header-group !important; }
       .pm-table tbody { display: table-row-group !important; flex-direction: unset !important; gap: 0 !important; }
@@ -209,7 +211,8 @@
       }
       .pm-table th {
         display: table-cell !important; border: 1px solid #000 !important;
-        padding: 3pt 3pt !important; font-size: 7pt !important;
+        padding: 3pt 3pt !important; font-size: 9pt !important;
+        font-family: "Times New Roman", Times, serif !important;
         text-align: center !important; vertical-align: middle !important;
       }
       .pm-table td {
@@ -225,16 +228,20 @@
       .pm-table thead tr:last-child th  { background: #333 !important; color: #eee !important; }
       .pm-table td.pm-col-desc { background: transparent !important; color: #000 !important; text-align: left !important; }
       .pm-table td.pm-col-desc .desc-cell { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 1pt !important; }
-      .pm-table td.pm-col-desc .desc-prefix { color: #555 !important; font-size: 5.5pt !important; white-space: nowrap !important; }
-      .pm-table td.pm-col-desc .desc-suffix { color: #000 !important; font-size: 7pt !important; }
+      .pm-table td.pm-col-desc .desc-prefix { color: #555 !important; font-size: 8pt !important; white-space: nowrap !important;
+        font-family: "Times New Roman", Times, serif !important; }
+      .pm-table td.pm-col-desc .desc-suffix { color: #000 !important; font-size: 9pt !important;
+        font-family: "Times New Roman", Times, serif !important; }
       .chk-toggle {
         display: inline-flex !important; width: 14pt !important; height: 14pt !important;
         font-size: 10pt !important; border: 1pt solid #aaa !important; border-radius: 2pt !important;
       }
       .chk-toggle.checked   { border-color: #16a34a !important; color: #16a34a !important; background: rgba(22,163,74,.1) !important; }
       .chk-toggle.unchecked { border-color: #ef4444 !important; color: #ef4444 !important; background: rgba(239,68,68,.06) !important; }
-      .pct-input { border: none !important; outline: none !important; font-size: 7pt !important; width: auto !important; background: transparent !important; color: inherit !important; text-align: center !important; }
-      .tl-select { border: none !important; outline: none !important; font-size: 6.5pt !important; width: auto !important; background: transparent !important; color: inherit !important; -webkit-appearance: none !important; appearance: none !important; }
+      .pct-input { border: none !important; outline: none !important; font-size: 9pt !important; width: auto !important;
+        font-family: "Times New Roman", Times, serif !important; background: transparent !important; color: inherit !important; text-align: center !important; }
+      .tl-select { border: none !important; outline: none !important; font-size: 8.5pt !important; width: auto !important;
+        font-family: "Times New Roman", Times, serif !important; background: transparent !important; color: inherit !important; -webkit-appearance: none !important; appearance: none !important; }
       .tl-select.both-avail { color: #16a34a !important; font-weight: 700 !important; }
       .tl-select.not-avail  { color: #ef4444 !important; font-weight: 700 !important; }
       .sign-cell { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 2pt !important; padding: 2pt !important; }
@@ -242,7 +249,8 @@
       .sign-cell select      { display: none !important; }
       .sign-img-wrap { width: 100% !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
       .sign-cell img { display: block !important; width: 48pt !important; height: auto !important; max-width: 100% !important; object-fit: contain !important; border: 0.5pt solid #ccc !important; border-radius: 0 0 2pt 2pt !important; }
-      .sign-status-badge { display: none !important; font-size: 5.5pt !important; padding: 1pt 2pt !important; border-radius: 2pt 2pt 0 0 !important; width: 48pt !important; text-align: center !important; font-weight: 700 !important; }
+      .sign-status-badge { display: none !important; font-size: 8pt !important; padding: 1pt 2pt !important;
+        font-family: "Times New Roman", Times, serif !important; border-radius: 2pt 2pt 0 0 !important; width: 48pt !important; text-align: center !important; font-weight: 700 !important; }
       .sign-status-badge.avail  { display: block !important; background: #16a34a !important; color: #fff !important; }
       .sign-status-badge.navail { display: block !important; background: #ef4444 !important; color: #fff !important; }
     }
@@ -553,14 +561,14 @@
     /* ── Build HTML for clipboard (desktop: Word / Outlook) ── */
     function buildClipboardHTML() {
       var siteNum = document.getElementById('site-number').value.trim() || '____';
-      var TH  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;font-family:Arial,sans-serif;font-weight:bold;';
-      var TH2 = 'border:1px solid #000;padding:5px 6px;background:#2d3f5e;color:#e2e8f0;font-size:9px;text-align:center;font-family:Arial,sans-serif;font-weight:600;';
-      var TD  = 'border:1px solid #000;padding:5px 6px;font-size:10px;text-align:center;vertical-align:middle;font-family:Arial,sans-serif;';
+      var TH  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:13px;text-align:center;font-family:&quot;Times New Roman&quot;,Times,serif;font-weight:bold;';
+      var TH2 = 'border:1px solid #000;padding:5px 6px;background:#2d3f5e;color:#e2e8f0;font-size:12px;text-align:center;font-family:&quot;Times New Roman&quot;,Times,serif;font-weight:600;';
+      var TD  = 'border:1px solid #000;padding:5px 6px;font-size:13px;text-align:center;vertical-align:middle;font-family:&quot;Times New Roman&quot;,Times,serif;';
 
       var introLine = 'Here is the PM report for site RYDRL ' + siteNum + ':';
       var html =
-        '<p style="font-family:Arial,sans-serif;font-size:12px;margin:0 0 8px 0;">' + introLine + '</p>' +
-        '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;font-family:Arial,sans-serif;">' +
+        '<p style="font-family:&quot;Times New Roman&quot;,Times,serif;font-size:15px;margin:0 0 8px 0;">' + introLine + '</p>' +
+        '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;font-family:&quot;Times New Roman&quot;,Times,serif;">' +
         '<thead><tr>' +
         '<th rowspan="2" style="' + TH + 'width:110px;">Description</th>' +
         '<th colspan="2" style="' + TH + '">Protection Poles</th>' +
@@ -607,12 +615,12 @@
           if (info && info.src) {
             var lblColor = isAvail ? '#16a34a' : '#ef4444';
             var lblText  = isAvail ? 'Available' : 'Not Available';
-            cell = '<div style="font-size:9px;font-weight:700;color:' + lblColor + ';font-family:Arial,sans-serif;margin-bottom:2px;">' + lblText + '</div>' +
+            cell = '<div style="font-size:12px;font-weight:700;color:' + lblColor + ';font-family:&quot;Times New Roman&quot;,Times,serif;margin-bottom:2px;">' + lblText + '</div>' +
                    '<img src="' + info.src + '" width="80" height="56" style="display:block;margin:0 auto;object-fit:contain;" alt="' + info.label + '">';
           } else if (!isAvail) {
-            cell = '<div style="color:#ef4444;font-weight:bold;font-size:10px;font-family:Arial,sans-serif;">Not Available</div>';
+            cell = '<div style="color:#ef4444;font-weight:bold;font-size:13px;font-family:&quot;Times New Roman&quot;,Times,serif;">Not Available</div>';
           } else {
-            cell = '<span style="color:#999;font-size:10px;">—</span>';
+            cell = '<span style="color:#999;font-size:13px;">—</span>';
           }
           html += '<td style="' + TD + '">' + cell + '</td>';
         });
