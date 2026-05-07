@@ -94,8 +94,10 @@
         </div>
         <div class="field-group">
           <label for="shift">Shift</label>
-          <input type="text" id="shift" class="field-input"
-                 value="{{ shift }}" placeholder="Overnight" />
+          <select id="shift" class="field-input">
+            <option value="Overnite" {% if shift != 'Evening' %}selected{% endif %}>Overnite</option>
+            <option value="Evening"  {% if shift == 'Evening' %}selected{% endif %}>Evening</option>
+          </select>
         </div>
         <div class="field-group">
           <label for="time_range">Time</label>
