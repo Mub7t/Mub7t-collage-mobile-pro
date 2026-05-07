@@ -14,12 +14,12 @@
 <body class="page-home">
 
   <main class="home-center">
-    
     <div class="home-card">
-<!-- 
+
+
       <div class="home-logo">
          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RL Maintenance Logo">
-      </div> -->
+      </div>
 
       <div class="home0-logo">
         <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -44,7 +44,7 @@
             </svg>
           </div>
           <div class="service-card__body">
-            <span class="service-card__title">Prepare Report Daily | إعداد التقرير </span>
+            <span class="service-card__title">Prepare Report  | إعداد التقرير </span>
             <span class="service-card__desc">إنشاء تقارير اليومية بسهولة، متوافق مع الجوال والمتصفح</span>
           </div>
           <div class="service-card__arrow">&#8594;</div>
@@ -83,6 +83,13 @@
         </a>
 
       </div>
+
+      <a href="{{ url_for('logout') }}"
+         style="font-size:.78rem;color:rgba(255,255,255,.35);text-decoration:none;margin-top:-.5rem;transition:color .2s;"
+         onmouseover="this.style.color='rgba(255,255,255,.7)'"
+         onmouseout="this.style.color='rgba(255,255,255,.35)'">
+        Sign out
+      </a>
 
     </div>
   </main>

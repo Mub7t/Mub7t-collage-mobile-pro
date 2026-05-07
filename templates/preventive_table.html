@@ -121,6 +121,9 @@
     }
     .pm-modal-cancel:hover { color: #333; }
 
+    /* ══════════════════════════════
+       MOBILE ≤ 760px — Card layout
+    ══════════════════════════════ */
     @media (max-width: 760px) {
       .pm-content { padding: .75rem .6rem 3rem; }
       .pm-scroll { overflow-x: visible; padding-bottom: 0; }
@@ -174,13 +177,15 @@
       .btn-del-row { width: 32px; height: 32px; font-size: 1rem; }
     }
 
+    /* ══════════════════════════════
+       PRINT / PDF
+    ══════════════════════════════ */
     @media print {
       @page { size: A4 landscape; margin: 1cm; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
-      .topbar, .preview-action-bar, .pm-site-bar-wrap,
-      .pm-bottom-actions, .pm-copy-success,
-      #extract-modal, #confirm-modal,
-      .site-footer, #pm-clipboard-html, .btn-del-row { display: none !important; }
+      /* Hide everything outside main, then everything inside main except the print area */
+      body > *:not(main) { display: none !important; }
+      main > *:not(#pm-print-area) { display: none !important; }
       html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; width: 100% !important; }
       body, main, .page-content, .pm-content {
         max-width: none !important; width: 100% !important;
@@ -191,12 +196,29 @@
       #pm-print-header h2 { font-size: 13pt !important; font-weight: 700 !important; margin: 0 0 3pt !important; color: #000 !important; }
       #pm-print-header p  { font-size: 10pt !important; margin: 0 !important; color: #333 !important; }
       .pm-scroll { overflow: visible !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
-      .pm-table { display: table !important; width: 100% !important; min-width: 0 !important; font-size: 7pt !important; table-layout: auto !important; border-collapse: collapse !important; }
+      .pm-table {
+        display: table !important; width: 100% !important; min-width: 0 !important;
+        font-size: 7pt !important; table-layout: auto !important; border-collapse: collapse !important;
+      }
       .pm-table thead { display: table-header-group !important; }
       .pm-table tbody { display: table-row-group !important; flex-direction: unset !important; gap: 0 !important; }
-      .pm-table tbody tr { display: table-row !important; flex-wrap: unset !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; overflow: visible !important; background: transparent !important; }
-      .pm-table th { display: table-cell !important; border: 1px solid #000 !important; padding: 3pt 3pt !important; font-size: 7pt !important; text-align: center !important; vertical-align: middle !important; }
-      .pm-table td { display: table-cell !important; border: 1px solid #000 !important; padding: 3pt 3pt !important; width: auto !important; min-height: 0 !important; background: transparent !important; text-align: center !important; vertical-align: middle !important; flex-direction: unset !important; align-items: unset !important; min-width: 0 !important; }
+      .pm-table tbody tr {
+        display: table-row !important; flex-wrap: unset !important;
+        border: none !important; border-radius: 0 !important;
+        box-shadow: none !important; overflow: visible !important; background: transparent !important;
+      }
+      .pm-table th {
+        display: table-cell !important; border: 1px solid #000 !important;
+        padding: 3pt 3pt !important; font-size: 7pt !important;
+        text-align: center !important; vertical-align: middle !important;
+      }
+      .pm-table td {
+        display: table-cell !important; border: 1px solid #000 !important;
+        padding: 3pt 3pt !important; width: auto !important; min-height: 0 !important;
+        background: transparent !important; text-align: center !important;
+        vertical-align: middle !important; flex-direction: unset !important;
+        align-items: unset !important; min-width: 0 !important;
+      }
       .pm-table td::before { display: none !important; content: none !important; }
       .pm-col-del { display: none !important; }
       .pm-table thead tr:first-child th { background: #111 !important; color: #fff !important; }
@@ -205,7 +227,10 @@
       .pm-table td.pm-col-desc .desc-cell { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 1pt !important; }
       .pm-table td.pm-col-desc .desc-prefix { color: #555 !important; font-size: 5.5pt !important; white-space: nowrap !important; }
       .pm-table td.pm-col-desc .desc-suffix { color: #000 !important; font-size: 7pt !important; }
-      .chk-toggle { display: inline-flex !important; width: 14pt !important; height: 14pt !important; font-size: 10pt !important; border: 1pt solid #aaa !important; border-radius: 2pt !important; }
+      .chk-toggle {
+        display: inline-flex !important; width: 14pt !important; height: 14pt !important;
+        font-size: 10pt !important; border: 1pt solid #aaa !important; border-radius: 2pt !important;
+      }
       .chk-toggle.checked   { border-color: #16a34a !important; color: #16a34a !important; background: rgba(22,163,74,.1) !important; }
       .chk-toggle.unchecked { border-color: #ef4444 !important; color: #ef4444 !important; background: rgba(239,68,68,.06) !important; }
       .pct-input { border: none !important; outline: none !important; font-size: 7pt !important; width: auto !important; background: transparent !important; color: inherit !important; text-align: center !important; }
@@ -323,6 +348,7 @@
 
   <footer class="site-footer">RL Maintenance Team &mdash; Field Operations &mdash; Developed by Mubarak Al-Dawsari</footer>
 
+  <!-- Extract modal -->
   <div id="extract-modal" class="pm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="pm-modal-card">
       <h3 class="pm-modal-title">Extract Table</h3>
@@ -349,6 +375,7 @@
     </div>
   </div>
 
+  <!-- Confirm copy modal -->
   <div id="confirm-modal" class="pm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
     <div class="pm-modal-card">
       <h3 class="pm-modal-title">Confirm Copy</h3>
@@ -523,14 +550,16 @@
       DEFAULT_LABELS.forEach(function (lbl) { addRow(lbl); });
     }
 
-    /* ── HTML for clipboard (desktop Word/Outlook) ── */
+    /* ── Build HTML for clipboard (desktop: Word / Outlook) ── */
     function buildClipboardHTML() {
       var siteNum = document.getElementById('site-number').value.trim() || '____';
       var TH  = 'border:1px solid #000;padding:5px 6px;background:#1a2b4a;color:#fff;font-size:10px;text-align:center;font-family:Arial,sans-serif;font-weight:bold;';
       var TH2 = 'border:1px solid #000;padding:5px 6px;background:#2d3f5e;color:#e2e8f0;font-size:9px;text-align:center;font-family:Arial,sans-serif;font-weight:600;';
       var TD  = 'border:1px solid #000;padding:5px 6px;font-size:10px;text-align:center;vertical-align:middle;font-family:Arial,sans-serif;';
 
+      var introLine = 'Here is the PM report for site RYDRL ' + siteNum + ':';
       var html =
+        '<p style="font-family:Arial,sans-serif;font-size:12px;margin:0 0 8px 0;">' + introLine + '</p>' +
         '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;font-family:Arial,sans-serif;">' +
         '<thead><tr>' +
         '<th rowspan="2" style="' + TH + 'width:110px;">Description</th>' +
@@ -610,12 +639,11 @@
       return html;
     }
 
-    /* ── Plain text for mobile fallback ── */
+    /* ── Build plain text for mobile fallback ── */
     function buildPlainText() {
       var siteNum = document.getElementById('site-number').value.trim() || '____';
       var lines = [];
-      lines.push('Preventive Maintenance Inspection');
-      lines.push('Site: RYDRL ' + siteNum);
+      lines.push('Here is the PM report for site RYDRL ' + siteNum + ':');
       lines.push('');
       lines.push(['Description','RCU','FCU','Sign L','Sign R','Pedestrian %','Traffic Light','Pole L','Pole R','Base L','Base R'].join('\t'));
 
@@ -642,28 +670,35 @@
 
         var pctIn  = tr.querySelector('.pct-input');
         var pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
+
         var tlEl   = tr.querySelector('.tl-select');
         var tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
 
         lines.push([
           desc,
-          chkVals[0] || '✓', chkVals[1] || '✓',
-          signTexts[0], signTexts[1],
-          pctVal, tlText,
-          chkVals[2] || '✓', chkVals[3] || '✓',
-          chkVals[4] || '✓', chkVals[5] || '✓'
+          chkVals[0] || '✓',
+          chkVals[1] || '✓',
+          signTexts[0],
+          signTexts[1],
+          pctVal,
+          tlText,
+          chkVals[2] || '✓',
+          chkVals[3] || '✓',
+          chkVals[4] || '✓',
+          chkVals[5] || '✓'
         ].join('\t'));
       });
 
       return lines.join('\n');
     }
 
-    /* ── Tier 1: ClipboardItem (desktop Chrome/Firefox) ── */
+    /* ── Copy: 3-tier fallback chain ── */
     function doCopy(htmlContent, plainText, onSuccess) {
+      /* Tier 1: ClipboardItem with both html + plain (desktop Chrome/Firefox) */
       if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
         try {
-          var htmlBlob  = new Blob([htmlContent], { type: 'text/html' });
-          var textBlob  = new Blob([plainText],   { type: 'text/plain' });
+          var htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+          var textBlob = new Blob([plainText],   { type: 'text/plain' });
           navigator.clipboard.write([new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })])
             .then(function () { onSuccess(); })
             .catch(function () { tier2(plainText, onSuccess); });
@@ -675,7 +710,7 @@
       }
     }
 
-    /* ── Tier 2: writeText (iOS Safari 13.4+, Android Chrome) ── */
+    /* Tier 2: writeText — works on iOS Safari 13.4+ and Android Chrome */
     function tier2(plainText, onSuccess) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(plainText)
@@ -686,15 +721,17 @@
       }
     }
 
-    /* ── Tier 3: textarea + execCommand (broadest mobile support) ── */
+    /* Tier 3: textarea + execCommand — broadest mobile compatibility */
     function tier3(plainText, onSuccess) {
       var ta = document.createElement('textarea');
       ta.value = plainText;
+      /* Position off-screen but visible so iOS can focus it */
       ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;opacity:0;';
       ta.setAttribute('readonly', '');
       document.body.appendChild(ta);
       ta.focus();
       ta.select();
+      /* iOS requires setSelectionRange */
       try { ta.setSelectionRange(0, 99999); } catch (e) {}
       var ok = false;
       try { ok = document.execCommand('copy'); } catch (e) {}
@@ -702,7 +739,7 @@
       if (ok) {
         onSuccess();
       } else {
-        alert('Copy failed. Please long-press the page, select all text, and copy manually.');
+        alert('Copy failed. Please long-press and select all text, then copy manually.');
       }
     }
 

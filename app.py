@@ -1,5 +1,5 @@
 """
-RL Maintenance Report Generator — app.py  v5
+RL Maintenance Report Generator — app.py  v6
 """
 
 import os
@@ -12,7 +12,12 @@ from flask import (
     Flask, render_template, request, redirect,
     url_for, send_file, flash, jsonify
 )
+from flask_login import (
+    LoginManager, UserMixin, login_required,
+    login_user, logout_user, current_user
+)
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from services.ocr_service            import extract_text_from_image
 from services.parser_service         import parse_email_text
@@ -20,6 +25,43 @@ from services.photo_combiner_service import combine_photos
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "rl-report-secret-key-2026")
+
+# ── User accounts ──────────────────────────────────────────────────────────────
+# To add / change accounts: edit the username (dict key), display_name, role,
+# and the password string inside generate_password_hash().
+# ───────────────────────────────────────────────────────────────────────────────
+USERS = {
+    "admin":  {"display_name": "Administrator", "role": "admin", "password": generate_password_hash("Admin@2026")},
+    "user1":  {"display_name": "Technician 1",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user2":  {"display_name": "Technician 2",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user3":  {"display_name": "Technician 3",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user4":  {"display_name": "Technician 4",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user5":  {"display_name": "Technician 5",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user6":  {"display_name": "Technician 6",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user7":  {"display_name": "Technician 7",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user8":  {"display_name": "Technician 8",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user9":  {"display_name": "Technician 9",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+}
+
+login_manager = LoginManager()
+login_manager.login_view = "login"
+login_manager.login_message = "Please log in to access this page."
+login_manager.init_app(app)
+
+
+class User(UserMixin):
+    def __init__(self, username):
+        self.id           = username
+        self.display_name = USERS[username]["display_name"]
+        self.role         = USERS[username]["role"]
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id in USERS:
+        return User(user_id)
+    return None
+
 
 UPLOAD_FOLDER  = os.path.join(os.path.dirname(__file__), "uploads")
 IMAGES_FOLDER  = os.path.join(os.path.dirname(__file__), "generated_images")
@@ -58,20 +100,51 @@ def _empty_task() -> dict:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+# AUTH
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for("index"))
+    error = None
+    if request.method == "POST":
+        username  = request.form.get("username", "").strip().lower()
+        password  = request.form.get("password", "")
+        user_data = USERS.get(username)
+        if user_data and check_password_hash(user_data["password"], password):
+            login_user(User(username))
+            next_page = request.args.get("next")
+            return redirect(next_page or url_for("index"))
+        error = "Invalid username or password."
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 # SERVICE 1 — PREPARE REPORT
 # ══════════════════════════════════════════════════════════════════════════════
 
 @app.route("/")
+@login_required
 def index():
     return render_template("index.html")
 
 
 @app.route("/upload")
+@login_required
 def upload():
     return render_template("upload.html")
 
 
 @app.route("/extract", methods=["POST"])
+@login_required
 def extract():
     """OCR path: upload image → parse → review."""
     if "image" not in request.files or request.files["image"].filename == "":
@@ -125,6 +198,7 @@ def extract():
 
 
 @app.route("/manual-report")
+@login_required
 def manual_report():
     """Manual path: go straight to review page with one blank row."""
     tasks = [_empty_task()]
@@ -144,6 +218,7 @@ def manual_report():
 
 
 @app.route("/report-preview", methods=["POST"])
+@login_required
 def report_preview():
     supervisor = request.form.get("supervisor", "").strip()
     team       = request.form.get("team", "").strip()
@@ -187,6 +262,7 @@ def report_preview():
 
 
 @app.route("/api/extract", methods=["POST"])
+@login_required
 def api_extract():
     if "image" not in request.files:
         return jsonify({"error": "No image provided"}), 400
@@ -209,6 +285,7 @@ def api_extract():
 # ══════════════════════════════════════════════════════════════════════════════
 
 @app.route("/preventive-table")
+@login_required
 def preventive_table():
     return render_template("preventive_table.html")
 
@@ -218,11 +295,13 @@ def preventive_table():
 # ══════════════════════════════════════════════════════════════════════════════
 
 @app.route("/combine-photos")
+@login_required
 def combine_photos_page():
     return render_template("combine_photos.html")
 
 
 @app.route("/combine-photos/preview", methods=["POST"])
+@login_required
 def combine_photos_preview():
     all_files = request.files.getlist("photos")
     files = [f for f in all_files if f and f.filename and f.filename.strip()]
@@ -290,6 +369,7 @@ def combine_photos_preview():
 
 
 @app.route("/combine-photos/download/<filename>")
+@login_required
 def combine_photos_download(filename: str):
     safe = os.path.basename(filename)
     path = os.path.join(app.config["IMAGES_FOLDER"], safe)
@@ -300,6 +380,7 @@ def combine_photos_download(filename: str):
 
 
 @app.route("/combine-photos/preview-image/<filename>")
+@login_required
 def combine_photos_preview_image(filename: str):
     safe = os.path.basename(filename)
     path = os.path.join(app.config["IMAGES_FOLDER"], safe)
@@ -314,10 +395,5 @@ def too_large(_):
     return redirect(url_for("upload"))
 
 
-import os
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
-
-    
+    app.run(debug=True, port=5000)
