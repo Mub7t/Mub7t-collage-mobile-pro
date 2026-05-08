@@ -52,14 +52,13 @@
       background: #111; color: #fff;
       padding: .18rem .5rem; border-radius: 999px; letter-spacing: .02em;
     }
-    /* model badge shown in action bar after selection */
     .pm-model-badge-indicator {
       font-size: .78rem; font-weight: 600; color: #555;
       background: #f1f1ef; border: 1px solid #ddddd7;
       padding: .18rem .65rem; border-radius: 999px;
     }
 
-    /* ── Existing table styles ──────────────────────────────────────────────── */
+    /* ── Site bar ─────────────────────────────────────────────────────────── */
     .pm-site-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
     .pm-site-bar label { font-weight: 600; font-size: .9rem; white-space: nowrap; }
     .pm-site-bar input {
@@ -70,42 +69,107 @@
     .pm-site-bar input:focus { outline: 2px solid #6366f1; border-color: transparent; }
     .pm-site-hint { font-size: .78rem; opacity: .6; }
 
-    .pm-scroll {
-      width: 100%; overflow-x: auto; overflow-y: hidden;
-      -webkit-overflow-scrolling: touch; padding-bottom: 14px; margin-bottom: 1.5rem;
+    /* ── Scroll wrapper ───────────────────────────────────────────────────── */
+    .pm-scroll { width: 100%; padding-bottom: 14px; margin-bottom: 1.5rem; }
+
+    /* ══════════════════════════════════════════════════════════════
+       CARD LAYOUT — input UI (all screen sizes)
+       The <table> structure is preserved so PDF/copy output works.
+       Only the visual rendering changes here.
+    ══════════════════════════════════════════════════════════════ */
+
+    /* Table renders as stacked cards */
+    .pm-table { display: block; width: 100%; }
+    .pm-table thead { display: none; }
+    .pm-table tbody {
+      display: flex; flex-direction: column;
+      gap: 1.25rem; align-items: center;
     }
 
-    .pm-table {
-      border-collapse: collapse; min-width: 1140px; width: 100%;
-      font-size: .8rem; table-layout: fixed;
+    /* Each direction = one card */
+    .pm-table tbody tr {
+      display: flex; flex-wrap: wrap;
+      width: 100%; max-width: 640px;
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: 12px; overflow: hidden;
+      background: #fff;
+      box-shadow: 0 2px 16px rgba(0,0,0,.07);
     }
-    .pm-table th, .pm-table td {
-      border: 1px solid rgba(0,0,0,.18); padding: 5px 6px;
-      text-align: center; vertical-align: middle;
+
+    /* ── Card header: delete + description ── */
+    .pm-table td.pm-col-del {
+      background: #111; border: none !important;
+      width: 52px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: .8rem .7rem;
     }
-    .pm-table thead tr:first-child th { background: #111; color: #fff; font-size: .72rem; font-weight: 700; }
-    .pm-table thead tr:last-child th  { background: #2a2a2a; color: #e5e5e5; font-size: .7rem; font-weight: 600; }
-    .pm-table tbody tr:nth-child(odd)  { background: rgba(255,255,255,.06); }
-    .pm-table tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
+    .pm-table td.pm-col-desc {
+      flex: 0 0 calc(100% - 52px);
+      max-width: calc(100% - 52px);
+      background: #111; border: none !important;
+      display: flex; align-items: center;
+      padding: .8rem 1rem .8rem .15rem;
+    }
+    .desc-cell { display: flex; flex-direction: row; gap: .4rem; align-items: center; }
+    .desc-prefix { font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.65); white-space: nowrap; }
+    .desc-suffix { font-size: 1.05rem; font-weight: 700; color: #fff; letter-spacing: .02em; }
 
-    .pm-col-del  { width: 44px; }
-    .pm-col-desc { width: 115px; }
-    .pm-col-chk  { width: 52px; }
-    .pm-col-sign { width: 125px; }
-    .pm-col-pct  { width: 68px; }
-    .pm-col-tl   { width: 128px; }
+    /* ── Body cells: 2 per row (50% each) ── */
+    .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) {
+      width: 50%; box-sizing: border-box;
+      border: none !important;
+      border-top: 1px solid rgba(0,0,0,.07) !important;
+      padding: .78rem .9rem;
+      display: flex; flex-direction: column; gap: .45rem;
+      text-align: left; vertical-align: top;
+      background: #fff; min-height: 68px;
+    }
 
-    .sign-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 2px; }
+    /* Right border on left-column cells (RCU=3rd, SignL=5th, Pct=7th, PoleL=9th, BaseL=11th — all odd) */
+    .pm-table tbody td:nth-child(odd):not(.pm-col-del) {
+      border-right: 1px solid rgba(0,0,0,.07) !important;
+    }
+
+    /* Field label via data-label attribute */
+    .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc)::before {
+      content: attr(data-label);
+      font-size: .62rem; font-weight: 700; color: #aaa;
+      text-transform: uppercase; letter-spacing: .07em;
+      display: block; line-height: 1; margin-bottom: .05rem;
+    }
+
+    /* Checkbox cells: label left, toggle right, inline */
+    .pm-table tbody td.pm-col-chk {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pm-table tbody td.pm-col-chk::before { margin-bottom: 0; }
+
+    /* Pedestrian % — label full width, then input+% inline */
+    /* Pedestrian % — label full width, then input+% inline */
+    .pm-table td.pm-col-pct {
+      flex-direction: row; flex-wrap: wrap;
+      align-items: center; gap: .35rem;
+    }
+    .pm-table td.pm-col-pct::before { flex-basis: 100%; margin-bottom: 0; }
+
+    /* ── Shared component styles ── */
+    .sign-cell {
+      display: flex; flex-direction: column; align-items: stretch; gap: 5px; padding: 0;
+    }
     .sign-avail {
-      font-size: .65rem; padding: 2px 4px; border-radius: 3px;
-      border: 1px solid rgba(0,0,0,.15); width: 100%; background: transparent; color: inherit; cursor: pointer;
+      font-size: .8rem; padding: .38rem .5rem; border-radius: 6px;
+      border: 1px solid rgba(0,0,0,.15); width: 100%;
+      background: transparent; color: inherit; cursor: pointer;
     }
     .sign-avail.not-avail { color: #ef4444; border-color: #ef4444; }
     .sign-cell select {
-      width: 100%; font-size: .68rem; padding: 2px 3px;
-      border: 1px solid rgba(0,0,0,.2); border-radius: 4px; background: transparent; color: inherit; cursor: pointer;
+      width: 100%; font-size: .8rem; padding: .38rem .5rem;
+      border: 1px solid rgba(0,0,0,.2); border-radius: 6px;
+      background: transparent; color: inherit; cursor: pointer;
     }
-    .sign-img-wrap { display: flex; flex-direction: column; align-items: center; width: 84px; }
+    .sign-img-wrap { display: flex; flex-direction: column; align-items: flex-start; width: 100%; }
     .sign-status-badge {
       display: none; width: 100%; text-align: center; font-size: .6rem;
       font-weight: 700; letter-spacing: .02em; padding: 2px 4px; border-radius: 3px 3px 0 0;
@@ -113,46 +177,49 @@
     .sign-status-badge.avail  { display: block; background: #16a34a; color: #fff; }
     .sign-status-badge.navail { display: block; background: #ef4444; color: #fff; }
     .sign-cell img {
-      display: none; width: 84px; height: 58px; object-fit: contain;
-      border: 1px solid rgba(0,0,0,.12); border-radius: 0 0 3px 3px;
+      display: none; width: 100%; max-width: 110px; height: auto; object-fit: contain;
+      border: 1px solid rgba(0,0,0,.12); border-radius: 0 0 4px 4px;
     }
 
     .chk-toggle {
       display: inline-flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; cursor: pointer; border: 2px solid rgba(0,0,0,.2);
-      border-radius: 5px; font-size: 1rem; user-select: none; transition: background .15s, border-color .15s;
+      width: 38px; height: 38px; cursor: pointer;
+      border: 2px solid rgba(0,0,0,.2); border-radius: 8px;
+      font-size: 1.15rem; user-select: none;
+      transition: background .15s, border-color .15s;
     }
-    .chk-toggle.checked   { background: rgba(22,163,74,.15); border-color: #16a34a; color: #16a34a; }
+    .chk-toggle.checked   { background: rgba(22,163,74,.12); border-color: #16a34a; color: #16a34a; }
     .chk-toggle.unchecked { background: rgba(239,68,68,.08);  border-color: #ef4444; color: #ef4444; }
 
     .pct-input {
-      width: 52px; text-align: center; font-size: .8rem;
-      border: 1px solid rgba(0,0,0,.18); border-radius: 4px; padding: 3px 4px; background: transparent; color: inherit;
+      width: 74px; text-align: center; font-size: .95rem;
+      border: 1px solid rgba(0,0,0,.18); border-radius: 6px;
+      padding: .38rem .5rem; background: transparent; color: inherit;
     }
     .pct-input:focus { outline: 2px solid #6366f1; border-color: transparent; }
 
     .tl-select {
-      width: 100%; font-size: .72rem; padding: 3px 4px;
-      border: 1px solid rgba(0,0,0,.18); border-radius: 4px; background: transparent; color: inherit; cursor: pointer;
+      width: 100%; font-size: .82rem; padding: .4rem .5rem;
+      border: 1px solid rgba(0,0,0,.18); border-radius: 6px;
+      background: transparent; color: inherit; cursor: pointer;
     }
     .tl-select.both-avail { color: #16a34a; }
     .tl-select.not-avail  { color: #ef4444; }
 
-    .desc-cell { display: flex; flex-direction: column; align-items: center; gap: 3px; }
-    .desc-prefix { font-size: .68rem; font-weight: 700; white-space: nowrap; }
-    .desc-suffix { font-size: .78rem; font-weight: 700; color: #6366f1; }
-
     .btn-del-row {
       display: inline-flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; background: #ef4444; color: #fff; border: none;
-      border-radius: 5px; cursor: pointer; font-size: .85rem; font-weight: 700; transition: background .15s;
+      width: 30px; height: 30px; background: #ef4444; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: .9rem; font-weight: 700;
+      transition: background .15s;
     }
     .btn-del-row:hover { background: #b91c1c; }
 
+    /* ── Bottom actions ── */
     .pm-bottom-actions { display: flex; flex-direction: column; gap: .75rem; margin-top: .5rem; }
     .pm-bottom-actions .btn { width: 100%; justify-content: center; padding: .8rem 1rem; font-size: 1rem; }
     .pm-copy-success { display: none; }
 
+    /* ── Modals ── */
     .pm-modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.48);
       backdrop-filter: blur(4px); z-index: 1000;
@@ -174,67 +241,26 @@
     .pm-modal-cancel:hover { color: #333; }
 
     /* ══════════════════════════════
-       MOBILE ≤ 760px — Card layout
+       MOBILE ≤ 640px adjustments
     ══════════════════════════════ */
-    @media (max-width: 760px) {
+    @media (max-width: 640px) {
       .pm-content { padding: .75rem .6rem 3rem; }
       .pm-select-wrap { padding: 1.25rem 0 2.5rem; gap: 1.25rem; }
       .pm-model-grid { flex-direction: column; }
       .pm-model-card { max-width: none; }
-      .pm-scroll { overflow-x: visible; padding-bottom: 0; }
       .pm-site-bar { flex-direction: column; align-items: flex-start; gap: .45rem; }
       .pm-site-bar input { width: 100%; box-sizing: border-box; }
       .pm-site-hint { display: none; }
       .preview-action-bar { flex-direction: column; align-items: stretch !important; gap: .5rem; }
       .preview-action-info { flex-direction: column; align-items: flex-start; gap: .3rem; }
-      .pm-table { display: block; min-width: 0; width: 100%; }
-      .pm-table thead { display: none; }
-      .pm-table tbody { display: flex; flex-direction: column; gap: .9rem; }
-      .pm-table tbody tr {
-        display: flex; flex-wrap: wrap;
-        border: 1px solid rgba(0,0,0,.13); border-radius: 12px;
-        overflow: hidden; background: rgba(255,255,255,.97);
-        box-shadow: 0 1px 6px rgba(0,0,0,.07);
-      }
-      .pm-table td.pm-col-del {
-        background: #1a1a1a; color: #fff; border: none;
-        padding: .6rem .85rem; display: flex; align-items: center;
-        justify-content: center; width: 52px; flex-shrink: 0;
-      }
-      .pm-table td.pm-col-desc {
-        flex: 1; background: #1a1a1a; border: none;
-        padding: .6rem .85rem; display: flex; align-items: center;
-      }
-      .pm-table td.pm-col-desc .desc-cell { flex-direction: row; gap: .4rem; align-items: center; }
-      .pm-table td.pm-col-desc .desc-prefix { color: rgba(255,255,255,.7); font-size: .72rem; }
-      .pm-table td.pm-col-desc .desc-suffix { color: #fff; font-size: .9rem; }
-      .pm-table td:not(.pm-col-del):not(.pm-col-desc) {
-        width: 100%; display: flex; align-items: center;
-        border: none; border-top: 1px solid rgba(0,0,0,.07);
-        padding: .55rem .85rem; min-height: 46px; box-sizing: border-box;
-      }
-      .pm-table td[data-label]::before {
-        content: attr(data-label);
-        font-size: .7rem; font-weight: 700; color: #666;
-        text-transform: uppercase; letter-spacing: .04em;
-        min-width: 110px; flex-shrink: 0;
-      }
-      .pm-table td.pm-col-sign { flex-direction: column; align-items: flex-start; gap: .4rem; padding: .7rem .85rem; }
-      .pm-table td.pm-col-sign::before { min-width: 0; }
-      .pm-table td.pm-col-sign .sign-cell { width: 100%; }
-      .pm-table td.pm-col-sign .sign-avail,
-      .pm-table td.pm-col-sign .sign-cell select { width: 100%; font-size: .82rem; padding: .38rem .5rem; }
-      .pm-table td.pm-col-sign .sign-img-wrap { width: 100%; }
-      .pm-table td.pm-col-sign .sign-cell img { width: 100px; height: auto; max-width: 100%; }
-      .pm-table td.pm-col-pct .pct-input { width: 80px; font-size: .9rem; padding: .38rem .5rem; }
-      .pm-table td.pm-col-tl  .tl-select { flex: 1; font-size: .82rem; padding: .38rem .5rem; }
-      .chk-toggle  { width: 34px; height: 34px; font-size: 1.1rem; }
-      .btn-del-row { width: 32px; height: 32px; font-size: 1rem; }
+      /* Cards fill width on mobile */
+      .pm-table tbody tr { border-radius: 10px; }
+      .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) { padding: .7rem .75rem; }
     }
 
     /* ══════════════════════════════
        PRINT / PDF
-       #pm-print-area is now inside #pm-table-view, so the hide chain is:
+       #pm-print-area is inside #pm-table-view, hide chain:
          body → keep main only
          main → keep #pm-table-view only
          #pm-table-view → keep #pm-print-area only
@@ -261,11 +287,12 @@
         table-layout: auto !important; border-collapse: collapse !important;
       }
       .pm-table thead { display: table-header-group !important; }
-      .pm-table tbody { display: table-row-group !important; flex-direction: unset !important; gap: 0 !important; }
+      .pm-table tbody { display: table-row-group !important; flex-direction: unset !important; gap: 0 !important; align-items: unset !important; }
       .pm-table tbody tr {
         display: table-row !important; flex-wrap: unset !important;
         border: none !important; border-radius: 0 !important;
         box-shadow: none !important; overflow: visible !important; background: transparent !important;
+        max-width: none !important; width: auto !important;
       }
       .pm-table th {
         display: table-cell !important; border: 1px solid #000 !important;
@@ -282,13 +309,13 @@
         font-family: "Times New Roman", Times, serif !important; font-size: 11.5pt !important;
       }
       .pm-table td::before { display: none !important; content: none !important; }
-      /* Hide delete column — higher specificity to override display:table-cell above */
+      /* Hide delete column */
       .pm-table th.pm-col-del,
       .pm-table td.pm-col-del { display: none !important; }
       .pm-table thead tr:first-child th {
         background-color: #bfbfbf !important; background: #bfbfbf !important; color: #000000 !important;
       }
-      .pm-table thead tr:last-child th  {
+      .pm-table thead tr:last-child th {
         background-color: #bfbfbf !important; background: #bfbfbf !important; color: #000000 !important;
       }
       .pm-table td.pm-col-desc { background: transparent !important; color: #000 !important; text-align: left !important; }
@@ -390,7 +417,7 @@
                 <line x1="9.17"  y1="14.83" x2="4.93"  y2="19.07"/>
               </svg>
             </div>
-            <div class="pm-model-card__title">6 Directions Sites</div>
+            <div class="pm-model-card__title">8 Directions Sites</div>
             <div class="pm-model-card__desc">For sites with split directions:<br>A1, A2, B1, B2, C1, C2, D1, D2</div>
             <div class="pm-model-card__labels">
               <span class="pm-model-card__lbl">A1</span>
@@ -414,7 +441,7 @@
                 <line x1="19" y1="7"  x2="5"  y2="17"/>
               </svg>
             </div>
-            <div class="pm-model-card__title">The Old Sites</div>
+            <div class="pm-model-card__title">Legacy Sites</div>
             <div class="pm-model-card__desc">For old sites with directions:<br>EB, WB, SB, NB</div>
             <div class="pm-model-card__labels">
               <span class="pm-model-card__lbl">EB</span>
@@ -447,7 +474,7 @@
           </span>
           <span id="pm-model-badge" class="pm-model-badge-indicator"></span>
           <span class="preview-meta">
-            Fill in the table, then tap <strong>Extract</strong> below to copy or export as PDF.
+            Fill in the cards, then tap <strong>Extract</strong> below to copy or export as PDF.
           </span>
         </div>
         <button type="button" id="pm-change-model-btn" class="btn btn-ghost btn-sm">&#8592; Change Model</button>
@@ -457,7 +484,7 @@
         <div class="pm-site-bar">
           <label for="site-number">Site Number (RYDRL):</label>
           <input type="text" id="site-number" placeholder="e.g. 4175" maxlength="10" />
-          <span class="pm-site-hint">Applies automatically to all rows.</span>
+          <span class="pm-site-hint">Applies automatically to all cards.</span>
         </div>
       </div>
 
@@ -521,7 +548,7 @@
 
   <div id="pm-clipboard-html" style="display:none;"></div>
 
-  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations </footer>
+  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations &mdash; Developed by Mubarak Al-Dawsari</footer>
 
   <!-- Extract modal -->
   <div id="extract-modal" class="pm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
@@ -705,7 +732,7 @@
       pctIn.type = 'number'; pctIn.min = '0'; pctIn.max = '100';
       pctIn.className = 'pct-input'; pctIn.placeholder = '0';
       var pctUnit = document.createElement('span');
-      pctUnit.textContent = ' %'; pctUnit.style.fontSize = '.75rem';
+      pctUnit.textContent = ' %'; pctUnit.style.fontSize = '.82rem';
       tdPct.appendChild(pctIn); tdPct.appendChild(pctUnit);
       tr.appendChild(tdPct);
 
