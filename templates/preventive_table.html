@@ -131,7 +131,6 @@
     }
 
     /* Field label via data-label attribute */
-    /* Field label via data-label attribute */
     .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc)::before {
       content: attr(data-label);
       font-size: .62rem; font-weight: 700; color: #aaa;
@@ -146,6 +145,8 @@
       justify-content: space-between;
     }
     .pm-table tbody td.pm-col-chk::before { margin-bottom: 0; }
+
+    /* Pedestrian % — label full width, then input+% inline */
     /* Pedestrian % — label full width, then input+% inline */
 
     /* Checkbox cells: label left, toggle right, inline */
@@ -250,6 +251,31 @@
     }
     .pm-modal-cancel:hover { color: #333; }
 
+
+    /* ── Checkbox cells: label left, toggle right ── */
+    .pm-table tbody td.pm-col-chk {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+      padding: .78rem .9rem !important;
+    }
+
+    .pm-table tbody td.pm-col-chk::before {
+      display: inline-flex !important;
+      align-items: center !important;
+      margin: 0 !important;
+      flex-shrink: 0;
+    }
+
+    .pm-table tbody td.pm-col-chk .chk-toggle {
+      margin-left: auto !important;
+      flex: 0 0 auto !important;
+    }
+
+
+    
     /* ══════════════════════════════
        MOBILE ≤ 640px adjustments
     ══════════════════════════════ */
