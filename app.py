@@ -32,7 +32,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "rl-report-secret-key-2026")
 # ───────────────────────────────────────────────────────────────────────────────
 USERS = {
     "admin":  {"display_name": "Administrator", "role": "admin", "password": generate_password_hash("Admin@2026")},
-    "user1":  {"display_name": "Technician 1",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
+    "user1":  {"display_name": "Technician 1",  "role": "user",  "password": generate_password_hash("user@2026")},
     "user2":  {"display_name": "Technician 2",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
     "user3":  {"display_name": "Technician 3",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
     "user4":  {"display_name": "Technician 4",  "role": "tech",  "password": generate_password_hash("Tech@2026")},
