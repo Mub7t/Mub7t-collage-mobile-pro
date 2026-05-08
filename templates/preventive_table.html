@@ -8,7 +8,7 @@
   <style>
     .pm-content { max-width: 1100px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
 
-    /* ── Model selection screen ── */
+    /* ── Model selection ── */
     .pm-select-wrap {
       display: flex; flex-direction: column; align-items: center;
       gap: 2rem; padding: 2.5rem 0 3.5rem;
@@ -19,26 +19,18 @@
       margin-bottom: .5rem; letter-spacing: -.02em;
     }
     .pm-select-header p { font-size: .9rem; color: #666; line-height: 1.55; }
-    .pm-model-grid {
-      display: flex; gap: 1.1rem; width: 100%;
-      flex-wrap: wrap; justify-content: center;
-    }
+    .pm-model-grid { display: flex; gap: 1.1rem; width: 100%; flex-wrap: wrap; justify-content: center; }
     .pm-model-card {
       flex: 1; min-width: 200px; max-width: 310px;
       display: flex; flex-direction: column; align-items: flex-start; gap: .75rem;
       padding: 1.5rem 1.25rem;
       background: rgba(255,255,255,.9);
-      border: 1.5px solid rgba(0,0,0,.1);
-      border-radius: 16px;
+      border: 1.5px solid rgba(0,0,0,.1); border-radius: 16px;
       cursor: pointer; text-align: left; font-family: inherit;
       transition: border-color .18s, box-shadow .18s, transform .18s;
       box-shadow: 0 2px 12px rgba(0,0,0,.05);
     }
-    .pm-model-card:hover {
-      border-color: #111;
-      box-shadow: 0 8px 28px rgba(0,0,0,.1);
-      transform: translateY(-2px);
-    }
+    .pm-model-card:hover { border-color: #111; box-shadow: 0 8px 28px rgba(0,0,0,.1); transform: translateY(-2px); }
     .pm-model-card__icon {
       width: 44px; height: 44px; border-radius: 10px;
       background: #111; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
@@ -48,8 +40,7 @@
     .pm-model-card__desc  { font-size: .82rem; color: #666; line-height: 1.5; }
     .pm-model-card__labels { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .1rem; }
     .pm-model-card__lbl {
-      font-size: .72rem; font-weight: 700;
-      background: #111; color: #fff;
+      font-size: .72rem; font-weight: 700; background: #111; color: #fff;
       padding: .18rem .5rem; border-radius: 999px; letter-spacing: .02em;
     }
     .pm-model-badge-indicator {
@@ -69,22 +60,16 @@
     .pm-site-bar input:focus { outline: 2px solid #6366f1; border-color: transparent; }
     .pm-site-hint { font-size: .78rem; opacity: .6; }
 
-    /* ── Scroll wrapper ── */
-    .pm-scroll { width: 100%; padding-bottom: 14px; margin-bottom: 1.5rem; }
-
     /* ── Sign reference panel ── */
     .pm-sign-ref {
       display: flex; flex-wrap: wrap; gap: .6rem;
       padding: .75rem 1rem; margin-bottom: 1rem;
-      background: #fff;
-      border: 1px solid rgba(0,0,0,.1);
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,.07);
+      background: #fff; border: 1px solid rgba(0,0,0,.1);
+      border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,.07);
     }
     .pm-sign-ref__title {
-      width: 100%; font-size: .7rem; font-weight: 800;
-      color: #aaa; text-transform: uppercase;
-      letter-spacing: .09em; margin-bottom: .1rem;
+      width: 100%; font-size: .7rem; font-weight: 800; color: #aaa;
+      text-transform: uppercase; letter-spacing: .09em; margin-bottom: .1rem;
     }
     .pm-sign-ref__item {
       flex: 1 1 calc(25% - .6rem); min-width: 68px; max-width: 110px;
@@ -92,85 +77,61 @@
       background: #f7f7f5; border: 1px solid rgba(0,0,0,.08);
       border-radius: 8px; padding: .45rem .4rem .4rem;
     }
-    .pm-sign-ref__item img {
-      width: 100%; max-width: 72px; height: 52px;
-      object-fit: contain; display: block;
-    }
-    .pm-sign-ref__item span {
-      font-size: .62rem; font-weight: 600; color: #555;
-      text-align: center; line-height: 1.3;
-    }
+    .pm-sign-ref__item img { width: 100%; max-width: 72px; height: 52px; object-fit: contain; display: block; }
+    .pm-sign-ref__item span { font-size: .62rem; font-weight: 600; color: #555; text-align: center; line-height: 1.3; }
+
+    /* ── Scroll wrapper ── */
+    .pm-scroll { width: 100%; padding-bottom: 14px; margin-bottom: 1.5rem; }
 
     /* ══════════════════════════════════════════════════════════════
-       CARD LAYOUT — screen input UI only
-       <table> structure preserved; PDF/copy read DOM order unchanged.
+       CARD LAYOUT — input UI only (screen)
     ══════════════════════════════════════════════════════════════ */
     .pm-table { display: block; width: 100%; }
     .pm-table thead { display: none; }
-    .pm-table tbody {
-      display: flex; flex-direction: column;
-      gap: 1.25rem; align-items: center;
-    }
+    .pm-table tbody { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; }
 
-    /* Each TR = one direction card */
     .pm-table tbody tr {
       display: flex; flex-wrap: wrap;
       width: 100%; max-width: 640px;
-      border: 1px solid rgba(0,0,0,.1);
-      border-radius: 12px; overflow: hidden;
-      background: #fff;
-      box-shadow: 0 2px 16px rgba(0,0,0,.07);
+      border: 1px solid rgba(0,0,0,.1); border-radius: 12px; overflow: hidden;
+      background: #fff; box-shadow: 0 2px 16px rgba(0,0,0,.07);
     }
 
-    /* ── Card header ── */
+    /* Card header */
     .pm-table td.pm-col-del {
       background: #111; border: none !important;
       width: 52px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      padding: .8rem .7rem;
-      cursor: pointer;
+      padding: .8rem .7rem; cursor: pointer;
     }
     .pm-table td.pm-col-desc {
-      flex: 0 0 calc(100% - 52px);
-      max-width: calc(100% - 52px);
+      flex: 0 0 calc(100% - 52px); max-width: calc(100% - 52px);
       background: #111; border: none !important;
       display: flex; align-items: center;
-      padding: .8rem 1rem .8rem .15rem;
-      cursor: pointer;
+      padding: .8rem 1rem .8rem .15rem; cursor: pointer;
     }
-    .desc-cell {
-      display: flex; flex-direction: row; gap: .4rem; align-items: center;
-      width: 100%;
-    }
+    .desc-cell { display: flex; flex-direction: row; gap: .4rem; align-items: center; width: 100%; }
     .desc-prefix { font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.65); white-space: nowrap; }
     .desc-suffix { font-size: 1.05rem; font-weight: 700; color: #fff; letter-spacing: .02em; }
-    .pm-card-toggle {
-      margin-left: auto; flex-shrink: 0;
-      color: rgba(255,255,255,.65); font-size: .8rem; line-height: 1;
-    }
+    .pm-card-toggle { margin-left: auto; flex-shrink: 0; color: rgba(255,255,255,.65); font-size: .8rem; line-height: 1; }
 
-    /* ── Collapsed state: hide all body cells ── */
+    /* Collapsed state */
     .pm-table tbody tr.pm-card-collapsed td:not(.pm-col-del):not(.pm-col-desc) {
       display: none !important;
     }
 
-    /* ── Body cells: 2 per row (50% each) ── */
+    /* Body cells */
     .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) {
       width: 50%; box-sizing: border-box;
       border: none !important;
       border-top: 1px solid rgba(0,0,0,.07) !important;
       padding: .78rem .9rem;
       display: flex; flex-direction: column; gap: .45rem;
-      text-align: left; vertical-align: top;
-      background: #fff; min-height: 68px;
+      text-align: left; background: #fff; min-height: 68px;
     }
-
-    /* Right border on left-column cells (odd DOM positions = left column) */
     .pm-table tbody td:nth-child(odd):not(.pm-col-del) {
       border-right: 1px solid rgba(0,0,0,.07) !important;
     }
-
-    /* Field labels via data-label */
     .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc)::before {
       content: attr(data-label);
       font-size: .62rem; font-weight: 700; color: #aaa;
@@ -178,33 +139,19 @@
       display: block; line-height: 1; margin-bottom: .05rem;
     }
 
-    /* Checkbox cells: label left, toggle right, inline */
+    /* Checkbox cells: label left, toggle right */
     .pm-table tbody td.pm-col-chk {
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 12px !important;
-      min-height: unset !important;
+      flex-direction: row !important; align-items: center !important;
+      justify-content: space-between !important; gap: 12px !important; min-height: unset !important;
     }
-    .pm-table tbody td.pm-col-chk::before {
-      display: inline-flex !important;
-      align-items: center !important;
-      margin: 0 !important;
-      flex-shrink: 0;
-    }
-    .pm-table tbody td.pm-col-chk .chk-toggle {
-      margin-left: auto !important;
-      flex: 0 0 auto !important;
-    }
+    .pm-table tbody td.pm-col-chk::before { display: inline-flex !important; align-items: center !important; margin: 0 !important; flex-shrink: 0; }
+    .pm-table tbody td.pm-col-chk .chk-toggle { margin-left: auto !important; flex: 0 0 auto !important; }
 
-    /* Pedestrian %: label full width, input+unit inline */
-    .pm-table td.pm-col-pct {
-      flex-direction: row; flex-wrap: wrap;
-      align-items: center; gap: .35rem;
-    }
+    /* Pedestrian %: label full-width, input inline */
+    .pm-table td.pm-col-pct { flex-direction: row; flex-wrap: wrap; align-items: center; gap: .35rem; }
     .pm-table td.pm-col-pct::before { flex-basis: 100%; margin-bottom: 0; }
 
-    /* Visual order — DOM order preserved for PDF/copy correctness */
+    /* Visual order — DOM order preserved for data extraction */
     .pm-table tbody td:nth-child(1)  { order: 0; }
     .pm-table tbody td:nth-child(2)  { order: 1; }
     .pm-table tbody td:nth-child(3)  { order: 2; }   /* RCU    */
@@ -218,10 +165,8 @@
     .pm-table tbody td:nth-child(7)  { order: 10; }  /* Pct %  */
     .pm-table tbody td:nth-child(8)  { order: 11; }  /* TL     */
 
-    /* ── Shared component styles ── */
-    .sign-cell {
-      display: flex; flex-direction: column; align-items: stretch; gap: 5px; padding: 0;
-    }
+    /* ── Components ── */
+    .sign-cell { display: flex; flex-direction: column; align-items: stretch; gap: 5px; padding: 0; }
     .sign-avail {
       font-size: .8rem; padding: .38rem .5rem; border-radius: 6px;
       border: 1px solid rgba(0,0,0,.15); width: 100%;
@@ -305,7 +250,7 @@
     .pm-modal-cancel:hover { color: #333; }
 
     /* ══════════════════════════════
-       MOBILE ≤ 640px
+       MOBILE
     ══════════════════════════════ */
     @media (max-width: 640px) {
       .pm-content { padding: .75rem .6rem 3rem; }
@@ -323,9 +268,11 @@
     }
 
     /* ══════════════════════════════
-       PRINT / PDF — A4 landscape
-       Overrides ALL card/flex/order CSS.
-       All rows print regardless of collapsed state.
+       PRINT / PDF
+       Card input is hidden.
+       A clean inline-styled table is injected into #pm-print-table-wrap
+       by JS before window.print() is called.
+       No CSS overrides needed for the print table — it uses inline styles.
     ══════════════════════════════ */
     @media print {
       @page { size: A4 landscape; margin: 1cm; }
@@ -333,137 +280,22 @@
       body > *:not(main)                      { display: none !important; }
       main > *:not(#pm-table-view)            { display: none !important; }
       #pm-table-view > *:not(#pm-print-area) { display: none !important; }
-      html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; width: 100% !important; }
+      html, body {
+        margin: 0 !important; padding: 0 !important;
+        background: #fff !important; width: 100% !important;
+      }
       body, main, .page-content, .pm-content, #pm-table-view {
         max-width: none !important; width: 100% !important;
         padding: 0 !important; margin: 0 !important;
         box-shadow: none !important; border: none !important;
       }
       #pm-print-header { display: block !important; margin-bottom: .4cm; }
-      #pm-print-header h2 { font-size: 13pt !important; font-weight: 700 !important; margin: 0 0 3pt !important; color: #000 !important; }
-      #pm-print-header p  { font-size: 10pt !important; margin: 0 !important; color: #333 !important; }
-      .pm-scroll { overflow: visible !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
-
-      /* Force real table layout — override all card/flex/order CSS */
-      .pm-table {
-        display: table !important; width: 100% !important; min-width: 0 !important;
-        font-size: 11.5pt !important; font-family: "Times New Roman", Times, serif !important;
-        table-layout: auto !important; border-collapse: collapse !important;
-      }
-      .pm-table thead { display: table-header-group !important; }
-      .pm-table tbody {
-        display: table-row-group !important;
-        flex-direction: unset !important; gap: 0 !important; align-items: unset !important;
-      }
-      .pm-table tbody tr {
-        display: table-row !important; flex-wrap: unset !important;
-        border: none !important; border-radius: 0 !important;
-        box-shadow: none !important; overflow: visible !important;
-        background: transparent !important; max-width: none !important; width: auto !important;
-      }
-      .pm-table th {
-        display: table-cell !important; border: 1px solid #000 !important;
-        padding: 3pt 4pt !important; font-size: 11.5pt !important;
-        font-family: "Times New Roman", Times, serif !important;
-        text-align: center !important; vertical-align: middle !important;
-      }
-      /* All TDs as real table cells — reset every flex/order/card override */
-      .pm-table td {
-        display: table-cell !important; border: 1px solid #000 !important;
-        padding: 3pt 4pt !important; width: auto !important; min-height: 0 !important;
-        background: transparent !important; text-align: center !important;
-        vertical-align: middle !important;
-        flex-direction: unset !important; align-items: unset !important;
-        justify-content: unset !important; gap: unset !important;
-        min-width: 0 !important; order: unset !important;
-        font-family: "Times New Roman", Times, serif !important; font-size: 11.5pt !important;
-        border-top: 1px solid #000 !important; border-right: 1px solid #000 !important;
-      }
-      /* Override screen right-border rules with solid black in print */
-      .pm-table tbody td:nth-child(odd):not(.pm-col-del) {
-        border-right: 1px solid #000 !important;
-      }
-      .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) {
-        border-top: 1px solid #000 !important;
-        min-height: 0 !important;
-      }
-      /* Show all cells of collapsed cards in print */
-      .pm-table tbody tr.pm-card-collapsed td:not(.pm-col-del):not(.pm-col-desc) {
-        display: table-cell !important;
-      }
-      /* Hide all ::before pseudo-labels */
-      .pm-table td::before { display: none !important; content: none !important; }
-      /* Hide collapse indicator */
-      .pm-card-toggle { display: none !important; }
-
-      /* Hide delete column */
-      .pm-table th.pm-col-del,
-      .pm-table td.pm-col-del { display: none !important; }
-
-      /* Header rows */
-      .pm-table thead tr:first-child th {
-        background-color: #bfbfbf !important; background: #bfbfbf !important; color: #000000 !important;
-      }
-      .pm-table thead tr:last-child th {
-        background-color: #bfbfbf !important; background: #bfbfbf !important; color: #000000 !important;
-      }
-
-      /* Description cell */
-      .pm-table td.pm-col-desc {
-        background: transparent !important; color: #000 !important; text-align: left !important;
-        flex: unset !important; max-width: none !important; cursor: default !important;
-      }
-      .pm-table td.pm-col-desc .desc-cell {
-        display: flex !important; flex-direction: row !important;
-        align-items: center !important; gap: 4pt !important; width: auto !important;
-      }
-      .pm-table td.pm-col-desc .desc-prefix {
-        color: #555 !important; font-size: 12pt !important;
-        white-space: nowrap !important; font-family: "Times New Roman", Times, serif !important;
-      }
-      .pm-table td.pm-col-desc .desc-suffix {
-        color: #000 !important; font-size: 12pt !important;
-        font-family: "Times New Roman", Times, serif !important;
-      }
-
-      /* Checkboxes */
-      .chk-toggle {
-        display: inline-flex !important; width: 15pt !important; height: 15pt !important;
-        font-size: 12pt !important; border: 1pt solid #aaa !important;
-        border-radius: 2pt !important; margin-left: unset !important;
-      }
-      .chk-toggle.checked   { border-color: #16a34a !important; color: #16a34a !important; background: rgba(22,163,74,.1) !important; }
-      .chk-toggle.unchecked { border-color: #ef4444 !important; color: #ef4444 !important; background: rgba(239,68,68,.06) !important; }
-
-      /* Inputs / selects */
-      .pct-input {
-        border: none !important; outline: none !important; font-size: 12pt !important;
-        width: auto !important; background: transparent !important; color: inherit !important;
-        text-align: center !important; font-family: "Times New Roman", Times, serif !important;
-      }
-      .tl-select {
-        border: none !important; outline: none !important; font-size: 11.5pt !important;
-        width: auto !important; background: transparent !important; color: inherit !important;
-        -webkit-appearance: none !important; appearance: none !important;
-        font-family: "Times New Roman", Times, serif !important;
-      }
-      .tl-select.both-avail { color: #16a34a !important; font-weight: 700 !important; }
-      .tl-select.not-avail  { color: #ef4444 !important; font-weight: 700 !important; }
-
-      /* Sign cells */
-      .sign-cell { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 2pt !important; padding: 2pt !important; }
-      .sign-cell .sign-avail { display: none !important; }
-      .sign-cell select      { display: none !important; }
-      .sign-img-wrap { width: 100% !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
-      .sign-cell img { display: block !important; width: 48pt !important; height: auto !important; max-width: 100% !important; object-fit: contain !important; border: 0.5pt solid #ccc !important; border-radius: 0 0 2pt 2pt !important; }
-      .sign-status-badge { display: none !important; }
-      .sign-status-badge.avail  { display: block !important; background: #16a34a !important; color: #fff !important; font-size: 7.5pt !important; padding: 1pt 2pt !important; border-radius: 2pt 2pt 0 0 !important; width: 48pt !important; text-align: center !important; font-weight: 700 !important; font-family: "Times New Roman", Times, serif !important; }
-      .sign-status-badge.navail { display: block !important; background: #ef4444 !important; color: #fff !important; font-size: 7.5pt !important; padding: 1pt 2pt !important; border-radius: 2pt 2pt 0 0 !important; width: 48pt !important; text-align: center !important; font-weight: 700 !important; font-family: "Times New Roman", Times, serif !important; }
-
-      /* Hide all UI-only elements */
-      .site-footer, .topbar, .preview-action-bar, .pm-site-bar-wrap,
-      .pm-bottom-actions, .pm-copy-success,
-      #extract-modal, #confirm-modal, #pm-clipboard-html { display: none !important; }
+      #pm-print-header h2 { font-size: 13pt; font-weight: 700; margin: 0 0 3pt; color: #000; }
+      #pm-print-header p  { font-size: 10pt; margin: 0; color: #333; }
+      /* Hide card input table, show clean print table */
+      .pm-scroll { display: none !important; }
+      #pm-print-table-wrap { display: block !important; width: 100% !important; }
+      #pm-print-table-wrap table { width: 100% !important; border-collapse: collapse !important; }
     }
   </style>
 </head>
@@ -523,10 +355,10 @@
                 <line x1="12" y1="15"   x2="12" y2="22"/>
                 <line x1="2"  y1="12"   x2="9"  y2="12"/>
                 <line x1="15" y1="12"   x2="22" y2="12"/>
-                <line x1="4.93" y1="4.93"   x2="9.17" y2="9.17"/>
-                <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/>
-                <line x1="19.07" y1="4.93"  x2="14.83" y2="9.17"/>
-                <line x1="9.17"  y1="14.83" x2="4.93"  y2="19.07"/>
+                <line x1="4.93"  y1="4.93"   x2="9.17"  y2="9.17"/>
+                <line x1="14.83" y1="14.83"  x2="19.07" y2="19.07"/>
+                <line x1="19.07" y1="4.93"   x2="14.83" y2="9.17"/>
+                <line x1="9.17"  y1="14.83"  x2="4.93"  y2="19.07"/>
               </svg>
             </div>
             <div class="pm-model-card__title">8 Directions Sites</div>
@@ -629,10 +461,13 @@
 
       <div id="pm-print-area">
         <div id="pm-print-header" style="display:none;">
-          <h2 style="font-size:14pt;font-weight:700;margin:0 0 4pt;">Preventive Maintenance Inspection</h2>
-          <p id="pm-print-site" style="font-size:10pt;margin:0 0 8pt;"></p>
+          <h2 style="font-size:14pt;font-weight:700;margin:0 0 4pt;font-family:'Times New Roman',Times,serif;">
+            Preventive Maintenance Inspection
+          </h2>
+          <p id="pm-print-site" style="font-size:10pt;margin:0 0 8pt;font-family:'Times New Roman',Times,serif;"></p>
         </div>
 
+        <!-- Card input table (screen only — hidden in print) -->
         <div class="pm-scroll">
           <table class="pm-table" id="pm-table">
             <thead>
@@ -660,6 +495,9 @@
             <tbody id="pm-tbody"></tbody>
           </table>
         </div>
+
+        <!-- Clean print table injected here by JS before window.print() -->
+        <div id="pm-print-table-wrap" style="display:none;"></div>
       </div>
 
       <div class="pm-bottom-actions">
@@ -720,17 +558,23 @@
       </div>
     </div>
   </div>
-    <script>
+
+  <script>
   (function () {
 
+    /* ══════════════════════════════════════════════════════════
+       DIRECTION MODELS
+    ══════════════════════════════════════════════════════════ */
     var DIRECTION_MODELS = {
       '4dir':   { name: '4 Directions',  labels: ['A', 'B', 'C', 'D'] },
       '8dir':   { name: '8 Directions',  labels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'] },
       'legacy': { name: 'Legacy Sites',  labels: ['EB', 'WB', 'SB', 'NB'] },
     };
-
     var selectedLabels = [];
 
+    /* ══════════════════════════════════════════════════════════
+       SIGN DEFINITIONS
+    ══════════════════════════════════════════════════════════ */
     var SIGNS = {
       'none':        { label: '— None —',                  src: '' },
       'stop_left':   { label: 'Stop Line Left',            src: "{{ url_for('static', filename='images/signs/stop_left.png') }}" },
@@ -739,8 +583,11 @@
       'no_right':    { label: 'No Right Turn',             src: "{{ url_for('static', filename='images/signs/no_right_turn.png') }}" },
     };
 
+    /* ══════════════════════════════════════════════════════════
+       INPUT UI BUILDERS
+    ══════════════════════════════════════════════════════════ */
     function buildSignCell() {
-      var wrap = document.createElement('div');
+      var wrap  = document.createElement('div');
       wrap.className = 'sign-cell';
 
       var avail = document.createElement('select');
@@ -748,7 +595,7 @@
       avail.innerHTML = '<option value="available">Available</option><option value="not_available">Not Available</option>';
 
       var sel = document.createElement('select');
-      Object.keys(SIGNS).forEach(function(k) {
+      Object.keys(SIGNS).forEach(function (k) {
         var o = document.createElement('option');
         o.value = k; o.textContent = SIGNS[k].label; sel.appendChild(o);
       });
@@ -767,15 +614,12 @@
         var isAvail = avail.value !== 'not_available';
         avail.classList.toggle('not-avail', !isAvail);
         if (info && info.src) {
-          img.src = info.src;
-          img.style.display = '';
+          img.src = info.src; img.style.display = '';
           badge.textContent = isAvail ? 'Available' : 'Not Available';
           badge.className   = 'sign-status-badge ' + (isAvail ? 'avail' : 'navail');
         } else {
-          img.src = '';
-          img.style.display = 'none';
-          badge.className   = 'sign-status-badge';
-          badge.textContent = '';
+          img.src = ''; img.style.display = 'none';
+          badge.className = 'sign-status-badge'; badge.textContent = '';
         }
       }
       avail.addEventListener('change', refresh);
@@ -800,28 +644,28 @@
       return el;
     }
 
-    /* ── Add one row, collapsed by default ── */
+    /* ── Add one card row, collapsed by default ── */
     function addRow(label) {
       var siteNum = document.getElementById('site-number').value.trim() || '____';
       var tbody   = document.getElementById('pm-tbody');
       var tr      = document.createElement('tr');
       tr.dataset.label = label;
-      tr.classList.add('pm-card-collapsed'); /* default: collapsed */
+      tr.classList.add('pm-card-collapsed');
 
-      /* Delete button */
+      /* Delete cell */
       var tdDel = document.createElement('td');
       tdDel.className = 'pm-col-del';
       var delBtn = document.createElement('button');
       delBtn.type = 'button'; delBtn.className = 'btn-del-row';
       delBtn.title = 'Delete row'; delBtn.textContent = '✕';
       delBtn.addEventListener('click', function (e) {
-        e.stopPropagation(); /* prevent toggle */
+        e.stopPropagation();
         tbody.removeChild(tr);
       });
       tdDel.appendChild(delBtn);
       tr.appendChild(tdDel);
 
-      /* Description */
+      /* Description cell */
       var tdDesc = document.createElement('td');
       tdDesc.className = 'pm-col-desc';
       var dWrap  = document.createElement('div');
@@ -830,40 +674,41 @@
       prefix.className = 'desc-prefix'; prefix.textContent = 'RYDRL ' + siteNum;
       var suffix = document.createElement('span');
       suffix.className = 'desc-suffix'; suffix.textContent = label;
-      var toggleIndicator = document.createElement('span');
-      toggleIndicator.className = 'pm-card-toggle';
-      toggleIndicator.textContent = '▶'; /* collapsed indicator */
-      dWrap.appendChild(prefix); dWrap.appendChild(suffix); dWrap.appendChild(toggleIndicator);
+      var toggleInd = document.createElement('span');
+      toggleInd.className = 'pm-card-toggle'; toggleInd.textContent = '▶';
+      dWrap.appendChild(prefix); dWrap.appendChild(suffix); dWrap.appendChild(toggleInd);
       tdDesc.appendChild(dWrap);
       tr.appendChild(tdDesc);
 
-      /* Toggle collapse on header click */
+      /* Toggle on header click */
       function toggleCollapse() {
-        var isCollapsed = tr.classList.toggle('pm-card-collapsed');
-        toggleIndicator.textContent = isCollapsed ? '▶' : '▼';
+        var collapsed = tr.classList.toggle('pm-card-collapsed');
+        toggleInd.textContent = collapsed ? '▶' : '▼';
       }
       tdDel.addEventListener('click', toggleCollapse);
       tdDesc.addEventListener('click', toggleCollapse);
 
-      /* RCU / FCU */
+      /* RCU (DOM pos 3) */
       var tdRCU = document.createElement('td');
       tdRCU.className = 'pm-col-chk'; tdRCU.dataset.label = 'RCU';
       tdRCU.appendChild(buildCheckbox()); tr.appendChild(tdRCU);
 
+      /* FCU (DOM pos 4) */
       var tdFCU = document.createElement('td');
       tdFCU.className = 'pm-col-chk'; tdFCU.dataset.label = 'FCU';
       tdFCU.appendChild(buildCheckbox()); tr.appendChild(tdFCU);
 
-      /* Sign board L / R */
+      /* Sign L (DOM pos 5) */
       var tdSL = document.createElement('td');
       tdSL.className = 'pm-col-sign'; tdSL.dataset.label = 'Sign Board L';
       tdSL.appendChild(buildSignCell()); tr.appendChild(tdSL);
 
+      /* Sign R (DOM pos 6) */
       var tdSR = document.createElement('td');
       tdSR.className = 'pm-col-sign'; tdSR.dataset.label = 'Sign Board R';
       tdSR.appendChild(buildSignCell()); tr.appendChild(tdSR);
 
-      /* Pedestrian % */
+      /* Pedestrian % (DOM pos 7) */
       var tdPct  = document.createElement('td');
       tdPct.className = 'pm-col-pct'; tdPct.dataset.label = 'Pedestrian %';
       var pctIn  = document.createElement('input');
@@ -874,7 +719,7 @@
       tdPct.appendChild(pctIn); tdPct.appendChild(pctUnit);
       tr.appendChild(tdPct);
 
-      /* Traffic light */
+      /* Traffic Light (DOM pos 8) */
       var tdTl  = document.createElement('td');
       tdTl.className = 'pm-col-tl'; tdTl.dataset.label = 'Traffic Light';
       var tlSel = document.createElement('select');
@@ -886,7 +731,7 @@
       });
       tdTl.appendChild(tlSel); tr.appendChild(tdTl);
 
-      /* Pole L/R, Base L/R */
+      /* Pole L (DOM pos 9), Pole R (10), Base L (11), Base R (12) */
       [['pm-col-chk','Pole L'],['pm-col-chk','Pole R'],['pm-col-chk','Base L'],['pm-col-chk','Base R']].forEach(function (cfg) {
         var td = document.createElement('td');
         td.className = cfg[0]; td.dataset.label = cfg[1];
@@ -896,7 +741,7 @@
       tbody.appendChild(tr);
     }
 
-    /* Live site number update in all card headers */
+    /* Live site number update in headers */
     document.getElementById('site-number').addEventListener('input', function () {
       var val = this.value.trim() || '____';
       document.querySelectorAll('#pm-tbody .desc-prefix').forEach(function (el) {
@@ -936,17 +781,185 @@
       document.getElementById('pm-model-select').style.display = '';
     });
 
-    /* ── Build clipboard HTML ── */
-    function buildClipboardHTML() {
+    /* ══════════════════════════════════════════════════════════
+       DATA EXTRACTION
+       Reads current values from all TR cards (collapsed or open).
+       DOM order: chk-toggle[0]=RCU, [1]=FCU, [2]=PoleL, [3]=PoleR, [4]=BaseL, [5]=BaseR
+                  sign-cell[0]=SignL, sign-cell[1]=SignR
+    ══════════════════════════════════════════════════════════ */
+    function collectPmRows() {
       var siteNum = document.getElementById('site-number').value.trim() || '____';
-      var TH  = 'border:1px solid #000;padding:5px 6px;background:#bfbfbf;color:#000000;font-size:12px;text-align:center;font-family:"Times New Roman", Times, serif;font-weight:bold;';
-      var TH2 = 'border:1px solid #000;padding:5px 6px;background:#bfbfbf;color:#000000;font-size:11px;text-align:center;font-family:"Times New Roman", Times, serif;font-weight:600;';
-      var TD  = 'border:1px solid #000;padding:5px 6px;font-size:12px;text-align:center;vertical-align:middle;font-family:"Times New Roman", Times, serif;';
+      var rows = [];
 
-      var introLine = 'Here is the PM report for site RYDRL ' + siteNum + ':';
+      document.querySelectorAll('#pm-tbody tr').forEach(function (tr) {
+        var label = tr.dataset.label || '';
+
+        /* Checkboxes in DOM order */
+        var chks = Array.from(tr.querySelectorAll('.chk-toggle')).map(function (c) {
+          return c.classList.contains('checked');
+        });
+
+        /* Sign cells in DOM order */
+        var signEls = Array.from(tr.querySelectorAll('.sign-cell'));
+        function readSign(sc) {
+          if (!sc) return { avail: true, key: 'none', label: '— None —', src: '' };
+          var availEl = sc.querySelector('.sign-avail');
+          var signSel = sc.querySelector('select:not(.sign-avail)');
+          var isAvail = !availEl || availEl.value !== 'not_available';
+          var key     = signSel ? signSel.value : 'none';
+          var info    = SIGNS[key] || { label: '— None —', src: '' };
+          return { avail: isAvail, key: key, label: info.label, src: info.src };
+        }
+
+        var pctEl  = tr.querySelector('.pct-input');
+        var tlEl   = tr.querySelector('.tl-select');
+        var pctVal = pctEl ? pctEl.value : '';
+        var tlVal  = tlEl ? tlEl.value : 'both';
+        var tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
+
+        rows.push({
+          siteNum : siteNum,
+          label   : label,
+          desc    : 'RYDRL ' + siteNum + ' ' + label,
+          rcu     : chks[0] !== undefined ? chks[0] : true,
+          fcu     : chks[1] !== undefined ? chks[1] : true,
+          signL   : readSign(signEls[0]),
+          signR   : readSign(signEls[1]),
+          pct     : pctVal,
+          tlVal   : tlVal,
+          tlText  : tlText,
+          poleL   : chks[2] !== undefined ? chks[2] : true,
+          poleR   : chks[3] !== undefined ? chks[3] : true,
+          baseL   : chks[4] !== undefined ? chks[4] : true,
+          baseR   : chks[5] !== undefined ? chks[5] : true,
+        });
+      });
+
+      return rows;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SHARED RENDER HELPERS
+    ══════════════════════════════════════════════════════════ */
+    function chkSymbol(checked, size) {
+      return checked
+        ? '<span style="color:#16a34a;font-weight:bold;font-size:' + size + ';">✓</span>'
+        : '<span style="color:#ef4444;font-weight:bold;font-size:' + size + ';">✗</span>';
+    }
+
+    function pctColor(pctStr) {
+      var n = parseInt(pctStr);
+      if (pctStr === '' || isNaN(n)) return '#333';
+      if (n >= 50) return '#16a34a';
+      if (n >= 30) return '#c65f00';
+      return '#ef4444';
+    }
+
+    /* signCellHTML — imgSize e.g. "50pt" or "80px", labelSize e.g. "9pt" or "11px" */
+    function signCellHTML(sign, imgSize, labelSize) {
+      if (sign.src) {
+        var c   = sign.avail ? '#16a34a' : '#ef4444';
+        var txt = sign.avail ? 'Available' : 'Not Available';
+        return '<div style="font-family:\'Times New Roman\',Times,serif;font-size:' + labelSize +
+               ';font-weight:700;color:' + c + ';margin-bottom:2px;">' + txt + '</div>' +
+               '<img src="' + sign.src + '" style="display:block;margin:0 auto;width:' + imgSize +
+               ';height:auto;object-fit:contain;" alt="' + sign.label + '">';
+      }
+      if (!sign.avail) {
+        return '<span style="color:#ef4444;font-weight:bold;font-family:\'Times New Roman\',' +
+               'Times,serif;font-size:' + labelSize + ';">Not Available</span>';
+      }
+      return '<span style="color:#999;font-size:' + labelSize + ';">—</span>';
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       BUILD CLEAN PRINT TABLE (for PDF)
+       Fully inline-styled — no dependency on any CSS class.
+    ══════════════════════════════════════════════════════════ */
+    function buildPrintTableHTML(rows) {
+      var F  = 'font-family:"Times New Roman",Times,serif;';
+      var TH = 'border:1px solid #000;padding:4pt 5pt;background:#bfbfbf;color:#000;' + F +
+               'font-weight:bold;text-align:center;vertical-align:middle;';
+      var TD = 'border:1px solid #000;padding:3pt 4pt;' + F +
+               'font-size:11.5pt;text-align:center;vertical-align:middle;';
+      var TD_DESC = 'border:1px solid #000;padding:3pt 5pt;' + F +
+                    'font-size:11.5pt;text-align:left;vertical-align:middle;font-weight:bold;';
+
+      var html = '<table style="border-collapse:collapse;width:100%;' + F + 'font-size:11.5pt;">';
+
+      /* Header row 1 */
+      html += '<thead>';
+      html += '<tr>';
+      html += '<th rowspan="2" style="' + TH + 'font-size:11pt;min-width:80pt;">Description</th>';
+      html += '<th colspan="2" style="' + TH + 'font-size:11pt;">Protection Poles</th>';
+      html += '<th colspan="2" style="' + TH + 'font-size:11pt;">Traffic Sign Boards</th>';
+      html += '<th rowspan="2" style="' + TH + 'font-size:10.5pt;width:55pt;">Pedestrian<br>Lanes</th>';
+      html += '<th rowspan="2" style="' + TH + 'font-size:10.5pt;width:95pt;">Traffic Light</th>';
+      html += '<th colspan="2" style="' + TH + 'font-size:11pt;">Sign Board\'s Pole</th>';
+      html += '<th colspan="2" style="' + TH + 'font-size:11pt;">Sign Board\'s Base</th>';
+      html += '</tr>';
+
+      /* Header row 2 */
+      html += '<tr>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">RCU</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">FCU</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:85pt;">L</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:85pt;">R</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">L</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">R</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">L</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">R</th>';
+      html += '</tr>';
+      html += '</thead>';
+
+      /* Body rows */
+      html += '<tbody>';
+      rows.forEach(function (row, i) {
+        var rowBg = (i % 2 === 0) ? '#ffffff' : '#f9f9f9';
+        html += '<tr style="background:' + rowBg + ';">';
+        html += '<td style="' + TD_DESC + '">'                                        + row.desc    + '</td>';
+        html += '<td style="' + TD + '">'                                             + chkSymbol(row.rcu,   '13pt') + '</td>';
+        html += '<td style="' + TD + '">'                                             + chkSymbol(row.fcu,   '13pt') + '</td>';
+        html += '<td style="' + TD + '">'                                             + signCellHTML(row.signL, '48pt', '9pt')  + '</td>';
+        html += '<td style="' + TD + '">'                                             + signCellHTML(row.signR, '48pt', '9pt')  + '</td>';
+
+        var pc  = pctColor(row.pct);
+        var pd  = (row.pct !== '') ? row.pct + ' %' : '—';
+        html += '<td style="' + TD + 'color:' + pc + ';font-weight:bold;">'          + pd          + '</td>';
+
+        var tlc = (row.tlVal === 'both') ? '#16a34a' : '#ef4444';
+        html += '<td style="' + TD + '"><span style="color:' + tlc + ';font-weight:bold;font-size:10pt;">' + row.tlText + '</span></td>';
+
+        html += '<td style="' + TD + '">'                                             + chkSymbol(row.poleL, '13pt') + '</td>';
+        html += '<td style="' + TD + '">'                                             + chkSymbol(row.poleR, '13pt') + '</td>';
+        html += '<td style="' + TD + '">'                                             + chkSymbol(row.baseL, '13pt') + '</td>';
+        html += '<td style="' + TD + '">'                                             + chkSymbol(row.baseR, '13pt') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      return html;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       BUILD CLIPBOARD HTML (Direct Copy → Outlook / Word)
+       Fully inline-styled — no CSS class dependency.
+    ══════════════════════════════════════════════════════════ */
+    function buildClipboardHTML() {
+      var rows    = collectPmRows();
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+      var F  = 'font-family:"Times New Roman",Times,serif;';
+      var TH = 'border:1px solid #000;padding:5px 6px;background:#bfbfbf;color:#000;' + F +
+               'font-weight:bold;font-size:12px;text-align:center;vertical-align:middle;';
+      var TH2 = 'border:1px solid #000;padding:5px 6px;background:#bfbfbf;color:#000;' + F +
+                'font-weight:600;font-size:11px;text-align:center;vertical-align:middle;';
+      var TD = 'border:1px solid #000;padding:5px 6px;' + F +
+               'font-size:12px;text-align:center;vertical-align:middle;';
+      var TD_DESC = 'border:1px solid #000;padding:5px 7px;' + F +
+                    'font-size:12px;text-align:left;vertical-align:middle;font-weight:bold;';
+
       var html =
-        '<p style="font-family:\'Times New Roman\', Times, serif;font-size:13px;margin:0 0 8px 0;">' + introLine + '</p>' +
-        '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;font-family:\'Times New Roman\', Times, serif;">' +
+        '<p style="' + F + 'font-size:13px;margin:0 0 8px 0;">Here is the PM report for site RYDRL ' + siteNum + ':</p>' +
+        '<table border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;min-width:960px;' + F + '">' +
         '<thead><tr>' +
         '<th rowspan="2" style="' + TH + 'width:110px;">Description</th>' +
         '<th colspan="2" style="' + TH + '">Protection Poles</th>' +
@@ -966,79 +979,26 @@
         '<th style="' + TH2 + 'width:52px;">R</th>' +
         '</tr></thead><tbody>';
 
-      document.querySelectorAll('#pm-tbody tr').forEach(function (tr, i) {
-        var bg    = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
-        var label = tr.dataset.label || String.fromCharCode(65 + i);
+      rows.forEach(function (row, i) {
+        var bg = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
         html += '<tr style="background:' + bg + ';">';
-        html += '<td style="' + TD + 'font-weight:bold;">RYDRL ' + siteNum + ' ' + label + '</td>';
+        html += '<td style="' + TD_DESC + '">'                              + row.desc    + '</td>';
+        html += '<td style="' + TD + '">'                                   + chkSymbol(row.rcu,   '16px') + '</td>';
+        html += '<td style="' + TD + '">'                                   + chkSymbol(row.fcu,   '16px') + '</td>';
+        html += '<td style="' + TD + '">'                                   + signCellHTML(row.signL, '80px', '11px') + '</td>';
+        html += '<td style="' + TD + '">'                                   + signCellHTML(row.signR, '80px', '11px') + '</td>';
 
-        var chkVals = Array.from(tr.querySelectorAll('.chk-toggle')).map(function (c) {
-          return c.classList.contains('checked');
-        });
+        var pc = pctColor(row.pct);
+        var pd = (row.pct !== '') ? row.pct + ' %' : '—';
+        html += '<td style="' + TD + 'color:' + pc + ';font-weight:bold;">' + pd          + '</td>';
 
-        /* RCU, FCU */
-        [0, 1].forEach(function (ci) {
-          var v = chkVals[ci] !== false;
-          var sym = v
-            ? '<span style="color:#16a34a;font-weight:bold;font-size:16px;">✓</span>'
-            : '<span style="color:#ef4444;font-weight:bold;font-size:16px;">✗</span>';
-          html += '<td style="' + TD + '">' + sym + '</td>';
-        });
+        var tlc = (row.tlVal === 'both') ? '#16a34a' : '#ef4444';
+        html += '<td style="' + TD + '"><span style="color:' + tlc + ';font-weight:bold;">' + row.tlText + '</span></td>';
 
-        /* Sign L, Sign R */
-        var signCells = tr.querySelectorAll('.sign-cell');
-        [0, 1].forEach(function (si) {
-          var sc      = signCells[si];
-          if (!sc) { html += '<td style="' + TD + '">—</td>'; return; }
-          var availEl = sc.querySelector('.sign-avail');
-          var signSel = sc.querySelector('select:not(.sign-avail)');
-          var isAvail = !availEl || availEl.value !== 'not_available';
-          var info    = SIGNS[signSel ? signSel.value : 'none'];
-          var cell = '';
-          if (info && info.src) {
-            var lblColor = isAvail ? '#16a34a' : '#ef4444';
-            var lblText  = isAvail ? 'Available' : 'Not Available';
-            cell = '<div style="font-size:11px;font-weight:700;color:' + lblColor + ';font-family:\'Times New Roman\', Times, serif;margin-bottom:2px;">' + lblText + '</div>' +
-                   '<img src="' + info.src + '" width="80" height="56" style="display:block;margin:0 auto;object-fit:contain;" alt="' + info.label + '">';
-          } else if (!isAvail) {
-            cell = '<div style="color:#ef4444;font-weight:bold;font-size:12px;font-family:\'Times New Roman\', Times, serif;">Not Available</div>';
-          } else {
-            cell = '<span style="color:#999;font-size:10px;">—</span>';
-          }
-          html += '<td style="' + TD + '">' + cell + '</td>';
-        });
-
-        /* Pedestrian % */
-        var pctIn  = tr.querySelector('.pct-input');
-        var pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
-        var pctNum = pctIn ? parseInt(pctIn.value) : NaN;
-        var pctCol;
-        if (!pctIn || pctIn.value === '' || isNaN(pctNum)) {
-          pctCol = '#333';
-        } else if (pctNum >= 50) {
-          pctCol = '#16a34a';
-        } else if (pctNum >= 30) {
-          pctCol = '#c65f00';
-        } else {
-          pctCol = '#ef4444';
-        }
-        html += '<td style="' + TD + 'color:' + pctCol + ';font-weight:bold;">' + pctVal + '</td>';
-
-        /* Traffic light */
-        var tlEl   = tr.querySelector('.tl-select');
-        var tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
-        var tlCol  = (!tlEl || tlEl.value === 'both') ? '#16a34a' : '#ef4444';
-        html += '<td style="' + TD + '"><span style="color:' + tlCol + ';font-weight:bold;">' + tlText + '</span></td>';
-
-        /* Pole L, Pole R, Base L, Base R */
-        [2, 3, 4, 5].forEach(function (ci) {
-          var v = (ci < chkVals.length) ? chkVals[ci] !== false : true;
-          var sym = v
-            ? '<span style="color:#16a34a;font-weight:bold;font-size:16px;">✓</span>'
-            : '<span style="color:#ef4444;font-weight:bold;font-size:16px;">✗</span>';
-          html += '<td style="' + TD + '">' + sym + '</td>';
-        });
-
+        html += '<td style="' + TD + '">' + chkSymbol(row.poleL, '16px') + '</td>';
+        html += '<td style="' + TD + '">' + chkSymbol(row.poleR, '16px') + '</td>';
+        html += '<td style="' + TD + '">' + chkSymbol(row.baseL, '16px') + '</td>';
+        html += '<td style="' + TD + '">' + chkSymbol(row.baseR, '16px') + '</td>';
         html += '</tr>';
       });
 
@@ -1046,71 +1006,54 @@
       return html;
     }
 
-    /* ── Build plain text ── */
+    /* ══════════════════════════════════════════════════════════
+       BUILD PLAIN TEXT (mobile fallback)
+    ══════════════════════════════════════════════════════════ */
     function buildPlainText() {
+      var rows    = collectPmRows();
       var siteNum = document.getElementById('site-number').value.trim() || '____';
-      var lines = [];
+      var lines   = [];
       lines.push('Here is the PM report for site RYDRL ' + siteNum + ':');
       lines.push('');
       lines.push(['Description','RCU','FCU','Sign L','Sign R','Pedestrian %','Traffic Light','Pole L','Pole R','Base L','Base R'].join('\t'));
 
-      document.querySelectorAll('#pm-tbody tr').forEach(function (tr) {
-        var label = tr.dataset.label || '';
-        var desc  = 'RYDRL ' + siteNum + ' ' + label;
-
-        var chkVals = Array.from(tr.querySelectorAll('.chk-toggle')).map(function (c) {
-          return c.classList.contains('checked') ? '✓' : '✗';
-        });
-
-        var signCells = tr.querySelectorAll('.sign-cell');
-        var signTexts = [0, 1].map(function (si) {
-          var sc = signCells[si];
-          if (!sc) return '—';
-          var availEl = sc.querySelector('.sign-avail');
-          var signSel = sc.querySelector('select:not(.sign-avail)');
-          var isAvail = !availEl || availEl.value !== 'not_available';
-          var info    = SIGNS[signSel ? signSel.value : 'none'];
-          if (info && info.src) return (isAvail ? 'Available' : 'Not Available') + ': ' + info.label;
-          if (!isAvail) return 'Not Available';
+      rows.forEach(function (row) {
+        function signText(s) {
+          if (s.src) return (s.avail ? 'Available' : 'Not Available') + ': ' + s.label;
+          if (!s.avail) return 'Not Available';
           return '—';
-        });
-
-        var pctIn  = tr.querySelector('.pct-input');
-        var pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
-
-        var tlEl   = tr.querySelector('.tl-select');
-        var tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
-
+        }
+        var pd = (row.pct !== '') ? row.pct + ' %' : '—';
         lines.push([
-          desc,
-          chkVals[0] || '✓',
-          chkVals[1] || '✓',
-          signTexts[0],
-          signTexts[1],
-          pctVal,
-          tlText,
-          chkVals[2] || '✓',
-          chkVals[3] || '✓',
-          chkVals[4] || '✓',
-          chkVals[5] || '✓'
+          row.desc,
+          row.rcu   ? '✓' : '✗',
+          row.fcu   ? '✓' : '✗',
+          signText(row.signL),
+          signText(row.signR),
+          pd,
+          row.tlText,
+          row.poleL ? '✓' : '✗',
+          row.poleR ? '✓' : '✗',
+          row.baseL ? '✓' : '✗',
+          row.baseR ? '✓' : '✗',
         ].join('\t'));
       });
 
       return lines.join('\n');
     }
 
-    /* ── 3-tier clipboard copy ── */
+    /* ══════════════════════════════════════════════════════════
+       3-TIER CLIPBOARD COPY
+    ══════════════════════════════════════════════════════════ */
     function doCopy(htmlContent, plainText, onSuccess) {
       if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
         try {
-          var htmlBlob = new Blob([htmlContent], { type: 'text/html' });
-          var textBlob = new Blob([plainText],   { type: 'text/plain' });
-          navigator.clipboard.write([new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })])
+          var hb = new Blob([htmlContent], { type: 'text/html' });
+          var tb = new Blob([plainText],   { type: 'text/plain' });
+          navigator.clipboard.write([new ClipboardItem({ 'text/html': hb, 'text/plain': tb })])
             .then(function () { onSuccess(); })
             .catch(function () { tier2(plainText, onSuccess); });
-        } catch (e) {
-          tier2(plainText, onSuccess);
-        }
+        } catch (e) { tier2(plainText, onSuccess); }
       } else {
         tier2(plainText, onSuccess);
       }
@@ -1121,9 +1064,7 @@
         navigator.clipboard.writeText(plainText)
           .then(function () { onSuccess(); })
           .catch(function () { tier3(plainText, onSuccess); });
-      } else {
-        tier3(plainText, onSuccess);
-      }
+      } else { tier3(plainText, onSuccess); }
     }
 
     function tier3(plainText, onSuccess) {
@@ -1150,7 +1091,9 @@
     function showModal(id) { document.getElementById(id).style.display = 'flex'; }
     function hideModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    /* ── Event wiring ── */
+    /* ══════════════════════════════════════════════════════════
+       EVENT WIRING
+    ══════════════════════════════════════════════════════════ */
     document.getElementById('extract-btn').addEventListener('click', function () { showModal('extract-modal'); });
     document.getElementById('extract-cancel-btn').addEventListener('click', function () { hideModal('extract-modal'); });
 
@@ -1176,24 +1119,23 @@
 
     document.getElementById('modal-pdf-btn').addEventListener('click', function () {
       hideModal('extract-modal');
+
+      /* Collect data and build clean print table */
+      var rows    = collectPmRows();
       var siteNum = document.getElementById('site-number').value.trim() || '____';
+
+      var printWrap = document.getElementById('pm-print-table-wrap');
+      printWrap.innerHTML = buildPrintTableHTML(rows);
+      printWrap.style.display = 'block';
+
       document.getElementById('pm-print-site').textContent = 'Site: RYDRL ' + siteNum;
       document.getElementById('pm-print-header').style.display = 'block';
 
-      document.querySelectorAll('#pm-tbody .pct-input').forEach(function (input) {
-        var val = parseInt(input.value);
-        if (input.value !== '' && !isNaN(val)) {
-          if (val >= 50)      { input.style.color = '#16a34a'; }
-          else if (val >= 30) { input.style.color = '#c65f00'; }
-          else                { input.style.color = '#ef4444'; }
-        }
-      });
-
       window.print();
 
-      document.querySelectorAll('#pm-tbody .pct-input').forEach(function (input) {
-        input.style.color = '';
-      });
+      /* Cleanup after print dialog closes */
+      printWrap.innerHTML = '';
+      printWrap.style.display = 'none';
       document.getElementById('pm-print-header').style.display = 'none';
     });
 
