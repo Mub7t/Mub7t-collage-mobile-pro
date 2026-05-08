@@ -274,6 +274,37 @@
       flex: 0 0 auto !important;
     }
 
+
+    /* ── Sign reference panel ── */
+    .pm-sign-ref {
+      display: flex; flex-wrap: wrap; gap: .6rem;
+      padding: .75rem 1rem; margin-bottom: 1rem;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.07);
+    }
+    .pm-sign-ref__title {
+      width: 100%; font-size: .7rem; font-weight: 800;
+      color: #aaa; text-transform: uppercase;
+      letter-spacing: .09em; margin-bottom: .1rem;
+    }
+    .pm-sign-ref__item {
+      flex: 1 1 calc(25% - .6rem); min-width: 68px; max-width: 110px;
+      display: flex; flex-direction: column; align-items: center; gap: .3rem;
+      background: #f7f7f5; border: 1px solid rgba(0,0,0,.08);
+      border-radius: 8px; padding: .45rem .4rem .4rem;
+    }
+    .pm-sign-ref__item img {
+      width: 100%; max-width: 72px; height: 52px;
+      object-fit: contain; display: block;
+    }
+    .pm-sign-ref__item span {
+      font-size: .62rem; font-weight: 600; color: #555;
+      text-align: center; line-height: 1.3;
+    }
+
+
     /* ── Card field visual order — DOM order unchanged for PDF/copy ── */
     .pm-table tbody td:nth-child(1)  { order: 0; }  /* del    */
     .pm-table tbody td:nth-child(2)  { order: 1; }  /* desc   */
@@ -532,6 +563,28 @@
         <button type="button" id="pm-change-model-btn" class="btn btn-ghost btn-sm">&#8592; Change Model</button>
       </div>
 
+
+            <div class="pm-sign-ref">
+        <div class="pm-sign-ref__title">Sign Reference</div>
+        <div class="pm-sign-ref__item">
+          <img src="{{ url_for('static', filename='images/signs/stop_left.png') }}" alt="Stop Line Left">
+          <span>Stop Line Left</span>
+        </div>
+        <div class="pm-sign-ref__item">
+          <img src="{{ url_for('static', filename='images/signs/stop_right.png') }}" alt="Stop Line Right">
+          <span>Stop Line Right</span>
+        </div>
+        <div class="pm-sign-ref__item">
+          <img src="{{ url_for('static', filename='images/signs/before_turn.png') }}" alt="Stop Before Turning Right">
+          <span>Stop Before Turning Right</span>
+        </div>
+        <div class="pm-sign-ref__item">
+          <img src="{{ url_for('static', filename='images/signs/no_right_turn.png') }}" alt="No Right Turn">
+          <span>No Right Turn</span>
+        </div>
+      </div>
+
+      
       <div class="pm-site-bar-wrap card" style="padding:.75rem 1rem; margin-bottom:1rem;">
         <div class="pm-site-bar">
           <label for="site-number">Site Number (RYDRL):</label>
