@@ -131,12 +131,22 @@
     }
 
     /* Field label via data-label attribute */
+    /* Field label via data-label attribute */
     .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc)::before {
       content: attr(data-label);
       font-size: .62rem; font-weight: 700; color: #aaa;
       text-transform: uppercase; letter-spacing: .07em;
       display: block; line-height: 1; margin-bottom: .05rem;
     }
+
+    /* Checkbox cells: label left, toggle right, inline */
+    .pm-table tbody td.pm-col-chk {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .pm-table tbody td.pm-col-chk::before { margin-bottom: 0; }
+    /* Pedestrian % — label full width, then input+% inline */
 
     /* Checkbox cells: label left, toggle right, inline */
     .pm-table tbody td.pm-col-chk {
