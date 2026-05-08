@@ -8,7 +8,7 @@
   <style>
     .pm-content { max-width: 1100px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
 
-    /* ── Model selection screen ─────────────────────────────────────────────── */
+    /* ── Model selection screen ── */
     .pm-select-wrap {
       display: flex; flex-direction: column; align-items: center;
       gap: 2rem; padding: 2.5rem 0 3.5rem;
@@ -58,7 +58,7 @@
       padding: .18rem .65rem; border-radius: 999px;
     }
 
-    /* ── Site bar ─────────────────────────────────────────────────────────── */
+    /* ── Site bar ── */
     .pm-site-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
     .pm-site-bar label { font-weight: 600; font-size: .9rem; white-space: nowrap; }
     .pm-site-bar input {
@@ -69,16 +69,42 @@
     .pm-site-bar input:focus { outline: 2px solid #6366f1; border-color: transparent; }
     .pm-site-hint { font-size: .78rem; opacity: .6; }
 
-    /* ── Scroll wrapper ───────────────────────────────────────────────────── */
+    /* ── Scroll wrapper ── */
     .pm-scroll { width: 100%; padding-bottom: 14px; margin-bottom: 1.5rem; }
 
-    /* ══════════════════════════════════════════════════════════════
-       CARD LAYOUT — input UI (all screen sizes)
-       The <table> structure is preserved so PDF/copy output works.
-       Only the visual rendering changes here.
-    ══════════════════════════════════════════════════════════════ */
+    /* ── Sign reference panel ── */
+    .pm-sign-ref {
+      display: flex; flex-wrap: wrap; gap: .6rem;
+      padding: .75rem 1rem; margin-bottom: 1rem;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.07);
+    }
+    .pm-sign-ref__title {
+      width: 100%; font-size: .7rem; font-weight: 800;
+      color: #aaa; text-transform: uppercase;
+      letter-spacing: .09em; margin-bottom: .1rem;
+    }
+    .pm-sign-ref__item {
+      flex: 1 1 calc(25% - .6rem); min-width: 68px; max-width: 110px;
+      display: flex; flex-direction: column; align-items: center; gap: .3rem;
+      background: #f7f7f5; border: 1px solid rgba(0,0,0,.08);
+      border-radius: 8px; padding: .45rem .4rem .4rem;
+    }
+    .pm-sign-ref__item img {
+      width: 100%; max-width: 72px; height: 52px;
+      object-fit: contain; display: block;
+    }
+    .pm-sign-ref__item span {
+      font-size: .62rem; font-weight: 600; color: #555;
+      text-align: center; line-height: 1.3;
+    }
 
-    /* Table renders as stacked cards */
+    /* ══════════════════════════════════════════════════════════════
+       CARD LAYOUT — screen input UI only
+       <table> structure preserved; PDF/copy read DOM order unchanged.
+    ══════════════════════════════════════════════════════════════ */
     .pm-table { display: block; width: 100%; }
     .pm-table thead { display: none; }
     .pm-table tbody {
@@ -86,7 +112,7 @@
       gap: 1.25rem; align-items: center;
     }
 
-    /* Each direction = one card */
+    /* Each TR = one direction card */
     .pm-table tbody tr {
       display: flex; flex-wrap: wrap;
       width: 100%; max-width: 640px;
@@ -96,12 +122,13 @@
       box-shadow: 0 2px 16px rgba(0,0,0,.07);
     }
 
-    /* ── Card header: delete + description ── */
+    /* ── Card header ── */
     .pm-table td.pm-col-del {
       background: #111; border: none !important;
       width: 52px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
       padding: .8rem .7rem;
+      cursor: pointer;
     }
     .pm-table td.pm-col-desc {
       flex: 0 0 calc(100% - 52px);
@@ -109,10 +136,23 @@
       background: #111; border: none !important;
       display: flex; align-items: center;
       padding: .8rem 1rem .8rem .15rem;
+      cursor: pointer;
     }
-    .desc-cell { display: flex; flex-direction: row; gap: .4rem; align-items: center; }
+    .desc-cell {
+      display: flex; flex-direction: row; gap: .4rem; align-items: center;
+      width: 100%;
+    }
     .desc-prefix { font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.65); white-space: nowrap; }
     .desc-suffix { font-size: 1.05rem; font-weight: 700; color: #fff; letter-spacing: .02em; }
+    .pm-card-toggle {
+      margin-left: auto; flex-shrink: 0;
+      color: rgba(255,255,255,.65); font-size: .8rem; line-height: 1;
+    }
+
+    /* ── Collapsed state: hide all body cells ── */
+    .pm-table tbody tr.pm-card-collapsed td:not(.pm-col-del):not(.pm-col-desc) {
+      display: none !important;
+    }
 
     /* ── Body cells: 2 per row (50% each) ── */
     .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) {
@@ -125,12 +165,12 @@
       background: #fff; min-height: 68px;
     }
 
-    /* Right border on left-column cells (RCU=3rd, SignL=5th, Pct=7th, PoleL=9th, BaseL=11th — all odd) */
+    /* Right border on left-column cells (odd DOM positions = left column) */
     .pm-table tbody td:nth-child(odd):not(.pm-col-del) {
       border-right: 1px solid rgba(0,0,0,.07) !important;
     }
 
-    /* Field label via data-label attribute */
+    /* Field labels via data-label */
     .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc)::before {
       content: attr(data-label);
       font-size: .62rem; font-weight: 700; color: #aaa;
@@ -140,30 +180,43 @@
 
     /* Checkbox cells: label left, toggle right, inline */
     .pm-table tbody td.pm-col-chk {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+      min-height: unset !important;
     }
-    .pm-table tbody td.pm-col-chk::before { margin-bottom: 0; }
-
-    /* Pedestrian % — label full width, then input+% inline */
-    /* Pedestrian % — label full width, then input+% inline */
-
-    /* Checkbox cells: label left, toggle right, inline */
-    .pm-table tbody td.pm-col-chk {
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
+    .pm-table tbody td.pm-col-chk::before {
+      display: inline-flex !important;
+      align-items: center !important;
+      margin: 0 !important;
+      flex-shrink: 0;
     }
-    .pm-table tbody td.pm-col-chk::before { margin-bottom: 0; }
+    .pm-table tbody td.pm-col-chk .chk-toggle {
+      margin-left: auto !important;
+      flex: 0 0 auto !important;
+    }
 
-    /* Pedestrian % — label full width, then input+% inline */
-    /* Pedestrian % — label full width, then input+% inline */
+    /* Pedestrian %: label full width, input+unit inline */
     .pm-table td.pm-col-pct {
       flex-direction: row; flex-wrap: wrap;
       align-items: center; gap: .35rem;
     }
     .pm-table td.pm-col-pct::before { flex-basis: 100%; margin-bottom: 0; }
+
+    /* Visual order — DOM order preserved for PDF/copy correctness */
+    .pm-table tbody td:nth-child(1)  { order: 0; }
+    .pm-table tbody td:nth-child(2)  { order: 1; }
+    .pm-table tbody td:nth-child(3)  { order: 2; }   /* RCU    */
+    .pm-table tbody td:nth-child(4)  { order: 3; }   /* FCU    */
+    .pm-table tbody td:nth-child(9)  { order: 4; }   /* Pole L */
+    .pm-table tbody td:nth-child(10) { order: 5; }   /* Pole R */
+    .pm-table tbody td:nth-child(11) { order: 6; }   /* Base L */
+    .pm-table tbody td:nth-child(12) { order: 7; }   /* Base R */
+    .pm-table tbody td:nth-child(5)  { order: 8; }   /* Sign L */
+    .pm-table tbody td:nth-child(6)  { order: 9; }   /* Sign R */
+    .pm-table tbody td:nth-child(7)  { order: 10; }  /* Pct %  */
+    .pm-table tbody td:nth-child(8)  { order: 11; }  /* TL     */
 
     /* ── Shared component styles ── */
     .sign-cell {
@@ -251,80 +304,8 @@
     }
     .pm-modal-cancel:hover { color: #333; }
 
-
-    /* ── Checkbox cells: label left, toggle right ── */
-    .pm-table tbody td.pm-col-chk {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      gap: 12px !important;
-      padding: .78rem .9rem !important;
-    }
-
-    .pm-table tbody td.pm-col-chk::before {
-      display: inline-flex !important;
-      align-items: center !important;
-      margin: 0 !important;
-      flex-shrink: 0;
-    }
-
-    .pm-table tbody td.pm-col-chk .chk-toggle {
-      margin-left: auto !important;
-      flex: 0 0 auto !important;
-    }
-
-
-    /* ── Sign reference panel ── */
-    .pm-sign-ref {
-      display: flex; flex-wrap: wrap; gap: .6rem;
-      padding: .75rem 1rem; margin-bottom: 1rem;
-      background: #fff;
-      border: 1px solid rgba(0,0,0,.1);
-      border-radius: 12px;
-      box-shadow: 0 2px 16px rgba(0,0,0,.07);
-    }
-    .pm-sign-ref__title {
-      width: 100%; font-size: .7rem; font-weight: 800;
-      color: #aaa; text-transform: uppercase;
-      letter-spacing: .09em; margin-bottom: .1rem;
-    }
-    .pm-sign-ref__item {
-      flex: 1 1 calc(25% - .6rem); min-width: 68px; max-width: 110px;
-      display: flex; flex-direction: column; align-items: center; gap: .3rem;
-      background: #f7f7f5; border: 1px solid rgba(0,0,0,.08);
-      border-radius: 8px; padding: .45rem .4rem .4rem;
-    }
-    .pm-sign-ref__item img {
-      width: 100%; max-width: 72px; height: 52px;
-      object-fit: contain; display: block;
-    }
-    .pm-sign-ref__item span {
-      font-size: .62rem; font-weight: 600; color: #555;
-      text-align: center; line-height: 1.3;
-    }
-
-
-    /* ── Card field visual order — DOM order unchanged for PDF/copy ── */
-    .pm-table tbody td:nth-child(1)  { order: 0; }  /* del    */
-    .pm-table tbody td:nth-child(2)  { order: 1; }  /* desc   */
-    .pm-table tbody td:nth-child(3)  { order: 2; }  /* RCU    */
-    .pm-table tbody td:nth-child(4)  { order: 3; }  /* FCU    */
-    .pm-table tbody td:nth-child(9)  { order: 4; }  /* Pole L */
-    .pm-table tbody td:nth-child(10) { order: 5; }  /* Pole R */
-    .pm-table tbody td:nth-child(11) { order: 6; }  /* Base L */
-    .pm-table tbody td:nth-child(12) { order: 7; }  /* Base R */
-    .pm-table tbody td:nth-child(5)  { order: 8; }  /* Sign L */
-    .pm-table tbody td:nth-child(6)  { order: 9; }  /* Sign R */
-    .pm-table tbody td:nth-child(7)  { order: 10; } /* Pct %  */
-    .pm-table tbody td:nth-child(8)  { order: 11; } /* TL     */
-
     /* ══════════════════════════════
-       MOBILE ≤ 640px adjustments
-    ══════════════════════════════ */
-    
-    /* ══════════════════════════════
-       MOBILE ≤ 640px adjustments
+       MOBILE ≤ 640px
     ══════════════════════════════ */
     @media (max-width: 640px) {
       .pm-content { padding: .75rem .6rem 3rem; }
@@ -336,24 +317,22 @@
       .pm-site-hint { display: none; }
       .preview-action-bar { flex-direction: column; align-items: stretch !important; gap: .5rem; }
       .preview-action-info { flex-direction: column; align-items: flex-start; gap: .3rem; }
-      /* Cards fill width on mobile */
       .pm-table tbody tr { border-radius: 10px; }
       .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) { padding: .7rem .75rem; }
+      .pm-sign-ref__item { min-width: 60px; }
     }
 
     /* ══════════════════════════════
-       PRINT / PDF
-       #pm-print-area is inside #pm-table-view, hide chain:
-         body → keep main only
-         main → keep #pm-table-view only
-         #pm-table-view → keep #pm-print-area only
+       PRINT / PDF — A4 landscape
+       Overrides ALL card/flex/order CSS.
+       All rows print regardless of collapsed state.
     ══════════════════════════════ */
     @media print {
       @page { size: A4 landscape; margin: 1cm; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
-      body > *:not(main)                        { display: none !important; }
-      main > *:not(#pm-table-view)              { display: none !important; }
-      #pm-table-view > *:not(#pm-print-area)   { display: none !important; }
+      body > *:not(main)                      { display: none !important; }
+      main > *:not(#pm-table-view)            { display: none !important; }
+      #pm-table-view > *:not(#pm-print-area) { display: none !important; }
       html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; width: 100% !important; }
       body, main, .page-content, .pm-content, #pm-table-view {
         max-width: none !important; width: 100% !important;
@@ -364,18 +343,23 @@
       #pm-print-header h2 { font-size: 13pt !important; font-weight: 700 !important; margin: 0 0 3pt !important; color: #000 !important; }
       #pm-print-header p  { font-size: 10pt !important; margin: 0 !important; color: #333 !important; }
       .pm-scroll { overflow: visible !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+
+      /* Force real table layout — override all card/flex/order CSS */
       .pm-table {
         display: table !important; width: 100% !important; min-width: 0 !important;
         font-size: 11.5pt !important; font-family: "Times New Roman", Times, serif !important;
         table-layout: auto !important; border-collapse: collapse !important;
       }
       .pm-table thead { display: table-header-group !important; }
-      .pm-table tbody { display: table-row-group !important; flex-direction: unset !important; gap: 0 !important; align-items: unset !important; }
+      .pm-table tbody {
+        display: table-row-group !important;
+        flex-direction: unset !important; gap: 0 !important; align-items: unset !important;
+      }
       .pm-table tbody tr {
         display: table-row !important; flex-wrap: unset !important;
         border: none !important; border-radius: 0 !important;
-        box-shadow: none !important; overflow: visible !important; background: transparent !important;
-        max-width: none !important; width: auto !important;
+        box-shadow: none !important; overflow: visible !important;
+        background: transparent !important; max-width: none !important; width: auto !important;
       }
       .pm-table th {
         display: table-cell !important; border: 1px solid #000 !important;
@@ -383,56 +367,103 @@
         font-family: "Times New Roman", Times, serif !important;
         text-align: center !important; vertical-align: middle !important;
       }
+      /* All TDs as real table cells — reset every flex/order/card override */
       .pm-table td {
         display: table-cell !important; border: 1px solid #000 !important;
         padding: 3pt 4pt !important; width: auto !important; min-height: 0 !important;
         background: transparent !important; text-align: center !important;
-        vertical-align: middle !important; flex-direction: unset !important;
-        align-items: unset !important; min-width: 0 !important;
+        vertical-align: middle !important;
+        flex-direction: unset !important; align-items: unset !important;
+        justify-content: unset !important; gap: unset !important;
+        min-width: 0 !important; order: unset !important;
         font-family: "Times New Roman", Times, serif !important; font-size: 11.5pt !important;
+        border-top: 1px solid #000 !important; border-right: 1px solid #000 !important;
       }
+      /* Override screen right-border rules with solid black in print */
+      .pm-table tbody td:nth-child(odd):not(.pm-col-del) {
+        border-right: 1px solid #000 !important;
+      }
+      .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) {
+        border-top: 1px solid #000 !important;
+        min-height: 0 !important;
+      }
+      /* Show all cells of collapsed cards in print */
+      .pm-table tbody tr.pm-card-collapsed td:not(.pm-col-del):not(.pm-col-desc) {
+        display: table-cell !important;
+      }
+      /* Hide all ::before pseudo-labels */
       .pm-table td::before { display: none !important; content: none !important; }
+      /* Hide collapse indicator */
+      .pm-card-toggle { display: none !important; }
+
       /* Hide delete column */
       .pm-table th.pm-col-del,
       .pm-table td.pm-col-del { display: none !important; }
+
+      /* Header rows */
       .pm-table thead tr:first-child th {
         background-color: #bfbfbf !important; background: #bfbfbf !important; color: #000000 !important;
       }
       .pm-table thead tr:last-child th {
         background-color: #bfbfbf !important; background: #bfbfbf !important; color: #000000 !important;
       }
-      .pm-table td.pm-col-desc { background: transparent !important; color: #000 !important; text-align: left !important; }
-      .pm-table td.pm-col-desc .desc-cell { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 4pt !important; }
-      .pm-table td.pm-col-desc .desc-prefix { color: #555 !important; font-size: 12pt !important; white-space: nowrap !important; font-family: "Times New Roman", Times, serif !important; }
-      .pm-table td.pm-col-desc .desc-suffix { color: #000 !important; font-size: 12pt !important; font-family: "Times New Roman", Times, serif !important; }
+
+      /* Description cell */
+      .pm-table td.pm-col-desc {
+        background: transparent !important; color: #000 !important; text-align: left !important;
+        flex: unset !important; max-width: none !important; cursor: default !important;
+      }
+      .pm-table td.pm-col-desc .desc-cell {
+        display: flex !important; flex-direction: row !important;
+        align-items: center !important; gap: 4pt !important; width: auto !important;
+      }
+      .pm-table td.pm-col-desc .desc-prefix {
+        color: #555 !important; font-size: 12pt !important;
+        white-space: nowrap !important; font-family: "Times New Roman", Times, serif !important;
+      }
+      .pm-table td.pm-col-desc .desc-suffix {
+        color: #000 !important; font-size: 12pt !important;
+        font-family: "Times New Roman", Times, serif !important;
+      }
+
+      /* Checkboxes */
       .chk-toggle {
         display: inline-flex !important; width: 15pt !important; height: 15pt !important;
-        font-size: 12pt !important; border: 1pt solid #aaa !important; border-radius: 2pt !important;
+        font-size: 12pt !important; border: 1pt solid #aaa !important;
+        border-radius: 2pt !important; margin-left: unset !important;
       }
       .chk-toggle.checked   { border-color: #16a34a !important; color: #16a34a !important; background: rgba(22,163,74,.1) !important; }
       .chk-toggle.unchecked { border-color: #ef4444 !important; color: #ef4444 !important; background: rgba(239,68,68,.06) !important; }
-      .pct-input { border: none !important; outline: none !important; font-size: 12pt !important; width: auto !important; background: transparent !important; color: inherit !important; text-align: center !important; font-family: "Times New Roman", Times, serif !important; }
-      .tl-select { border: none !important; outline: none !important; font-size: 11.5pt !important; width: auto !important; background: transparent !important; color: inherit !important; -webkit-appearance: none !important; appearance: none !important; font-family: "Times New Roman", Times, serif !important; }
-      /* Explicitly hide all app UI elements not part of the print area */
-      .site-footer { display: none !important; }
-      .topbar { display: none !important; }
-      .preview-action-bar { display: none !important; }
-      .pm-site-bar-wrap { display: none !important; }
-      .pm-bottom-actions { display: none !important; }
-      .pm-copy-success { display: none !important; }
-      #extract-modal { display: none !important; }
-      #confirm-modal { display: none !important; }
-      #pm-clipboard-html { display: none !important; }
+
+      /* Inputs / selects */
+      .pct-input {
+        border: none !important; outline: none !important; font-size: 12pt !important;
+        width: auto !important; background: transparent !important; color: inherit !important;
+        text-align: center !important; font-family: "Times New Roman", Times, serif !important;
+      }
+      .tl-select {
+        border: none !important; outline: none !important; font-size: 11.5pt !important;
+        width: auto !important; background: transparent !important; color: inherit !important;
+        -webkit-appearance: none !important; appearance: none !important;
+        font-family: "Times New Roman", Times, serif !important;
+      }
       .tl-select.both-avail { color: #16a34a !important; font-weight: 700 !important; }
       .tl-select.not-avail  { color: #ef4444 !important; font-weight: 700 !important; }
+
+      /* Sign cells */
       .sign-cell { display: flex !important; flex-direction: column !important; align-items: center !important; gap: 2pt !important; padding: 2pt !important; }
       .sign-cell .sign-avail { display: none !important; }
       .sign-cell select      { display: none !important; }
       .sign-img-wrap { width: 100% !important; display: flex !important; flex-direction: column !important; align-items: center !important; }
       .sign-cell img { display: block !important; width: 48pt !important; height: auto !important; max-width: 100% !important; object-fit: contain !important; border: 0.5pt solid #ccc !important; border-radius: 0 0 2pt 2pt !important; }
-      .sign-status-badge { display: none !important; font-size: 7.5pt !important; padding: 1pt 2pt !important; border-radius: 2pt 2pt 0 0 !important; width: 48pt !important; text-align: center !important; font-weight: 700 !important; font-family: "Times New Roman", Times, serif !important; }
-      .sign-status-badge.avail  { display: block !important; background: #16a34a !important; color: #fff !important; }
-      .sign-status-badge.navail { display: block !important; background: #ef4444 !important; color: #fff !important; }
+      .sign-status-badge { display: none !important; }
+      .sign-status-badge.avail  { display: block !important; background: #16a34a !important; color: #fff !important; font-size: 7.5pt !important; padding: 1pt 2pt !important; border-radius: 2pt 2pt 0 0 !important; width: 48pt !important; text-align: center !important; font-weight: 700 !important; font-family: "Times New Roman", Times, serif !important; }
+      .sign-status-badge.navail { display: block !important; background: #ef4444 !important; color: #fff !important; font-size: 7.5pt !important; padding: 1pt 2pt !important; border-radius: 2pt 2pt 0 0 !important; width: 48pt !important; text-align: center !important; font-weight: 700 !important; font-family: "Times New Roman", Times, serif !important; }
+
+      /* Hide all UI-only elements */
+      .site-footer, .topbar, .preview-action-bar, .pm-site-bar-wrap,
+      .pm-bottom-actions, .pm-copy-success,
+      #extract-modal, #confirm-modal, #pm-clipboard-html { display: none !important; }
     }
   </style>
 </head>
@@ -452,7 +483,7 @@
   <main class="page-content pm-content">
 
     <!-- ══════════════════════════════════════════════════════════
-         MODEL SELECTION SCREEN — shown on load, hidden after pick
+         MODEL SELECTION SCREEN
     ══════════════════════════════════════════════════════════ -->
     <div id="pm-model-select">
       <div class="pm-select-wrap">
@@ -464,7 +495,6 @@
 
         <div class="pm-model-grid">
 
-          <!-- ── Model 1: 4 Directions ── -->
           <button class="pm-model-card" data-model="4dir" type="button">
             <div class="pm-model-card__icon">
               <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
@@ -485,7 +515,6 @@
             </div>
           </button>
 
-          <!-- ── Model 2: 8 Directions ── -->
           <button class="pm-model-card" data-model="8dir" type="button">
             <div class="pm-model-card__icon">
               <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
@@ -514,7 +543,6 @@
             </div>
           </button>
 
-          <!-- ── Model 3: Legacy Sites ── -->
           <button class="pm-model-card" data-model="legacy" type="button">
             <div class="pm-model-card__icon">
               <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
@@ -534,13 +562,13 @@
             </div>
           </button>
 
-        </div><!-- end .pm-model-grid -->
-      </div><!-- end .pm-select-wrap -->
-    </div><!-- end #pm-model-select -->
+        </div>
+      </div>
+    </div>
 
 
     <!-- ══════════════════════════════════════════════════════════
-         TABLE VIEW — hidden until a model is selected
+         TABLE VIEW
     ══════════════════════════════════════════════════════════ -->
     <div id="pm-table-view" style="display:none;">
 
@@ -563,8 +591,8 @@
         <button type="button" id="pm-change-model-btn" class="btn btn-ghost btn-sm">&#8592; Change Model</button>
       </div>
 
-
-            <div class="pm-sign-ref">
+      <!-- Sign reference panel -->
+      <div class="pm-sign-ref">
         <div class="pm-sign-ref__title">Sign Reference</div>
         <div class="pm-sign-ref__item">
           <img src="{{ url_for('static', filename='images/signs/stop_left.png') }}" alt="Stop Line Left">
@@ -583,7 +611,6 @@
           <span>No Right Turn</span>
         </div>
       </div>
-
 
       <div class="pm-site-bar-wrap card" style="padding:.75rem 1rem; margin-bottom:1rem;">
         <div class="pm-site-bar">
@@ -633,7 +660,7 @@
             <tbody id="pm-tbody"></tbody>
           </table>
         </div>
-      </div><!-- end #pm-print-area -->
+      </div>
 
       <div class="pm-bottom-actions">
         <button type="button" id="extract-btn" class="btn btn-primary btn-xl">
@@ -693,24 +720,17 @@
       </div>
     </div>
   </div>
-
-  <script>
+    <script>
   (function () {
 
-    /* ══════════════════════════════════════════════════════════
-       DIRECTION MODELS
-       To change direction sets, edit the labels arrays below.
-    ══════════════════════════════════════════════════════════ */
     var DIRECTION_MODELS = {
       '4dir':   { name: '4 Directions',  labels: ['A', 'B', 'C', 'D'] },
       '8dir':   { name: '8 Directions',  labels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'] },
       'legacy': { name: 'Legacy Sites',  labels: ['EB', 'WB', 'SB', 'NB'] },
     };
 
-    /* Active direction labels — assigned when a model card is clicked */
     var selectedLabels = [];
 
-    /* ── Sign image definitions ── */
     var SIGNS = {
       'none':        { label: '— None —',                  src: '' },
       'stop_left':   { label: 'Stop Line Left',            src: "{{ url_for('static', filename='images/signs/stop_left.png') }}" },
@@ -719,7 +739,6 @@
       'no_right':    { label: 'No Right Turn',             src: "{{ url_for('static', filename='images/signs/no_right_turn.png') }}" },
     };
 
-    /* ── Build a sign cell (availability dropdown + sign type + image) ── */
     function buildSignCell() {
       var wrap = document.createElement('div');
       wrap.className = 'sign-cell';
@@ -765,7 +784,6 @@
       return wrap;
     }
 
-    /* ── Build a checkbox toggle ── */
     function buildCheckbox() {
       var el = document.createElement('div');
       el.className = 'chk-toggle checked';
@@ -782,12 +800,13 @@
       return el;
     }
 
-    /* ── Add one table row for a given direction label ── */
+    /* ── Add one row, collapsed by default ── */
     function addRow(label) {
       var siteNum = document.getElementById('site-number').value.trim() || '____';
       var tbody   = document.getElementById('pm-tbody');
       var tr      = document.createElement('tr');
       tr.dataset.label = label;
+      tr.classList.add('pm-card-collapsed'); /* default: collapsed */
 
       /* Delete button */
       var tdDel = document.createElement('td');
@@ -795,7 +814,10 @@
       var delBtn = document.createElement('button');
       delBtn.type = 'button'; delBtn.className = 'btn-del-row';
       delBtn.title = 'Delete row'; delBtn.textContent = '✕';
-      delBtn.addEventListener('click', function () { tbody.removeChild(tr); });
+      delBtn.addEventListener('click', function (e) {
+        e.stopPropagation(); /* prevent toggle */
+        tbody.removeChild(tr);
+      });
       tdDel.appendChild(delBtn);
       tr.appendChild(tdDel);
 
@@ -808,31 +830,42 @@
       prefix.className = 'desc-prefix'; prefix.textContent = 'RYDRL ' + siteNum;
       var suffix = document.createElement('span');
       suffix.className = 'desc-suffix'; suffix.textContent = label;
-      dWrap.appendChild(prefix); dWrap.appendChild(suffix);
+      var toggleIndicator = document.createElement('span');
+      toggleIndicator.className = 'pm-card-toggle';
+      toggleIndicator.textContent = '▶'; /* collapsed indicator */
+      dWrap.appendChild(prefix); dWrap.appendChild(suffix); dWrap.appendChild(toggleIndicator);
       tdDesc.appendChild(dWrap);
       tr.appendChild(tdDesc);
 
-      /* RCU / FCU checkboxes */
+      /* Toggle collapse on header click */
+      function toggleCollapse() {
+        var isCollapsed = tr.classList.toggle('pm-card-collapsed');
+        toggleIndicator.textContent = isCollapsed ? '▶' : '▼';
+      }
+      tdDel.addEventListener('click', toggleCollapse);
+      tdDesc.addEventListener('click', toggleCollapse);
+
+      /* RCU / FCU */
       var tdRCU = document.createElement('td');
-      tdRCU.className = 'pm-col-chk'; tdRCU.dataset.label = 'Protection - RCU';
+      tdRCU.className = 'pm-col-chk'; tdRCU.dataset.label = 'RCU';
       tdRCU.appendChild(buildCheckbox()); tr.appendChild(tdRCU);
 
       var tdFCU = document.createElement('td');
-      tdFCU.className = 'pm-col-chk'; tdFCU.dataset.label = 'Protection - FCU';
+      tdFCU.className = 'pm-col-chk'; tdFCU.dataset.label = 'FCU';
       tdFCU.appendChild(buildCheckbox()); tr.appendChild(tdFCU);
 
       /* Sign board L / R */
       var tdSL = document.createElement('td');
-      tdSL.className = 'pm-col-sign'; tdSL.dataset.label = 'Sign Board L | اللوحة اليسار';
+      tdSL.className = 'pm-col-sign'; tdSL.dataset.label = 'Sign Board L';
       tdSL.appendChild(buildSignCell()); tr.appendChild(tdSL);
 
       var tdSR = document.createElement('td');
-      tdSR.className = 'pm-col-sign'; tdSR.dataset.label = 'Sign Board R | اللوحة اليمين';
+      tdSR.className = 'pm-col-sign'; tdSR.dataset.label = 'Sign Board R';
       tdSR.appendChild(buildSignCell()); tr.appendChild(tdSR);
 
       /* Pedestrian % */
       var tdPct  = document.createElement('td');
-      tdPct.className = 'pm-col-pct'; tdPct.dataset.label = 'Pedestrian%';
+      tdPct.className = 'pm-col-pct'; tdPct.dataset.label = 'Pedestrian %';
       var pctIn  = document.createElement('input');
       pctIn.type = 'number'; pctIn.min = '0'; pctIn.max = '100';
       pctIn.className = 'pct-input'; pctIn.placeholder = '0';
@@ -843,7 +876,7 @@
 
       /* Traffic light */
       var tdTl  = document.createElement('td');
-      tdTl.className = 'pm-col-tl'; tdTl.dataset.label = 'Traffic Light | اشارة المرور';
+      tdTl.className = 'pm-col-tl'; tdTl.dataset.label = 'Traffic Light';
       var tlSel = document.createElement('select');
       tlSel.className = 'tl-select both-avail';
       tlSel.innerHTML = '<option value="both">Both sides Available</option><option value="none">Not Available</option>';
@@ -854,7 +887,7 @@
       tdTl.appendChild(tlSel); tr.appendChild(tdTl);
 
       /* Pole L/R, Base L/R */
-      [['pm-col-chk','Pole L | عمود اللوحة يسار'],['pm-col-chk','Pole R | عمود اللوحة يمين'],['pm-col-chk','Base L | قاعدة اللوحة يسار'],['pm-col-chk','Base R | قاعدة اللوحة يمين']].forEach(function (cfg) {
+      [['pm-col-chk','Pole L'],['pm-col-chk','Pole R'],['pm-col-chk','Base L'],['pm-col-chk','Base R']].forEach(function (cfg) {
         var td = document.createElement('td');
         td.className = cfg[0]; td.dataset.label = cfg[1];
         td.appendChild(buildCheckbox()); tr.appendChild(td);
@@ -863,7 +896,7 @@
       tbody.appendChild(tr);
     }
 
-    /* ── Keep description prefix live as user types the site number ── */
+    /* Live site number update in all card headers */
     document.getElementById('site-number').addEventListener('input', function () {
       var val = this.value.trim() || '____';
       document.querySelectorAll('#pm-tbody .desc-prefix').forEach(function (el) {
@@ -871,7 +904,6 @@
       });
     });
 
-    /* ── Reset table rows (keeps the selected direction model) ── */
     function resetForm() {
       document.getElementById('site-number').value = '';
       var tbody = document.getElementById('pm-tbody');
@@ -879,34 +911,22 @@
       selectedLabels.forEach(function (lbl) { addRow(lbl); });
     }
 
-    /* ══════════════════════════════════════════════════════════
-       MODEL SELECTION LOGIC
-    ══════════════════════════════════════════════════════════ */
+    /* ── Model selection ── */
     function selectModel(modelKey) {
       var model = DIRECTION_MODELS[modelKey];
-      selectedLabels = model.labels.slice(); // copy array
-
-      /* Populate table with chosen direction rows */
+      selectedLabels = model.labels.slice();
       var tbody = document.getElementById('pm-tbody');
       while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
       selectedLabels.forEach(function (lbl) { addRow(lbl); });
-
-      /* Show model name in action bar badge */
       document.getElementById('pm-model-badge').textContent = model.name;
-
-      /* Swap screens */
       document.getElementById('pm-model-select').style.display = 'none';
       document.getElementById('pm-table-view').style.display   = '';
     }
 
-    /* Model card click handlers */
     document.querySelectorAll('.pm-model-card').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        selectModel(this.dataset.model);
-      });
+      btn.addEventListener('click', function () { selectModel(this.dataset.model); });
     });
 
-    /* "Change Model" button — clears table and returns to selection screen */
     document.getElementById('pm-change-model-btn').addEventListener('click', function () {
       document.getElementById('site-number').value = '';
       var tbody = document.getElementById('pm-tbody');
@@ -916,9 +936,7 @@
       document.getElementById('pm-model-select').style.display = '';
     });
 
-    /* ══════════════════════════════════════════════════════════
-       BUILD CLIPBOARD HTML (for desktop Word / Outlook copy)
-    ══════════════════════════════════════════════════════════ */
+    /* ── Build clipboard HTML ── */
     function buildClipboardHTML() {
       var siteNum = document.getElementById('site-number').value.trim() || '____';
       var TH  = 'border:1px solid #000;padding:5px 6px;background:#bfbfbf;color:#000000;font-size:12px;text-align:center;font-family:"Times New Roman", Times, serif;font-weight:bold;';
@@ -958,6 +976,7 @@
           return c.classList.contains('checked');
         });
 
+        /* RCU, FCU */
         [0, 1].forEach(function (ci) {
           var v = chkVals[ci] !== false;
           var sym = v
@@ -966,6 +985,7 @@
           html += '<td style="' + TD + '">' + sym + '</td>';
         });
 
+        /* Sign L, Sign R */
         var signCells = tr.querySelectorAll('.sign-cell');
         [0, 1].forEach(function (si) {
           var sc      = signCells[si];
@@ -988,6 +1008,7 @@
           html += '<td style="' + TD + '">' + cell + '</td>';
         });
 
+        /* Pedestrian % */
         var pctIn  = tr.querySelector('.pct-input');
         var pctVal = (pctIn && pctIn.value !== '') ? pctIn.value + ' %' : '—';
         var pctNum = pctIn ? parseInt(pctIn.value) : NaN;
@@ -1003,11 +1024,13 @@
         }
         html += '<td style="' + TD + 'color:' + pctCol + ';font-weight:bold;">' + pctVal + '</td>';
 
+        /* Traffic light */
         var tlEl   = tr.querySelector('.tl-select');
         var tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
         var tlCol  = (!tlEl || tlEl.value === 'both') ? '#16a34a' : '#ef4444';
         html += '<td style="' + TD + '"><span style="color:' + tlCol + ';font-weight:bold;">' + tlText + '</span></td>';
 
+        /* Pole L, Pole R, Base L, Base R */
         [2, 3, 4, 5].forEach(function (ci) {
           var v = (ci < chkVals.length) ? chkVals[ci] !== false : true;
           var sym = v
@@ -1023,9 +1046,7 @@
       return html;
     }
 
-    /* ══════════════════════════════════════════════════════════
-       BUILD PLAIN TEXT (mobile fallback copy)
-    ══════════════════════════════════════════════════════════ */
+    /* ── Build plain text ── */
     function buildPlainText() {
       var siteNum = document.getElementById('site-number').value.trim() || '____';
       var lines = [];
@@ -1078,11 +1099,8 @@
       return lines.join('\n');
     }
 
-    /* ══════════════════════════════════════════════════════════
-       3-TIER CLIPBOARD COPY CHAIN
-    ══════════════════════════════════════════════════════════ */
+    /* ── 3-tier clipboard copy ── */
     function doCopy(htmlContent, plainText, onSuccess) {
-      /* Tier 1: ClipboardItem — desktop Chrome/Firefox, preserves HTML formatting */
       if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
         try {
           var htmlBlob = new Blob([htmlContent], { type: 'text/html' });
@@ -1098,7 +1116,6 @@
       }
     }
 
-    /* Tier 2: writeText — iOS Safari 13.4+, Android Chrome */
     function tier2(plainText, onSuccess) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(plainText)
@@ -1109,27 +1126,21 @@
       }
     }
 
-    /* Tier 3: textarea + execCommand — broadest mobile compatibility */
     function tier3(plainText, onSuccess) {
       var ta = document.createElement('textarea');
       ta.value = plainText;
       ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;opacity:0;';
       ta.setAttribute('readonly', '');
       document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      try { ta.setSelectionRange(0, 99999); } catch (e) {} /* required for iOS */
+      ta.focus(); ta.select();
+      try { ta.setSelectionRange(0, 99999); } catch (e) {}
       var ok = false;
       try { ok = document.execCommand('copy'); } catch (e) {}
       document.body.removeChild(ta);
-      if (ok) {
-        onSuccess();
-      } else {
-        alert('Copy failed. Please long-press and select all text, then copy manually.');
-      }
+      if (ok) { onSuccess(); }
+      else { alert('Copy failed. Please long-press and select all text, then copy manually.'); }
     }
 
-    /* ── Utility ── */
     function showCopySuccess() {
       var b = document.getElementById('pm-copy-success');
       b.style.display = '';
@@ -1169,7 +1180,6 @@
       document.getElementById('pm-print-site').textContent = 'Site: RYDRL ' + siteNum;
       document.getElementById('pm-print-header').style.display = 'block';
 
-      /* Apply percentage threshold colors before printing */
       document.querySelectorAll('#pm-tbody .pct-input').forEach(function (input) {
         var val = parseInt(input.value);
         if (input.value !== '' && !isNaN(val)) {
@@ -1181,7 +1191,6 @@
 
       window.print();
 
-      /* Reset colors after printing */
       document.querySelectorAll('#pm-tbody .pct-input').forEach(function (input) {
         input.style.color = '';
       });
