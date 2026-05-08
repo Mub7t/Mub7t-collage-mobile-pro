@@ -963,7 +963,7 @@
                'font-size:12px;text-align:center;vertical-align:middle;';
 
       var TD_DESC = BDR + 'padding:5px 7px;' + F +
-                    'font-size:12px;text-align:left;vertical-align:middle;font-weight:bold;';
+                    'font-size:12px;text-align:center;vertical-align:middle;font-weight:bold;';
 
       var html =
         '<p style="' + F + 'font-size:13px;margin:0 0 8px 0;">Here is the PM report for site RYDRL ' + siteNum + ':</p>' +
@@ -972,23 +972,23 @@
         'border:1px solid #000000;min-width:960px;' + F + '">' +
         '<thead>' +
         '<tr>' +
-        '<th rowspan="2" bgcolor="#bfbfbf" style="' + TH + 'width:110px;">Description</th>' +
-        '<th colspan="2" bgcolor="#bfbfbf" style="' + TH + '">Protection Poles</th>' +
-        '<th colspan="2" bgcolor="#bfbfbf" style="' + TH + '">Traffic Sign Boards</th>' +
-        '<th rowspan="2" bgcolor="#bfbfbf" style="' + TH + 'width:70px;">Pedestrian Lanes</th>' +
-        '<th rowspan="2" bgcolor="#bfbfbf" style="' + TH + 'width:120px;">Traffic Light</th>' +
-        '<th colspan="2" bgcolor="#bfbfbf" style="' + TH + '">Sign Board\'s Pole</th>' +
-        '<th colspan="2" bgcolor="#bfbfbf" style="' + TH + '">Sign Board\'s Base</th>' +
+        '<th rowspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + 'width:110px;">Description</th>' +
+        '<th colspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + '">Protection Poles</th>' +
+        '<th colspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + '">Traffic Sign Boards</th>' +
+        '<th rowspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + 'width:70px;">Pedestrian Lanes</th>' +
+        '<th rowspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + 'width:120px;">Traffic Light</th>' +
+        '<th colspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + '">Sign Board\'s Pole</th>' +
+        '<th colspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + '">Sign Board\'s Base</th>' +
         '</tr>' +
         '<tr>' +
-        '<th bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">RCU</th>' +
-        '<th bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">FCU</th>' +
-        '<th bgcolor="#bfbfbf" style="' + TH2 + 'width:110px;">L</th>' +
-        '<th bgcolor="#bfbfbf" style="' + TH2 + 'width:110px;">R</th>' +
-        '<th bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">L</th>' +
-        '<th bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">R</th>' +
-        '<th bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">L</th>' +
-        '<th bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">R</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">RCU</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">FCU</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:110px;">L</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:110px;">R</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">L</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">R</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">L</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">R</th>' +
         '</tr>' +
         '</thead>' +
         '<tbody>';
@@ -996,23 +996,23 @@
       rows.forEach(function (row, i) {
         var bg = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
         html += '<tr>';
-        html += '<td bgcolor="' + bg + '" style="' + TD_DESC + 'background:' + bg + ';">' + row.desc + '</td>';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.rcu,  '16px') + '</td>';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.fcu,  '16px') + '</td>';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + signCellHTML(row.signL, '80px', '11px') + '</td>';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + signCellHTML(row.signR, '80px', '11px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD_DESC + 'background:' + bg + ';">' + row.desc + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.rcu,  '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.fcu,  '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + signCellHTML(row.signL, '80px', '11px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + signCellHTML(row.signR, '80px', '11px') + '</td>';
 
         var pc = pctColor(row.pct);
         var pd = (row.pct !== '') ? row.pct + ' %' : '—';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';color:' + pc + ';font-weight:bold;">' + pd + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';color:' + pc + ';font-weight:bold;">' + pd + '</td>';
 
         var tlc = (row.tlVal === 'both') ? '#16a34a' : '#ef4444';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';"><span style="color:' + tlc + ';font-weight:bold;">' + row.tlText + '</span></td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';"><span style="color:' + tlc + ';font-weight:bold;">' + row.tlText + '</span></td>';
 
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.poleL, '16px') + '</td>';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.poleR, '16px') + '</td>';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.baseL, '16px') + '</td>';
-        html += '<td bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.baseR, '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.poleL, '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.poleR, '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.baseL, '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.baseR, '16px') + '</td>';
         html += '</tr>';
       });
 
