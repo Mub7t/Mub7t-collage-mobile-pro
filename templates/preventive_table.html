@@ -274,7 +274,23 @@
       flex: 0 0 auto !important;
     }
 
+    /* ── Card field visual order — DOM order unchanged for PDF/copy ── */
+    .pm-table tbody td:nth-child(1)  { order: 0; }  /* del    */
+    .pm-table tbody td:nth-child(2)  { order: 1; }  /* desc   */
+    .pm-table tbody td:nth-child(3)  { order: 2; }  /* RCU    */
+    .pm-table tbody td:nth-child(4)  { order: 3; }  /* FCU    */
+    .pm-table tbody td:nth-child(9)  { order: 4; }  /* Pole L */
+    .pm-table tbody td:nth-child(10) { order: 5; }  /* Pole R */
+    .pm-table tbody td:nth-child(11) { order: 6; }  /* Base L */
+    .pm-table tbody td:nth-child(12) { order: 7; }  /* Base R */
+    .pm-table tbody td:nth-child(5)  { order: 8; }  /* Sign L */
+    .pm-table tbody td:nth-child(6)  { order: 9; }  /* Sign R */
+    .pm-table tbody td:nth-child(7)  { order: 10; } /* Pct %  */
+    .pm-table tbody td:nth-child(8)  { order: 11; } /* TL     */
 
+    /* ══════════════════════════════
+       MOBILE ≤ 640px adjustments
+    ══════════════════════════════ */
     
     /* ══════════════════════════════
        MOBILE ≤ 640px adjustments
@@ -745,36 +761,36 @@
 
       /* RCU / FCU checkboxes */
       var tdRCU = document.createElement('td');
-      tdRCU.className = 'pm-col-chk'; tdRCU.dataset.label = 'RCU';
+      tdRCU.className = 'pm-col-chk'; tdRCU.dataset.label = 'Protection - RCU';
       tdRCU.appendChild(buildCheckbox()); tr.appendChild(tdRCU);
 
       var tdFCU = document.createElement('td');
-      tdFCU.className = 'pm-col-chk'; tdFCU.dataset.label = 'FCU';
+      tdFCU.className = 'pm-col-chk'; tdFCU.dataset.label = 'Protection - FCU';
       tdFCU.appendChild(buildCheckbox()); tr.appendChild(tdFCU);
 
       /* Sign board L / R */
       var tdSL = document.createElement('td');
-      tdSL.className = 'pm-col-sign'; tdSL.dataset.label = 'Sign Board L';
+      tdSL.className = 'pm-col-sign'; tdSL.dataset.label = 'Sign Board L | اللوحة اليسار';
       tdSL.appendChild(buildSignCell()); tr.appendChild(tdSL);
 
       var tdSR = document.createElement('td');
-      tdSR.className = 'pm-col-sign'; tdSR.dataset.label = 'Sign Board R';
+      tdSR.className = 'pm-col-sign'; tdSR.dataset.label = 'Sign Board R | اللوحة اليمين';
       tdSR.appendChild(buildSignCell()); tr.appendChild(tdSR);
 
       /* Pedestrian % */
       var tdPct  = document.createElement('td');
-      tdPct.className = 'pm-col-pct'; tdPct.dataset.label = 'Pedestrian %';
+      tdPct.className = 'pm-col-pct'; tdPct.dataset.label = 'Pedestrian%';
       var pctIn  = document.createElement('input');
       pctIn.type = 'number'; pctIn.min = '0'; pctIn.max = '100';
       pctIn.className = 'pct-input'; pctIn.placeholder = '0';
       var pctUnit = document.createElement('span');
-      pctUnit.textContent = ' %'; pctUnit.style.fontSize = '.82rem';
+      pctUnit.textContent = '٪ نسبة الخط'; pctUnit.style.fontSize = '.82rem';
       tdPct.appendChild(pctIn); tdPct.appendChild(pctUnit);
       tr.appendChild(tdPct);
 
       /* Traffic light */
       var tdTl  = document.createElement('td');
-      tdTl.className = 'pm-col-tl'; tdTl.dataset.label = 'Traffic Light';
+      tdTl.className = 'pm-col-tl'; tdTl.dataset.label = 'Traffic Light | اشارة المرور';
       var tlSel = document.createElement('select');
       tlSel.className = 'tl-select both-avail';
       tlSel.innerHTML = '<option value="both">Both sides Available</option><option value="none">Not Available</option>';
@@ -785,7 +801,7 @@
       tdTl.appendChild(tlSel); tr.appendChild(tdTl);
 
       /* Pole L/R, Base L/R */
-      [['pm-col-chk','Pole L'],['pm-col-chk','Pole R'],['pm-col-chk','Base L'],['pm-col-chk','Base R']].forEach(function (cfg) {
+      [['pm-col-chk','Pole L | عمود اللوحة يسار'],['pm-col-chk','Pole R | عمود اللوحة يمين'],['pm-col-chk','Base L | قاعدة اللوحة يسار'],['pm-col-chk','Base R | قاعدة اللوحة يمين']].forEach(function (cfg) {
         var td = document.createElement('td');
         td.className = cfg[0]; td.dataset.label = cfg[1];
         td.appendChild(buildCheckbox()); tr.appendChild(td);
