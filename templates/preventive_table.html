@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PM Table — RL Maintenance</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <style>
+    .pm-content { max-width: 1100px; margin: 0 auto; padding: 1.2rem 1rem 4rem; }
+
+    /* ── Model selection ── */
+    .pm-select-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 2rem; padding: 2.5rem 0 3.5rem;
+    }
+    .pm-select-header { text-align: center; max-width: 500px; }
+    .pm-select-header h2 {
+      font-size: 1.5rem; font-weight: 700; color: #111;
+      margin-bottom: .5rem; letter-spacing: -.02em;
+    }
+    .pm-select-header p { font-size: .9rem; color: #666; line-height: 1.55; }
+    .pm-model-grid { display: flex; gap: 1.1rem; width: 100%; flex-wrap: wrap; justify-content: center; }
+    .pm-model-card {
+      flex: 1; min-width: 200px; max-width: 310px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: .75rem;
+      padding: 1.5rem 1.25rem;
+      background: rgba(255,255,255,.9);
+      border: 1.5px solid rgba(0,0,0,.1); border-radius: 16px;
+      cursor: pointer; text-align: left; font-family: inherit;
+      transition: border-color .18s, box-shadow .18s, transform .18s;
+      box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+    .pm-model-card:hover { border-color: #111; box-shadow: 0 8px 28px rgba(0,0,0,.1); transform: translateY(-2px); }
+    .pm-model-card__icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: #111; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .pm-model-card__icon svg { width: 22px; height: 22px; stroke: #fff; fill: none; }
+    .pm-model-card__title { font-size: 1.05rem; font-weight: 700; color: #111; line-height: 1.3; }
+    .pm-model-card__desc  { font-size: .82rem; color: #666; line-height: 1.5; }
+    .pm-model-card__labels { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .1rem; }
+    .pm-model-card__lbl {
+      font-size: .72rem; font-weight: 700; background: #111; color: #fff;
+      padding: .18rem .5rem; border-radius: 999px; letter-spacing: .02em;
+    }
+    .pm-model-badge-indicator {
+      font-size: .78rem; font-weight: 600; color: #555;
+      background: #f1f1ef; border: 1px solid #ddddd7;
+      padding: .18rem .65rem; border-radius: 999px;
+    }
+
+    /* ── Site bar ── */
+    .pm-site-bar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
+    .pm-site-bar label { font-weight: 600; font-size: .9rem; white-space: nowrap; }
+    .pm-site-bar input {
+      border: 1px solid rgba(0,0,0,.18); border-radius: 6px;
+      padding: .45rem .75rem; font-size: .95rem; width: 160px;
+      background: transparent; color: inherit;
+    }
+    .pm-site-bar input:focus { outline: 2px solid #6366f1; border-color: transparent; }
+    .pm-site-hint { font-size: .78rem; opacity: .6; }
+
+    /* ── Sign reference panel ── */
+    .pm-sign-ref {
+      display: flex; flex-wrap: wrap; gap: .6rem;
+      padding: .75rem 1rem; margin-bottom: 1rem;
+      background: #fff; border: 1px solid rgba(0,0,0,.1);
+      border-radius: 12px; box-shadow: 0 2px 16px rgba(0,0,0,.07);
+    }
+    .pm-sign-ref__title {
+      width: 100%; font-size: .7rem; font-weight: 800; color: #aaa;
+      text-transform: uppercase; letter-spacing: .09em; margin-bottom: .1rem;
+    }
+    .pm-sign-ref__item {
+      flex: 1 1 calc(25% - .6rem); min-width: 68px; max-width: 110px;
+      display: flex; flex-direction: column; align-items: center; gap: .3rem;
+      background: #f7f7f5; border: 1px solid rgba(0,0,0,.08);
+      border-radius: 8px; padding: .45rem .4rem .4rem;
+    }
+    .pm-sign-ref__item img { width: 100%; max-width: 72px; height: 52px; object-fit: contain; display: block; }
+    .pm-sign-ref__item span { font-size: .62rem; font-weight: 600; color: #555; text-align: center; line-height: 1.3; }
+
+    /* ── Scroll wrapper ── */
+    .pm-scroll { width: 100%; padding-bottom: 14px; margin-bottom: 1.5rem; }
+
+    /* ══════════════════════════════════════════════════════════════
+       CARD LAYOUT — input UI only (screen)
+    ══════════════════════════════════════════════════════════════ */
+    .pm-table { display: block; width: 100%; }
+    .pm-table thead { display: none; }
+    .pm-table tbody { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; }
+
+    .pm-table tbody tr {
+      display: flex; flex-wrap: wrap;
+      width: 100%; max-width: 640px;
+      border: 1px solid rgba(0,0,0,.1); border-radius: 12px; overflow: hidden;
+      background: #fff; box-shadow: 0 2px 16px rgba(0,0,0,.07);
+    }
+
+    /* Card header */
+    .pm-table td.pm-col-del {
+      background: #111; border: none !important;
+      width: 52px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      padding: .8rem .7rem; cursor: pointer;
+    }
+    .pm-table td.pm-col-desc {
+      flex: 0 0 calc(100% - 52px); max-width: calc(100% - 52px);
+      background: #111; border: none !important;
+      display: flex; align-items: center;
+      padding: .8rem 1rem .8rem .15rem; cursor: pointer;
+    }
+    .desc-cell { display: flex; flex-direction: row; gap: .4rem; align-items: center; width: 100%; }
+    .desc-prefix { font-size: .8rem; font-weight: 600; color: rgba(255,255,255,.65); white-space: nowrap; }
+    .desc-suffix { font-size: 1.05rem; font-weight: 700; color: #fff; letter-spacing: .02em; }
+    .pm-card-toggle { margin-left: auto; flex-shrink: 0; color: rgba(255,255,255,.65); font-size: .8rem; line-height: 1; }
+
+    /* Collapsed state */
+    .pm-table tbody tr.pm-card-collapsed td:not(.pm-col-del):not(.pm-col-desc) {
+      display: none !important;
+    }
+
+    /* Body cells */
+    .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) {
+      width: 50%; box-sizing: border-box;
+      border: none !important;
+      border-top: 1px solid rgba(0,0,0,.07) !important;
+      padding: .78rem .9rem;
+      display: flex; flex-direction: column; gap: .45rem;
+      text-align: left; background: #fff; min-height: 68px;
+    }
+    .pm-table tbody td:nth-child(odd):not(.pm-col-del) {
+      border-right: 1px solid rgba(0,0,0,.07) !important;
+    }
+    .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc)::before {
+      content: attr(data-label);
+      font-size: .62rem; font-weight: 700; color: #aaa;
+      text-transform: uppercase; letter-spacing: .07em;
+      display: block; line-height: 1; margin-bottom: .05rem;
+    }
+
+    /* Checkbox cells: label left, toggle right */
+    .pm-table tbody td.pm-col-chk {
+      flex-direction: row !important; align-items: center !important;
+      justify-content: space-between !important; gap: 12px !important; min-height: unset !important;
+    }
+    .pm-table tbody td.pm-col-chk::before { display: inline-flex !important; align-items: center !important; margin: 0 !important; flex-shrink: 0; }
+    .pm-table tbody td.pm-col-chk .chk-toggle { margin-left: auto !important; flex: 0 0 auto !important; }
+
+    /* Pedestrian %: label full-width, input inline */
+    .pm-table td.pm-col-pct { flex-direction: row; flex-wrap: wrap; align-items: center; gap: .35rem; }
+    .pm-table td.pm-col-pct::before { flex-basis: 100%; margin-bottom: 0; }
+
+    /* Visual order — DOM order preserved for data extraction */
+    .pm-table tbody td:nth-child(1)  { order: 0; }
+    .pm-table tbody td:nth-child(2)  { order: 1; }
+    .pm-table tbody td:nth-child(3)  { order: 2; }   /* RCU    */
+    .pm-table tbody td:nth-child(4)  { order: 3; }   /* FCU    */
+    .pm-table tbody td:nth-child(9)  { order: 4; }   /* Pole L */
+    .pm-table tbody td:nth-child(10) { order: 5; }   /* Pole R */
+    .pm-table tbody td:nth-child(11) { order: 6; }   /* Base L */
+    .pm-table tbody td:nth-child(12) { order: 7; }   /* Base R */
+    .pm-table tbody td:nth-child(5)  { order: 8; }   /* Sign L */
+    .pm-table tbody td:nth-child(6)  { order: 9; }   /* Sign R */
+    .pm-table tbody td:nth-child(7)  { order: 10; }  /* Pct %  */
+    .pm-table tbody td:nth-child(8)  { order: 11; }  /* TL     */
+
+    /* ── Components ── */
+    .sign-cell { display: flex; flex-direction: column; align-items: stretch; gap: 5px; padding: 0; }
+    .sign-avail {
+      font-size: .8rem; padding: .38rem .5rem; border-radius: 6px;
+      border: 1px solid rgba(0,0,0,.15); width: 100%;
+      background: transparent; color: inherit; cursor: pointer;
+    }
+    .sign-avail.not-avail { color: #ef4444; border-color: #ef4444; }
+    .sign-cell select {
+      width: 100%; font-size: .8rem; padding: .38rem .5rem;
+      border: 1px solid rgba(0,0,0,.2); border-radius: 6px;
+      background: transparent; color: inherit; cursor: pointer;
+    }
+    .sign-img-wrap { display: flex; flex-direction: column; align-items: flex-start; width: 100%; }
+    .sign-status-badge {
+      display: none; width: 100%; text-align: center; font-size: .6rem;
+      font-weight: 700; letter-spacing: .02em; padding: 2px 4px; border-radius: 3px 3px 0 0;
+    }
+    .sign-status-badge.avail  { display: block; background: #16a34a; color: #fff; }
+    .sign-status-badge.navail { display: block; background: #ef4444; color: #fff; }
+    .sign-cell img {
+      display: none; width: 100%; max-width: 110px; height: auto; object-fit: contain;
+      border: 1px solid rgba(0,0,0,.12); border-radius: 0 0 4px 4px;
+    }
+
+    .chk-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 38px; height: 38px; cursor: pointer;
+      border: 2px solid rgba(0,0,0,.2); border-radius: 8px;
+      font-size: 1.15rem; user-select: none;
+      transition: background .15s, border-color .15s;
+    }
+    .chk-toggle.checked   { background: rgba(22,163,74,.12); border-color: #16a34a; color: #16a34a; }
+    .chk-toggle.unchecked { background: rgba(239,68,68,.08);  border-color: #ef4444; color: #ef4444; }
+
+    .pct-input {
+      width: 74px; text-align: center; font-size: .95rem;
+      border: 1px solid rgba(0,0,0,.18); border-radius: 6px;
+      padding: .38rem .5rem; background: transparent; color: inherit;
+    }
+    .pct-input:focus { outline: 2px solid #6366f1; border-color: transparent; }
+
+    .tl-select {
+      width: 100%; font-size: .82rem; padding: .4rem .5rem;
+      border: 1px solid rgba(0,0,0,.18); border-radius: 6px;
+      background: transparent; color: inherit; cursor: pointer;
+    }
+    .tl-select.both-avail { color: #16a34a; }
+    .tl-select.not-avail  { color: #ef4444; }
+
+    .btn-del-row {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; background: #ef4444; color: #fff; border: none;
+      border-radius: 6px; cursor: pointer; font-size: .9rem; font-weight: 700;
+      transition: background .15s;
+    }
+    .btn-del-row:hover { background: #b91c1c; }
+
+    /* ── Bottom actions ── */
+    .pm-bottom-actions { display: flex; flex-direction: column; gap: .75rem; margin-top: .5rem; }
+    .pm-bottom-actions .btn { width: 100%; justify-content: center; padding: .8rem 1rem; font-size: 1rem; }
+    .pm-copy-success { display: none; }
+
+    /* ── Modals ── */
+    .pm-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.48);
+      backdrop-filter: blur(4px); z-index: 1000;
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .pm-modal-card {
+      background: #fff; border-radius: 16px; padding: 2rem 1.75rem;
+      max-width: 380px; width: 100%; box-shadow: 0 24px 72px rgba(0,0,0,.2);
+      display: flex; flex-direction: column; gap: 1rem;
+    }
+    .pm-modal-title { font-size: 1.1rem; font-weight: 700; color: #111; margin: 0; }
+    .pm-modal-desc  { font-size: .9rem; color: #555; margin: 0; line-height: 1.5; }
+    .pm-modal-options { display: flex; flex-direction: column; gap: .6rem; }
+    .pm-modal-options .btn { width: 100%; justify-content: center; }
+    .pm-modal-cancel {
+      background: none; border: none; color: #888; font-size: .85rem; cursor: pointer;
+      text-align: center; padding: .3rem; text-decoration: underline; font-family: inherit;
+    }
+    .pm-modal-cancel:hover { color: #333; }
+
+    /* ══════════════════════════════
+       MOBILE
+    ══════════════════════════════ */
+    @media (max-width: 640px) {
+      .pm-content { padding: .75rem .6rem 3rem; }
+      .pm-select-wrap { padding: 1.25rem 0 2.5rem; gap: 1.25rem; }
+      .pm-model-grid { flex-direction: column; }
+      .pm-model-card { max-width: none; }
+      .pm-site-bar { flex-direction: column; align-items: flex-start; gap: .45rem; }
+      .pm-site-bar input { width: 100%; box-sizing: border-box; }
+      .pm-site-hint { display: none; }
+      .preview-action-bar { flex-direction: column; align-items: stretch !important; gap: .5rem; }
+      .preview-action-info { flex-direction: column; align-items: flex-start; gap: .3rem; }
+      .pm-table tbody tr { border-radius: 10px; }
+      .pm-table tbody td:not(.pm-col-del):not(.pm-col-desc) { padding: .7rem .75rem; }
+      .pm-sign-ref__item { min-width: 60px; }
+    }
+
+    /* ══════════════════════════════
+       PRINT / PDF
+       Card input is hidden.
+       A clean inline-styled table is injected into #pm-print-table-wrap
+       by JS before window.print() is called.
+       No CSS overrides needed for the print table — it uses inline styles.
+    ══════════════════════════════ */
+    @media print {
+      @page { size: A4 landscape; margin: 1cm; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
+      body > *:not(main)                      { display: none !important; }
+      main > *:not(#pm-table-view)            { display: none !important; }
+      #pm-table-view > *:not(#pm-print-area) { display: none !important; }
+      html, body {
+        margin: 0 !important; padding: 0 !important;
+        background: #fff !important; width: 100% !important;
+      }
+      body, main, .page-content, .pm-content, #pm-table-view {
+        max-width: none !important; width: 100% !important;
+        padding: 0 !important; margin: 0 !important;
+        box-shadow: none !important; border: none !important;
+      }
+      #pm-print-header { display: block !important; margin-bottom: .4cm; }
+      #pm-print-header h2 { font-size: 13pt; font-weight: 700; margin: 0 0 3pt; color: #000; }
+      #pm-print-header p  { font-size: 10pt; margin: 0; color: #333; }
+      /* Hide card input table, show clean print table */
+      .pm-scroll { display: none !important; }
+      #pm-print-table-wrap { display: block !important; width: 100% !important; }
+      #pm-print-table-wrap table { width: 100% !important; border-collapse: collapse !important; }
+    }
+  </style>
+</head>
+<body class="page-preview">
+
+  <header class="topbar">
+    <a href="{{ url_for('index') }}" class="topbar-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Home
+    </a>
+    <span class="topbar-title">PM Table — Preventive Maintenance</span>
+  </header>
+
+  <main class="page-content pm-content">
+
+    <!-- ══════════════════════════════════════════════════════════
+         MODEL SELECTION SCREEN
+    ══════════════════════════════════════════════════════════ -->
+    <div id="pm-model-select">
+      <div class="pm-select-wrap">
+
+        <div class="pm-select-header">
+          <h2>Select Site Model</h2>
+          <p>Choose the direction model that matches your site type to generate the correct PM inspection table.</p>
+        </div>
+
+        <div class="pm-model-grid">
+
+          <button class="pm-model-card" data-model="4dir" type="button">
+            <div class="pm-model-card__icon">
+              <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="2.5"/>
+                <line x1="12" y1="2"  x2="12" y2="9"/>
+                <line x1="12" y1="15" x2="12" y2="22"/>
+                <line x1="2"  y1="12" x2="9"  y2="12"/>
+                <line x1="15" y1="12" x2="22" y2="12"/>
+              </svg>
+            </div>
+            <div class="pm-model-card__title">4 Directions Sites</div>
+            <div class="pm-model-card__desc">For normal sites with directions:<br>A, B, C, D</div>
+            <div class="pm-model-card__labels">
+              <span class="pm-model-card__lbl">A</span>
+              <span class="pm-model-card__lbl">B</span>
+              <span class="pm-model-card__lbl">C</span>
+              <span class="pm-model-card__lbl">D</span>
+            </div>
+          </button>
+
+          <button class="pm-model-card" data-model="8dir" type="button">
+            <div class="pm-model-card__icon">
+              <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="2.5"/>
+                <line x1="12" y1="2"    x2="12" y2="9"/>
+                <line x1="12" y1="15"   x2="12" y2="22"/>
+                <line x1="2"  y1="12"   x2="9"  y2="12"/>
+                <line x1="15" y1="12"   x2="22" y2="12"/>
+                <line x1="4.93"  y1="4.93"   x2="9.17"  y2="9.17"/>
+                <line x1="14.83" y1="14.83"  x2="19.07" y2="19.07"/>
+                <line x1="19.07" y1="4.93"   x2="14.83" y2="9.17"/>
+                <line x1="9.17"  y1="14.83"  x2="4.93"  y2="19.07"/>
+              </svg>
+            </div>
+            <div class="pm-model-card__title">8 Directions Sites</div>
+            <div class="pm-model-card__desc">For sites with split directions:<br>A1, A2, B1, B2, C1, C2, D1, D2</div>
+            <div class="pm-model-card__labels">
+              <span class="pm-model-card__lbl">A1</span>
+              <span class="pm-model-card__lbl">A2</span>
+              <span class="pm-model-card__lbl">B1</span>
+              <span class="pm-model-card__lbl">B2</span>
+              <span class="pm-model-card__lbl">C1</span>
+              <span class="pm-model-card__lbl">C2</span>
+              <span class="pm-model-card__lbl">D1</span>
+              <span class="pm-model-card__lbl">D2</span>
+            </div>
+          </button>
+
+          <button class="pm-model-card" data-model="legacy" type="button">
+            <div class="pm-model-card__icon">
+              <svg viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+                <polygon points="12 2 19 7 19 17 12 22 5 17 5 7"/>
+                <line x1="12" y1="2"  x2="12" y2="22"/>
+                <line x1="5"  y1="7"  x2="19" y2="17"/>
+                <line x1="19" y1="7"  x2="5"  y2="17"/>
+              </svg>
+            </div>
+            <div class="pm-model-card__title">Legacy Sites</div>
+            <div class="pm-model-card__desc">For old sites with directions:<br>EB, WB, SB, NB</div>
+            <div class="pm-model-card__labels">
+              <span class="pm-model-card__lbl">EB</span>
+              <span class="pm-model-card__lbl">WB</span>
+              <span class="pm-model-card__lbl">SB</span>
+              <span class="pm-model-card__lbl">NB</span>
+            </div>
+          </button>
+
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         TABLE VIEW
+    ══════════════════════════════════════════════════════════ -->
+    <div id="pm-table-view" style="display:none;">
+
+      <div class="preview-action-bar card" style="margin-bottom:1rem;">
+        <div class="preview-action-info">
+          <span class="preview-badge preview-badge--ok">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 style="width:13px;height:13px;" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <line x1="3" y1="9" x2="21" y2="9"/>
+              <line x1="9" y1="3" x2="9" y2="21"/>
+            </svg>
+            PM Table
+          </span>
+          <span id="pm-model-badge" class="pm-model-badge-indicator"></span>
+          <span class="preview-meta">
+            Fill in the cards, then tap <strong>Extract</strong> below to copy or export as PDF.
+          </span>
+        </div>
+        <button type="button" id="pm-change-model-btn" class="btn btn-ghost btn-sm">&#8592; Change Model</button>
+      </div>
+
+      <!-- Sign reference panel -->
+      <div class="pm-sign-ref">
+        <div class="pm-sign-ref__title">Sign Reference</div>
+        <div class="pm-sign-ref__item">
+          <img src="{{ url_for('static', filename='images/signs/stop_left.png') }}" alt="Stop Line Left">
+          <span>Stop Line Left</span>
+        </div>
+        <div class="pm-sign-ref__item">
+          <img src="{{ url_for('static', filename='images/signs/stop_right.png') }}" alt="Stop Line Right">
+          <span>Stop Line Right</span>
+        </div>
+        <div class="pm-sign-ref__item">
+          <img src="{{ url_for('static', filename='images/signs/before_turn.png') }}" alt="Stop Before Turning Right">
+          <span>Stop Before Turning Right</span>
+        </div>
+        <div class="pm-sign-ref__item">
+          <img src="{{ url_for('static', filename='images/signs/no_right_turn.png') }}" alt="No Right Turn">
+          <span>No Right Turn</span>
+        </div>
+      </div>
+
+      <div class="pm-site-bar-wrap card" style="padding:.75rem 1rem; margin-bottom:1rem;">
+        <div class="pm-site-bar">
+          <label for="site-number">Site Number (RYDRL):</label>
+          <input type="text" id="site-number" placeholder="e.g. 4175" maxlength="10" />
+          <span class="pm-site-hint">Applies automatically to all cards.</span>
+        </div>
+      </div>
+
+      <div class="banner banner-success pm-copy-success" id="pm-copy-success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <div><strong>Table copied!</strong> Paste directly into Outlook or Word — formatting is preserved.</div>
+      </div>
+
+      <div id="pm-print-area">
+        <div id="pm-print-header" style="display:none;">
+          <h2 style="font-size:14pt;font-weight:700;margin:0 0 4pt;font-family:'Times New Roman',Times,serif;">
+            Preventive Maintenance Inspection
+          </h2>
+          <p id="pm-print-site" style="font-size:10pt;margin:0 0 8pt;font-family:'Times New Roman',Times,serif;"></p>
+        </div>
+
+        <!-- Card input table (screen only — hidden in print) -->
+        <div class="pm-scroll">
+          <table class="pm-table" id="pm-table">
+            <thead>
+              <tr>
+                <th rowspan="2" class="pm-col-del"></th>
+                <th rowspan="2" class="pm-col-desc">Description</th>
+                <th colspan="2">Protection Poles</th>
+                <th colspan="2">Traffic Sign Boards</th>
+                <th rowspan="2" class="pm-col-pct">Pedestrian<br>Lanes</th>
+                <th rowspan="2" class="pm-col-tl">Traffic Light</th>
+                <th colspan="2">Sign Board's Pole</th>
+                <th colspan="2">Sign Board's Base</th>
+              </tr>
+              <tr>
+                <th class="pm-col-chk">RCU</th>
+                <th class="pm-col-chk">FCU</th>
+                <th class="pm-col-sign">L</th>
+                <th class="pm-col-sign">R</th>
+                <th class="pm-col-chk">L</th>
+                <th class="pm-col-chk">R</th>
+                <th class="pm-col-chk">L</th>
+                <th class="pm-col-chk">R</th>
+              </tr>
+            </thead>
+            <tbody id="pm-tbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Clean print table injected here by JS before window.print() -->
+        <div id="pm-print-table-wrap" style="display:none;"></div>
+      </div>
+
+      <div class="pm-bottom-actions">
+        <button type="button" id="extract-btn" class="btn btn-primary btn-xl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Extract
+        </button>
+        <a href="{{ url_for('index') }}" class="btn btn-ghost">&#8592; Back to Main Menu</a>
+      </div>
+
+    </div><!-- end #pm-table-view -->
+
+  </main>
+
+  <div id="pm-clipboard-html" style="display:none;"></div>
+
+  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations &mdash; Developed by Mubarak Al-Dawsari</footer>
+
+  <!-- Extract modal -->
+  <div id="extract-modal" class="pm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="pm-modal-card">
+      <h3 class="pm-modal-title">Extract Table</h3>
+      <p class="pm-modal-desc">Choose how to export this PM table:</p>
+      <div class="pm-modal-options">
+        <button type="button" id="modal-copy-btn" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;" aria-hidden="true">
+            <rect x="9" y="9" width="13" height="13" rx="2"/>
+            <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+          </svg>
+          Direct Copy (Outlook / Word)
+        </button>
+        <button type="button" id="modal-pdf-btn" class="btn btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9"  y1="15" x2="15" y2="15"/>
+          </svg>
+          Export PDF
+        </button>
+      </div>
+      <button type="button" class="pm-modal-cancel" id="extract-cancel-btn">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Confirm copy modal -->
+  <div id="confirm-modal" class="pm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+    <div class="pm-modal-card">
+      <h3 class="pm-modal-title">Confirm Copy</h3>
+      <p class="pm-modal-desc">Are you sure you want to copy this as the final version? The form will be reset after copying.</p>
+      <div class="pm-modal-options">
+        <button type="button" id="confirm-yes-btn" class="btn btn-primary">Yes, Copy &amp; Reset</button>
+        <button type="button" id="confirm-no-btn" class="btn btn-ghost">No, Go Back</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+
+    /* ══════════════════════════════════════════════════════════
+       DIRECTION MODELS
+    ══════════════════════════════════════════════════════════ */
+    var DIRECTION_MODELS = {
+      '4dir':   { name: '4 Directions',  labels: ['A', 'B', 'C', 'D'] },
+      '8dir':   { name: '8 Directions',  labels: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'] },
+      'legacy': { name: 'Legacy Sites',  labels: ['EB', 'WB', 'SB', 'NB'] },
+    };
+    var selectedLabels = [];
+
+    /* ══════════════════════════════════════════════════════════
+       SIGN DEFINITIONS
+    ══════════════════════════════════════════════════════════ */
+    var SIGNS = {
+      'none':        { label: '— None —',                  src: '' },
+      'stop_left':   { label: 'Stop Line Left',            src: "{{ url_for('static', filename='images/signs/stop_left.png') }}" },
+      'stop_right':  { label: 'Stop Line Right',           src: "{{ url_for('static', filename='images/signs/stop_right.png') }}" },
+      'before_turn': { label: 'Stop Before Turning Right', src: "{{ url_for('static', filename='images/signs/before_turn.png') }}" },
+      'no_right':    { label: 'No Right Turn',             src: "{{ url_for('static', filename='images/signs/no_right_turn.png') }}" },
+    };
+
+    /* ══════════════════════════════════════════════════════════
+       INPUT UI BUILDERS
+    ══════════════════════════════════════════════════════════ */
+    function buildSignCell() {
+      var wrap  = document.createElement('div');
+      wrap.className = 'sign-cell';
+
+      var avail = document.createElement('select');
+      avail.className = 'sign-avail';
+      avail.innerHTML = '<option value="available">Available</option><option value="not_available">Not Available</option>';
+
+      var sel = document.createElement('select');
+      Object.keys(SIGNS).forEach(function (k) {
+        var o = document.createElement('option');
+        o.value = k; o.textContent = SIGNS[k].label; sel.appendChild(o);
+      });
+
+      var imgWrap = document.createElement('div');
+      imgWrap.className = 'sign-img-wrap';
+      var badge = document.createElement('div');
+      badge.className = 'sign-status-badge';
+      var img = document.createElement('img');
+      img.alt = 'Sign'; img.style.display = 'none';
+      imgWrap.appendChild(badge);
+      imgWrap.appendChild(img);
+
+      function refresh() {
+        var info    = SIGNS[sel.value];
+        var isAvail = avail.value !== 'not_available';
+        avail.classList.toggle('not-avail', !isAvail);
+        if (info && info.src) {
+          img.src = info.src; img.style.display = '';
+          badge.textContent = isAvail ? 'Available' : 'Not Available';
+          badge.className   = 'sign-status-badge ' + (isAvail ? 'avail' : 'navail');
+        } else {
+          img.src = ''; img.style.display = 'none';
+          badge.className = 'sign-status-badge'; badge.textContent = '';
+        }
+      }
+      avail.addEventListener('change', refresh);
+      sel.addEventListener('change', refresh);
+      wrap.appendChild(avail); wrap.appendChild(sel); wrap.appendChild(imgWrap);
+      return wrap;
+    }
+
+    function buildCheckbox() {
+      var el = document.createElement('div');
+      el.className = 'chk-toggle checked';
+      el.textContent = '✓';
+      el.setAttribute('role', 'checkbox');
+      el.setAttribute('aria-checked', 'true');
+      el.addEventListener('click', function () {
+        var on = el.classList.contains('checked');
+        el.classList.toggle('checked',   !on);
+        el.classList.toggle('unchecked',  on);
+        el.textContent = on ? '✗' : '✓';
+        el.setAttribute('aria-checked', String(!on));
+      });
+      return el;
+    }
+
+    /* ── Add one card row, collapsed by default ── */
+    function addRow(label) {
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+      var tbody   = document.getElementById('pm-tbody');
+      var tr      = document.createElement('tr');
+      tr.dataset.label = label;
+      tr.classList.add('pm-card-collapsed');
+
+      /* Delete cell */
+      var tdDel = document.createElement('td');
+      tdDel.className = 'pm-col-del';
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button'; delBtn.className = 'btn-del-row';
+      delBtn.title = 'Delete row'; delBtn.textContent = '✕';
+      delBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        tbody.removeChild(tr);
+      });
+      tdDel.appendChild(delBtn);
+      tr.appendChild(tdDel);
+
+      /* Description cell */
+      var tdDesc = document.createElement('td');
+      tdDesc.className = 'pm-col-desc';
+      var dWrap  = document.createElement('div');
+      dWrap.className = 'desc-cell';
+      var prefix = document.createElement('span');
+      prefix.className = 'desc-prefix'; prefix.textContent = 'RYDRL ' + siteNum;
+      var suffix = document.createElement('span');
+      suffix.className = 'desc-suffix'; suffix.textContent = label;
+      var toggleInd = document.createElement('span');
+      toggleInd.className = 'pm-card-toggle'; toggleInd.textContent = '▶';
+      dWrap.appendChild(prefix); dWrap.appendChild(suffix); dWrap.appendChild(toggleInd);
+      tdDesc.appendChild(dWrap);
+      tr.appendChild(tdDesc);
+
+      /* Toggle on header click */
+      function toggleCollapse() {
+        var collapsed = tr.classList.toggle('pm-card-collapsed');
+        toggleInd.textContent = collapsed ? '▶' : '▼';
+      }
+      tdDel.addEventListener('click', toggleCollapse);
+      tdDesc.addEventListener('click', toggleCollapse);
+
+      /* RCU (DOM pos 3) */
+      var tdRCU = document.createElement('td');
+      tdRCU.className = 'pm-col-chk'; tdRCU.dataset.label = 'RCU';
+      tdRCU.appendChild(buildCheckbox()); tr.appendChild(tdRCU);
+
+      /* FCU (DOM pos 4) */
+      var tdFCU = document.createElement('td');
+      tdFCU.className = 'pm-col-chk'; tdFCU.dataset.label = 'FCU';
+      tdFCU.appendChild(buildCheckbox()); tr.appendChild(tdFCU);
+
+      /* Sign L (DOM pos 5) */
+      var tdSL = document.createElement('td');
+      tdSL.className = 'pm-col-sign'; tdSL.dataset.label = 'Sign Board L';
+      tdSL.appendChild(buildSignCell()); tr.appendChild(tdSL);
+
+      /* Sign R (DOM pos 6) */
+      var tdSR = document.createElement('td');
+      tdSR.className = 'pm-col-sign'; tdSR.dataset.label = 'Sign Board R';
+      tdSR.appendChild(buildSignCell()); tr.appendChild(tdSR);
+
+      /* Pedestrian % (DOM pos 7) */
+      var tdPct  = document.createElement('td');
+      tdPct.className = 'pm-col-pct'; tdPct.dataset.label = 'Pedestrian %';
+      var pctIn  = document.createElement('input');
+      pctIn.type = 'number'; pctIn.min = '0'; pctIn.max = '100';
+      pctIn.className = 'pct-input'; pctIn.placeholder = '0';
+      var pctUnit = document.createElement('span');
+      pctUnit.textContent = ' %'; pctUnit.style.fontSize = '.82rem';
+      tdPct.appendChild(pctIn); tdPct.appendChild(pctUnit);
+      tr.appendChild(tdPct);
+
+      /* Traffic Light (DOM pos 8) */
+      var tdTl  = document.createElement('td');
+      tdTl.className = 'pm-col-tl'; tdTl.dataset.label = 'Traffic Light';
+      var tlSel = document.createElement('select');
+      tlSel.className = 'tl-select both-avail';
+      tlSel.innerHTML = '<option value="both">Both sides Available</option><option value="none">Not Available</option>';
+      tlSel.addEventListener('change', function () {
+        tlSel.classList.toggle('both-avail', tlSel.value === 'both');
+        tlSel.classList.toggle('not-avail',  tlSel.value !== 'both');
+      });
+      tdTl.appendChild(tlSel); tr.appendChild(tdTl);
+
+      /* Pole L (DOM pos 9), Pole R (10), Base L (11), Base R (12) */
+      [['pm-col-chk','Pole L'],['pm-col-chk','Pole R'],['pm-col-chk','Base L'],['pm-col-chk','Base R']].forEach(function (cfg) {
+        var td = document.createElement('td');
+        td.className = cfg[0]; td.dataset.label = cfg[1];
+        td.appendChild(buildCheckbox()); tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    }
+
+    /* Live site number update in headers */
+    document.getElementById('site-number').addEventListener('input', function () {
+      var val = this.value.trim() || '____';
+      document.querySelectorAll('#pm-tbody .desc-prefix').forEach(function (el) {
+        el.textContent = 'RYDRL ' + val;
+      });
+    });
+
+    function resetForm() {
+      document.getElementById('site-number').value = '';
+      var tbody = document.getElementById('pm-tbody');
+      while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+      selectedLabels.forEach(function (lbl) { addRow(lbl); });
+    }
+
+    /* ── Model selection ── */
+    function selectModel(modelKey) {
+      var model = DIRECTION_MODELS[modelKey];
+      selectedLabels = model.labels.slice();
+      var tbody = document.getElementById('pm-tbody');
+      while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+      selectedLabels.forEach(function (lbl) { addRow(lbl); });
+      document.getElementById('pm-model-badge').textContent = model.name;
+      document.getElementById('pm-model-select').style.display = 'none';
+      document.getElementById('pm-table-view').style.display   = '';
+    }
+
+    document.querySelectorAll('.pm-model-card').forEach(function (btn) {
+      btn.addEventListener('click', function () { selectModel(this.dataset.model); });
+    });
+
+    document.getElementById('pm-change-model-btn').addEventListener('click', function () {
+      document.getElementById('site-number').value = '';
+      var tbody = document.getElementById('pm-tbody');
+      while (tbody.firstChild) { tbody.removeChild(tbody.firstChild); }
+      selectedLabels = [];
+      document.getElementById('pm-table-view').style.display   = 'none';
+      document.getElementById('pm-model-select').style.display = '';
+    });
+
+    /* ══════════════════════════════════════════════════════════
+       DATA EXTRACTION
+       Reads current values from all TR cards (collapsed or open).
+       DOM order: chk-toggle[0]=RCU, [1]=FCU, [2]=PoleL, [3]=PoleR, [4]=BaseL, [5]=BaseR
+                  sign-cell[0]=SignL, sign-cell[1]=SignR
+    ══════════════════════════════════════════════════════════ */
+    function collectPmRows() {
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+      var rows = [];
+
+      document.querySelectorAll('#pm-tbody tr').forEach(function (tr) {
+        var label = tr.dataset.label || '';
+
+        /* Checkboxes in DOM order */
+        var chks = Array.from(tr.querySelectorAll('.chk-toggle')).map(function (c) {
+          return c.classList.contains('checked');
+        });
+
+        /* Sign cells in DOM order */
+        var signEls = Array.from(tr.querySelectorAll('.sign-cell'));
+        function readSign(sc) {
+          if (!sc) return { avail: true, key: 'none', label: '— None —', src: '' };
+          var availEl = sc.querySelector('.sign-avail');
+          var signSel = sc.querySelector('select:not(.sign-avail)');
+          var isAvail = !availEl || availEl.value !== 'not_available';
+          var key     = signSel ? signSel.value : 'none';
+          var info    = SIGNS[key] || { label: '— None —', src: '' };
+          return { avail: isAvail, key: key, label: info.label, src: info.src };
+        }
+
+        var pctEl  = tr.querySelector('.pct-input');
+        var tlEl   = tr.querySelector('.tl-select');
+        var pctVal = pctEl ? pctEl.value : '';
+        var tlVal  = tlEl ? tlEl.value : 'both';
+        var tlText = tlEl ? tlEl.options[tlEl.selectedIndex].text : 'Both sides Available';
+
+        rows.push({
+          siteNum : siteNum,
+          label   : label,
+          desc    : 'RYDRL ' + siteNum + ' ' + label,
+          rcu     : chks[0] !== undefined ? chks[0] : true,
+          fcu     : chks[1] !== undefined ? chks[1] : true,
+          signL   : readSign(signEls[0]),
+          signR   : readSign(signEls[1]),
+          pct     : pctVal,
+          tlVal   : tlVal,
+          tlText  : tlText,
+          poleL   : chks[2] !== undefined ? chks[2] : true,
+          poleR   : chks[3] !== undefined ? chks[3] : true,
+          baseL   : chks[4] !== undefined ? chks[4] : true,
+          baseR   : chks[5] !== undefined ? chks[5] : true,
+        });
+      });
+
+      return rows;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SHARED RENDER HELPERS
+    ══════════════════════════════════════════════════════════ */
+    function chkSymbol(checked, size) {
+      return checked
+        ? '<span style="color:#16a34a;font-weight:bold;font-size:' + size + ';">✓</span>'
+        : '<span style="color:#ef4444;font-weight:bold;font-size:' + size + ';">✗</span>';
+    }
+
+    function pctColor(pctStr) {
+      var n = parseInt(pctStr);
+      if (pctStr === '' || isNaN(n)) return '#333';
+      if (n >= 50) return '#16a34a';
+      if (n >= 30) return '#c65f00';
+      return '#ef4444';
+    }
+
+    /* signCellHTML — imgSize e.g. "50pt" or "80px", labelSize e.g. "9pt" or "11px" */
+    function signCellHTML(sign, imgSize, labelSize) {
+      if (sign.src) {
+        var c   = sign.avail ? '#16a34a' : '#ef4444';
+        var txt = sign.avail ? 'Available' : 'Not Available';
+        return '<div style="font-family:\'Times New Roman\',Times,serif;font-size:' + labelSize +
+               ';font-weight:700;color:' + c + ';margin-bottom:2px;">' + txt + '</div>' +
+               '<img src="' + sign.src + '" style="display:block;margin:0 auto;width:' + imgSize +
+               ';height:auto;object-fit:contain;" alt="' + sign.label + '">';
+      }
+      if (!sign.avail) {
+        return '<span style="color:#ef4444;font-weight:bold;font-family:\'Times New Roman\',' +
+               'Times,serif;font-size:' + labelSize + ';">Not Available</span>';
+      }
+      return '<span style="color:#999;font-size:' + labelSize + ';">—</span>';
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       BUILD CLEAN PRINT TABLE (for PDF)
+       Fully inline-styled — no dependency on any CSS class.
+    ══════════════════════════════════════════════════════════ */
+    function buildPrintTableHTML(rows) {
+      var F  = 'font-family:"Times New Roman",Times,serif;';
+      var TH = 'border:1px solid #000;padding:4pt 5pt;background:#bfbfbf;color:#000;' + F +
+               'font-weight:bold;text-align:center;vertical-align:middle;';
+      var TD = 'border:1px solid #000;padding:3pt 4pt;' + F +
+               'font-size:11.5pt;text-align:center;vertical-align:middle;';
+      var TD_DESC = 'border:1px solid #000;padding:3pt 5pt;' + F +
+                    'font-size:11.5pt;text-align:center;vertical-align:middle;font-weight:bold;';
+
+      var html = '<table style="border-collapse:collapse;width:100%;' + F + 'font-size:11.5pt;">';
+
+      /* Header row 1 */
+      html += '<thead>';
+      html += '<tr>';
+      html += '<th rowspan="2" style="' + TH + 'font-size:11pt;min-width:80pt;">Description</th>';
+      html += '<th colspan="2" style="' + TH + 'font-size:11pt;">Protection Poles</th>';
+      html += '<th colspan="2" style="' + TH + 'font-size:11pt;">Traffic Sign Boards</th>';
+      html += '<th rowspan="2" style="' + TH + 'font-size:10.5pt;width:55pt;">Pedestrian<br>Lanes</th>';
+      html += '<th rowspan="2" style="' + TH + 'font-size:10.5pt;width:95pt;">Traffic Light</th>';
+      html += '<th colspan="2" style="' + TH + 'font-size:11pt;">Sign Board\'s Pole</th>';
+      html += '<th colspan="2" style="' + TH + 'font-size:11pt;">Sign Board\'s Base</th>';
+      html += '</tr>';
+
+      /* Header row 2 */
+      html += '<tr>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">RCU</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">FCU</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:85pt;">L</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:85pt;">R</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">L</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">R</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">L</th>';
+      html += '<th style="' + TH + 'font-size:10pt;width:40pt;">R</th>';
+      html += '</tr>';
+      html += '</thead>';
+
+      /* Body rows */
+      html += '<tbody>';
+      rows.forEach(function (row, i) {
+        var rowBg = (i % 2 === 0) ? '#ffffff' : '#f9f9f9';
+        html += '<tr style="background:' + rowBg + ';">';
+        html += '<td style="' + TD_DESC + 'background:' + rowBg + ';">'              + row.desc    + '</td>';
+        html += '<td style="' + TD + 'background:' + rowBg + ';">'                   + chkSymbol(row.rcu,   '13pt') + '</td>';
+        html += '<td style="' + TD + 'background:' + rowBg + ';">'                   + chkSymbol(row.fcu,   '13pt') + '</td>';
+        html += '<td style="' + TD + 'background:' + rowBg + ';">'                   + signCellHTML(row.signL, '48pt', '9pt') + '</td>';
+        html += '<td style="' + TD + 'background:' + rowBg + ';">'                   + signCellHTML(row.signR, '48pt', '9pt') + '</td>';
+
+        var pc  = pctColor(row.pct);
+        var pd  = (row.pct !== '') ? row.pct + ' %' : '—';
+        html += '<td style="' + TD + 'background:' + rowBg + ';color:' + pc + ';font-weight:bold;">' + pd + '</td>';
+
+        var tlc = (row.tlVal === 'both') ? '#16a34a' : '#ef4444';
+        html += '<td style="' + TD + 'background:' + rowBg + ';"><span style="color:' + tlc + ';font-weight:bold;font-size:10pt;">' + row.tlText + '</span></td>';
+
+        html += '<td style="' + TD + 'background:' + rowBg + ';">' + chkSymbol(row.poleL, '13pt') + '</td>';
+        html += '<td style="' + TD + 'background:' + rowBg + ';">' + chkSymbol(row.poleR, '13pt') + '</td>';
+        html += '<td style="' + TD + 'background:' + rowBg + ';">' + chkSymbol(row.baseL, '13pt') + '</td>';
+        html += '<td style="' + TD + 'background:' + rowBg + ';">' + chkSymbol(row.baseR, '13pt') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      return html;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       BUILD CLIPBOARD HTML (Direct Copy → Outlook / Word)
+       Fully inline-styled — no CSS class dependency.
+    ══════════════════════════════════════════════════════════ */
+    function buildClipboardHTML() {
+      var rows    = collectPmRows();
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+
+      var F   = 'font-family:"Times New Roman",Times,serif;';
+      var BDR = 'border:1px solid #000000;mso-border-alt:solid #000000 .75pt;';
+
+      var TH = BDR + 'padding:5px 6px;background:#bfbfbf;mso-background-themecolor:background1;' +
+               'mso-background-themeshade:191;color:#000000;' + F +
+               'font-weight:bold;font-size:12px;text-align:center;vertical-align:middle;';
+
+      var TH2 = BDR + 'padding:5px 6px;background:#bfbfbf;mso-background-themecolor:background1;' +
+                'mso-background-themeshade:191;color:#000000;' + F +
+                'font-weight:600;font-size:11px;text-align:center;vertical-align:middle;';
+
+      var TD = BDR + 'padding:5px 6px;' + F +
+               'font-size:12px;text-align:center;vertical-align:middle;';
+
+      var TD_DESC = BDR + 'padding:5px 7px;' + F +
+                    'font-size:12px;text-align:center;vertical-align:middle;font-weight:bold;';
+
+      var html =
+        '<p style="' + F + 'font-size:13px;margin:0 0 8px 0;">Here is the PM report for site RYDRL ' + siteNum + ':</p>' +
+        '<table border="1" cellpadding="0" cellspacing="0" bordercolor="#000000"' +
+        ' style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;' +
+        'border:1px solid #000000;min-width:960px;' + F + '">' +
+        '<thead>' +
+        '<tr>' +
+        '<th rowspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + 'width:110px;">Description</th>' +
+        '<th colspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + '">Protection Poles</th>' +
+        '<th colspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + '">Traffic Sign Boards</th>' +
+        '<th rowspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + 'width:70px;">Pedestrian Lanes</th>' +
+        '<th rowspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + 'width:120px;">Traffic Light</th>' +
+        '<th colspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + '">Sign Board\'s Pole</th>' +
+        '<th colspan="2" align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH + '">Sign Board\'s Base</th>' +
+        '</tr>' +
+        '<tr>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">RCU</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">FCU</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:110px;">L</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:110px;">R</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">L</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">R</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">L</th>' +
+        '<th align="center" valign="middle" bgcolor="#bfbfbf" style="' + TH2 + 'width:52px;">R</th>' +
+        '</tr>' +
+        '</thead>' +
+        '<tbody>';
+
+      rows.forEach(function (row, i) {
+        var bg = (i % 2 === 0) ? '#ffffff' : '#f5f8ff';
+        html += '<tr>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD_DESC + 'background:' + bg + ';">' + row.desc + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.rcu,  '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.fcu,  '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + signCellHTML(row.signL, '80px', '11px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + signCellHTML(row.signR, '80px', '11px') + '</td>';
+
+        var pc = pctColor(row.pct);
+        var pd = (row.pct !== '') ? row.pct + ' %' : '—';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';color:' + pc + ';font-weight:bold;">' + pd + '</td>';
+
+        var tlc = (row.tlVal === 'both') ? '#16a34a' : '#ef4444';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';"><span style="color:' + tlc + ';font-weight:bold;">' + row.tlText + '</span></td>';
+
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.poleL, '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.poleR, '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.baseL, '16px') + '</td>';
+        html += '<td align="center" valign="middle" bgcolor="' + bg + '" style="' + TD + 'background:' + bg + ';">' + chkSymbol(row.baseR, '16px') + '</td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      return html;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       BUILD PLAIN TEXT (mobile fallback)
+    ══════════════════════════════════════════════════════════ */
+    function buildPlainText() {
+      var rows    = collectPmRows();
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+      var lines   = [];
+      lines.push('Here is the PM report for site RYDRL ' + siteNum + ':');
+      lines.push('');
+      lines.push(['Description','RCU','FCU','Sign L','Sign R','Pedestrian %','Traffic Light','Pole L','Pole R','Base L','Base R'].join('\t'));
+
+      rows.forEach(function (row) {
+        function signText(s) {
+          if (s.src) return (s.avail ? 'Available' : 'Not Available') + ': ' + s.label;
+          if (!s.avail) return 'Not Available';
+          return '—';
+        }
+        var pd = (row.pct !== '') ? row.pct + ' %' : '—';
+        lines.push([
+          row.desc,
+          row.rcu   ? '✓' : '✗',
+          row.fcu   ? '✓' : '✗',
+          signText(row.signL),
+          signText(row.signR),
+          pd,
+          row.tlText,
+          row.poleL ? '✓' : '✗',
+          row.poleR ? '✓' : '✗',
+          row.baseL ? '✓' : '✗',
+          row.baseR ? '✓' : '✗',
+        ].join('\t'));
+      });
+
+      return lines.join('\n');
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       3-TIER CLIPBOARD COPY
+    ══════════════════════════════════════════════════════════ */
+    function doCopy(htmlContent, plainText, onSuccess) {
+      if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+        try {
+          var hb = new Blob([htmlContent], { type: 'text/html' });
+          var tb = new Blob([plainText],   { type: 'text/plain' });
+          navigator.clipboard.write([new ClipboardItem({ 'text/html': hb, 'text/plain': tb })])
+            .then(function () { onSuccess(); })
+            .catch(function () { tier2(plainText, onSuccess); });
+        } catch (e) { tier2(plainText, onSuccess); }
+      } else {
+        tier2(plainText, onSuccess);
+      }
+    }
+
+    function tier2(plainText, onSuccess) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(plainText)
+          .then(function () { onSuccess(); })
+          .catch(function () { tier3(plainText, onSuccess); });
+      } else { tier3(plainText, onSuccess); }
+    }
+
+    function tier3(plainText, onSuccess) {
+      var ta = document.createElement('textarea');
+      ta.value = plainText;
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;opacity:0;';
+      ta.setAttribute('readonly', '');
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      try { ta.setSelectionRange(0, 99999); } catch (e) {}
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      if (ok) { onSuccess(); }
+      else { alert('Copy failed. Please long-press and select all text, then copy manually.'); }
+    }
+
+    function showCopySuccess() {
+      var b = document.getElementById('pm-copy-success');
+      b.style.display = '';
+      setTimeout(function () { b.style.display = 'none'; }, 4000);
+    }
+
+    function showModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function hideModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    /* ══════════════════════════════════════════════════════════
+       EVENT WIRING
+    ══════════════════════════════════════════════════════════ */
+    document.getElementById('extract-btn').addEventListener('click', function () { showModal('extract-modal'); });
+    document.getElementById('extract-cancel-btn').addEventListener('click', function () { hideModal('extract-modal'); });
+
+    document.getElementById('modal-copy-btn').addEventListener('click', function () {
+      hideModal('extract-modal');
+      showModal('confirm-modal');
+    });
+
+    document.getElementById('confirm-yes-btn').addEventListener('click', function () {
+      var html      = buildClipboardHTML();
+      var plainText = buildPlainText();
+      doCopy(html, plainText, function () {
+        hideModal('confirm-modal');
+        showCopySuccess();
+        resetForm();
+      });
+    });
+
+    document.getElementById('confirm-no-btn').addEventListener('click', function () {
+      hideModal('confirm-modal');
+      showModal('extract-modal');
+    });
+
+    document.getElementById('modal-pdf-btn').addEventListener('click', function () {
+      hideModal('extract-modal');
+
+      /* Collect data and build clean print table */
+      var rows    = collectPmRows();
+      var siteNum = document.getElementById('site-number').value.trim() || '____';
+
+      var printWrap = document.getElementById('pm-print-table-wrap');
+      printWrap.innerHTML = buildPrintTableHTML(rows);
+      printWrap.style.display = 'block';
+
+      document.getElementById('pm-print-site').textContent = 'Site: RYDRL ' + siteNum;
+      document.getElementById('pm-print-header').style.display = 'block';
+
+      window.print();
+
+      /* Cleanup after print dialog closes */
+      printWrap.innerHTML = '';
+      printWrap.style.display = 'none';
+      document.getElementById('pm-print-header').style.display = 'none';
+    });
+
+    document.getElementById('extract-modal').addEventListener('click', function (e) {
+      if (e.target === this) hideModal('extract-modal');
+    });
+    document.getElementById('confirm-modal').addEventListener('click', function (e) {
+      if (e.target === this) hideModal('confirm-modal');
+    });
+
+  })();
+  </script>
+
+</body>
+</html>
