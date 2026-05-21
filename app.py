@@ -100,6 +100,15 @@ def _empty_task() -> dict:
     }
 
 
+def _format_site_id(site_id: str) -> str:
+    value = str(site_id or "").strip()
+    if not value:
+        return ""
+    if value.upper().startswith("RYDRL"):
+        return value
+    return f"RYDRL {value}"
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # AUTH
 # ══════════════════════════════════════════════════════════════════════════════
@@ -249,6 +258,9 @@ def report_preview():
 
     if errors:
         return jsonify({"success": False, "errors": errors}), 400
+
+    for task in tasks:
+        task["site_display"] = _format_site_id(task.get("site_id", ""))
 
     return render_template(
         "report_preview.html",
