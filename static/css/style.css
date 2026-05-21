@@ -322,7 +322,14 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .field-hint { font-size: .78rem; color: var(--grey-400); margin-top: .2rem; }
 
 .task-card { margin-bottom: 1.5rem; overflow: hidden; }
-.task-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; }
+.task-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.task-card-header #add-row-btn { order: -1; }
 
 /* Responsive table wrapper */
 .table-scroll {
