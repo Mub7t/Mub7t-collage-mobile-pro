@@ -414,6 +414,10 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .task-table textarea[data-field="comments"] {
   text-align: left;
 }
+.action-preset-select {
+  margin-bottom: 4px;
+  font-weight: 700;
+}
 .task-table input[type="text"]:focus,
 .task-table textarea:focus,
 .task-table select:focus {

@@ -107,6 +107,14 @@
 
   if (!tbody) return;  // not on this page
 
+  const ACTION_PRESETS = [
+    "Done troubleshooting",
+    "Reconfigured the UTL.",
+    "Done self-violations",
+    "Reset the sync. between the RDU & CDH2.",
+    "Checked and cleaned cabinet components",
+  ];
+
   let tasks  = (window.INITIAL_TASKS || []).map((t, i) => ({ ...t, _id: i }));
   let nextId = tasks.length;
 
@@ -147,6 +155,22 @@
       autoGrow(ta);
     });
 
+    const actionPreset = tr.querySelector(".action-preset-select");
+    const actionText   = tr.querySelector("[data-field='action_taken']");
+    if (actionPreset && actionText) {
+      actionPreset.addEventListener("change", () => {
+        const preset = actionPreset.value;
+        if (!preset) return;
+        const current = actionText.value.trim();
+        actionText.value = current
+          ? (current.includes(preset) ? current : `${current}\n${preset}`)
+          : preset;
+        autoGrow(actionText);
+        actionText.focus();
+        actionPreset.value = "";
+      });
+    }
+
     // Numeric-only enforcement for site_id and sap_notification
     tr.querySelectorAll("[data-numeric='1']").forEach(inp => {
       inp.addEventListener("input", function () {
@@ -171,6 +195,9 @@
   function rowHTML(task) {
     const opts = ["Solved", "Pending"]
       .map(s => `<option value="${s}"${task.current_status === s ? " selected" : ""}>${s}</option>`)
+      .join("");
+    const actionOptions = ACTION_PRESETS
+      .map(text => `<option value="${esc(text)}">${esc(text)}</option>`)
       .join("");
     return `
       <td class="col-num">
@@ -203,6 +230,10 @@
                placeholder="SAP number" data-field="sap_notification" data-numeric="1" />
       </td>
       <td class="col-action">
+        <select class="action-preset-select" aria-label="Ready action options">
+          <option value="">Ready action...</option>
+          ${actionOptions}
+        </select>
         <textarea placeholder="Enter action taken…"
                   data-field="action_taken" rows="2">${esc(task.action_taken)}</textarea>
       </td>
