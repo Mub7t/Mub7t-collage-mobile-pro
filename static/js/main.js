@@ -369,7 +369,7 @@
         method: "POST",
         body: formData,
       });
-      const payload = await readJsonResponse(response);
+      const payload = await response.json();
       console.log("OCR RAW TEXT:", payload.raw_text || "");
       console.log("PARSED ROWS:", payload.rows || []);
       if (!response.ok || !payload.success) {
@@ -388,18 +388,6 @@
       showErrors([err.message || "The image could not be processed. Please upload a clearer screenshot."]);
     } finally {
       if (loadingOv) loadingOv.style.display = "none";
-    }
-  }
-
-  async function readJsonResponse(response) {
-    const text = await response.text();
-    if (!text) {
-      throw new Error("The OCR server returned an empty response.");
-    }
-    try {
-      return JSON.parse(text);
-    } catch (_) {
-      throw new Error("The OCR server returned an invalid response.");
     }
   }
 
