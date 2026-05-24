@@ -22,13 +22,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from services.ocr_service            import extract_text_from_image
 from services.parser_service         import parse_email_text
 from services.photo_combiner_service import combine_photos
-<<<<<<< HEAD
-=======
 from services.supervisor_image_service import (
     extract_supervisor_rows_from_image,
     rows_to_report_tasks,
 )
->>>>>>> 6114a99 (Initial commit)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "rl-report-secret-key-2026")
@@ -73,11 +70,7 @@ def load_user(user_id):
 
 UPLOAD_FOLDER  = os.path.join(os.path.dirname(__file__), "uploads")
 IMAGES_FOLDER  = os.path.join(os.path.dirname(__file__), "generated_images")
-<<<<<<< HEAD
-ALLOWED_EXTENSIONS     = {"png", "jpg", "jpeg"}
-=======
 ALLOWED_EXTENSIONS     = {"png", "jpg", "jpeg", "webp"}
->>>>>>> 6114a99 (Initial commit)
 MAX_CONTENT_LENGTH     = 100 * 1024 * 1024   # 100 MB for many photos
 MAX_PHOTOS             = 30
 
@@ -93,8 +86,6 @@ def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-<<<<<<< HEAD
-=======
 def _save_uploaded_image(file) -> str:
     ext = file.filename.rsplit(".", 1)[1].lower()
     safe_name = f"{uuid.uuid4().hex}.{ext}"
@@ -103,7 +94,6 @@ def _save_uploaded_image(file) -> str:
     return filepath
 
 
->>>>>>> 6114a99 (Initial commit)
 def today_formatted() -> str:
     try:
         return datetime.now().strftime("%B %-d, %Y")
@@ -188,14 +178,7 @@ def extract():
         flash("Unsupported file type. Please upload PNG, JPG, or JPEG.", "error")
         return redirect(url_for("upload"))
 
-<<<<<<< HEAD
-    ext       = file.filename.rsplit(".", 1)[1].lower()
-    safe_name = f"{uuid.uuid4().hex}.{ext}"
-    filepath  = os.path.join(app.config["UPLOAD_FOLDER"], safe_name)
-    file.save(filepath)
-=======
     filepath = _save_uploaded_image(file)
->>>>>>> 6114a99 (Initial commit)
 
     ocr_error = None
     raw_text  = ""
@@ -253,8 +236,6 @@ def manual_report():
     )
 
 
-<<<<<<< HEAD
-=======
 @app.route("/supervisor-image")
 @login_required
 def supervisor_image_upload():
@@ -343,7 +324,6 @@ def supervisor_image_confirm():
     )
 
 
->>>>>>> 6114a99 (Initial commit)
 @app.route("/report-preview", methods=["POST"])
 @login_required
 def report_preview():
@@ -410,8 +390,6 @@ def api_extract():
         return jsonify({"error": str(exc)}), 500
 
 
-<<<<<<< HEAD
-=======
 @app.route("/api/supervisor-image/extract", methods=["POST"])
 @login_required
 def api_supervisor_image_extract():
@@ -439,7 +417,6 @@ def api_supervisor_image_extract():
     return jsonify({"success": True, "rows": rows, "raw_text": raw_text})
 
 
->>>>>>> 6114a99 (Initial commit)
 # ══════════════════════════════════════════════════════════════════════════════
 # SERVICE 3 — PREVENTIVE MAINTENANCE TABLE
 # ══════════════════════════════════════════════════════════════════════════════
