@@ -265,6 +265,61 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .page-content { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
 .upload-card  { max-width: 640px; margin: 0 auto; }
 
+<<<<<<< HEAD
+=======
+.report-option-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+.report-option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .75rem;
+  min-height: 245px;
+  padding: 1.25rem;
+  border: 1px solid var(--grey-200);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  color: var(--grey-800);
+  transition: border-color var(--transition), box-shadow var(--transition),
+              transform var(--transition), background var(--transition);
+}
+.report-option-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--navy);
+  box-shadow: var(--shadow);
+  background: var(--grey-50);
+}
+.report-option-card__icon {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy);
+  color: var(--white);
+}
+.report-option-card__icon svg {
+  width: 22px;
+  height: 22px;
+}
+.report-option-card__title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: var(--navy);
+}
+.report-option-card__desc {
+  font-size: .88rem;
+  line-height: 1.5;
+  color: var(--grey-600);
+}
+
+>>>>>>> 6114a99 (Initial commit)
 .drop-zone {
   border: 2px dashed var(--grey-200); border-radius: var(--radius-lg);
   background: var(--grey-50); transition: border-color var(--transition), background var(--transition);
@@ -513,6 +568,14 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .rpt-pending { color: var(--amber); font-weight: 700; }
 .rpt-highlight { background: #FFFDE7; }
 
+<<<<<<< HEAD
+=======
+.preview-action-btns form {
+  margin: 0;
+  display: inline-flex;
+}
+
+>>>>>>> 6114a99 (Initial commit)
 /* ════════════════════════════════════════════════════════════
    COMBINE PHOTOS PAGE
    ════════════════════════════════════════════════════════════ */
@@ -605,6 +668,10 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
    RESPONSIVE
    ════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
+<<<<<<< HEAD
+=======
+  .report-option-grid { grid-template-columns: 1fr; }
+>>>>>>> 6114a99 (Initial commit)
   .options-grid    { grid-template-columns: 1fr; }
   .wm-row          { grid-template-columns: 1fr; }
   .header-fields   { grid-template-columns: 1fr 1fr; }

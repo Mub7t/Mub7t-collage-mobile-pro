@@ -22,6 +22,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from services.ocr_service            import extract_text_from_image
 from services.parser_service         import parse_email_text
 from services.photo_combiner_service import combine_photos
+<<<<<<< HEAD
+=======
+from services.supervisor_image_service import (
+    extract_supervisor_rows_from_image,
+    rows_to_report_tasks,
+)
+>>>>>>> 6114a99 (Initial commit)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "rl-report-secret-key-2026")
@@ -66,7 +73,11 @@ def load_user(user_id):
 
 UPLOAD_FOLDER  = os.path.join(os.path.dirname(__file__), "uploads")
 IMAGES_FOLDER  = os.path.join(os.path.dirname(__file__), "generated_images")
+<<<<<<< HEAD
 ALLOWED_EXTENSIONS     = {"png", "jpg", "jpeg"}
+=======
+ALLOWED_EXTENSIONS     = {"png", "jpg", "jpeg", "webp"}
+>>>>>>> 6114a99 (Initial commit)
 MAX_CONTENT_LENGTH     = 100 * 1024 * 1024   # 100 MB for many photos
 MAX_PHOTOS             = 30
 
@@ -82,6 +93,17 @@ def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+<<<<<<< HEAD
+=======
+def _save_uploaded_image(file) -> str:
+    ext = file.filename.rsplit(".", 1)[1].lower()
+    safe_name = f"{uuid.uuid4().hex}.{ext}"
+    filepath = os.path.join(app.config["UPLOAD_FOLDER"], safe_name)
+    file.save(filepath)
+    return filepath
+
+
+>>>>>>> 6114a99 (Initial commit)
 def today_formatted() -> str:
     try:
         return datetime.now().strftime("%B %-d, %Y")
@@ -166,10 +188,14 @@ def extract():
         flash("Unsupported file type. Please upload PNG, JPG, or JPEG.", "error")
         return redirect(url_for("upload"))
 
+<<<<<<< HEAD
     ext       = file.filename.rsplit(".", 1)[1].lower()
     safe_name = f"{uuid.uuid4().hex}.{ext}"
     filepath  = os.path.join(app.config["UPLOAD_FOLDER"], safe_name)
     file.save(filepath)
+=======
+    filepath = _save_uploaded_image(file)
+>>>>>>> 6114a99 (Initial commit)
 
     ocr_error = None
     raw_text  = ""
@@ -227,6 +253,97 @@ def manual_report():
     )
 
 
+<<<<<<< HEAD
+=======
+@app.route("/supervisor-image")
+@login_required
+def supervisor_image_upload():
+    """Legacy entry point: auto-fill now happens inside the editable report."""
+    return redirect(url_for("manual_report"))
+
+
+def _extract_supervisor_image_file(file) -> tuple[str, list[dict[str, str]]]:
+    filepath = _save_uploaded_image(file)
+    raw_text, rows = extract_supervisor_rows_from_image(filepath)
+    print("OCR RAW TEXT:", raw_text)
+    if not raw_text:
+        raise ValueError("The image could not be processed. Please upload a clearer screenshot.")
+    print("PARSED ROWS:", rows)
+    print("FINAL EXTRACTED DATA:", rows)
+    return raw_text, rows
+
+
+@app.route("/supervisor-image/preview", methods=["POST"])
+@login_required
+def supervisor_image_preview():
+    """OCR path: upload supervisor table image → preview extracted rows."""
+    if "image" not in request.files or request.files["image"].filename == "":
+        flash("The image could not be processed. Please upload a clearer screenshot.", "error")
+        return redirect(url_for("supervisor_image_upload"))
+
+    file = request.files["image"]
+    if not allowed_file(file.filename):
+        flash("Unsupported file type. Please upload PNG, JPG, JPEG, or WEBP.", "error")
+        return redirect(url_for("supervisor_image_upload"))
+
+    try:
+        raw_text, extracted_rows = _extract_supervisor_image_file(file)
+    except ValueError as exc:
+        flash(str(exc), "error")
+        return render_template("supervisor_upload.html", debug_error=str(exc), debug_raw_text="")
+    except Exception as exc:
+        message = str(exc) or "The image could not be processed. Please upload a clearer screenshot."
+        flash(message, "error")
+        return render_template("supervisor_upload.html", debug_error=message, debug_raw_text="")
+
+    if not extracted_rows:
+        flash("No valid report data was found in the uploaded image.", "error")
+        return render_template(
+            "supervisor_upload.html",
+            debug_error="No valid report data was found in the uploaded image.",
+            debug_raw_text=raw_text,
+            debug_rows=[],
+        )
+
+    return render_template(
+        "supervisor_preview.html",
+        rows=extracted_rows,
+        rows_json=json.dumps(extracted_rows),
+        raw_text=raw_text,
+    )
+
+
+@app.route("/supervisor-image/confirm", methods=["POST"])
+@login_required
+def supervisor_image_confirm():
+    """Create the existing daily report review table from confirmed OCR rows."""
+    rows_json = request.form.get("rows_json", "[]")
+    try:
+        rows = json.loads(rows_json)
+    except json.JSONDecodeError:
+        rows = []
+
+    tasks = rows_to_report_tasks(rows if isinstance(rows, list) else [])
+    if not tasks:
+        flash("No valid report data was found in the uploaded image.", "error")
+        return redirect(url_for("supervisor_image_upload"))
+
+    return render_template(
+        "review.html",
+        supervisor="",
+        team="",
+        shift="Overnight",
+        time_range="12 AM - 8 AM",
+        date=today_formatted(),
+        tasks=tasks,
+        tasks_json=json.dumps(tasks),
+        ocr_error=None,
+        raw_text="",
+        manual_mode=False,
+    )
+
+
+>>>>>>> 6114a99 (Initial commit)
 @app.route("/report-preview", methods=["POST"])
 @login_required
 def report_preview():
@@ -293,6 +410,36 @@ def api_extract():
         return jsonify({"error": str(exc)}), 500
 
 
+<<<<<<< HEAD
+=======
+@app.route("/api/supervisor-image/extract", methods=["POST"])
+@login_required
+def api_supervisor_image_extract():
+    if "image" not in request.files or request.files["image"].filename == "":
+        return jsonify({"error": "The image could not be processed. Please upload a clearer screenshot."}), 400
+
+    file = request.files["image"]
+    if not allowed_file(file.filename):
+        return jsonify({"error": "Unsupported file type. Please upload PNG, JPG, JPEG, or WEBP."}), 400
+
+    try:
+        raw_text, rows = _extract_supervisor_image_file(file)
+    except ValueError as exc:
+        return jsonify({"error": str(exc), "raw_text": "", "rows": []}), 422
+    except Exception as exc:
+        return jsonify({"error": str(exc), "raw_text": "", "rows": []}), 500
+
+    if not rows:
+        return jsonify({
+            "error": "No valid report data was found in the uploaded image.",
+            "raw_text": raw_text,
+            "rows": [],
+        }), 422
+
+    return jsonify({"success": True, "rows": rows, "raw_text": raw_text})
+
+
+>>>>>>> 6114a99 (Initial commit)
 # ══════════════════════════════════════════════════════════════════════════════
 # SERVICE 3 — PREVENTIVE MAINTENANCE TABLE
 # ══════════════════════════════════════════════════════════════════════════════

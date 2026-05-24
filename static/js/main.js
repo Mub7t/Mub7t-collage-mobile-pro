@@ -54,9 +54,15 @@
   }
 
   function applyFile(file) {
+<<<<<<< HEAD
     const allowed = ["image/png", "image/jpeg", "image/jpg"];
     if (!allowed.includes(file.type)) {
       alert("Please upload a PNG, JPG, or JPEG image.");
+=======
+    const allowed = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      alert("Please upload a PNG, JPG, JPEG, or WEBP image.");
+>>>>>>> 6114a99 (Initial commit)
       return;
     }
     if (file.size > 50 * 1024 * 1024) {
@@ -99,6 +105,11 @@
 (function initReviewPage() {
   const tbody      = document.getElementById("task-tbody");
   const addRowBtn  = document.getElementById("add-row-btn");
+<<<<<<< HEAD
+=======
+  const importBtn  = document.getElementById("import-supervisor-btn");
+  const importInput = document.getElementById("supervisor-import-input");
+>>>>>>> 6114a99 (Initial commit)
   const genBtn     = document.getElementById("generate-btn");
   const loadingOv  = document.getElementById("loading-overlay");
   const valBanner  = document.getElementById("validation-banner");
@@ -138,6 +149,18 @@
     submitPreview();
   });
 
+<<<<<<< HEAD
+=======
+  if (importBtn && importInput) {
+    importBtn.addEventListener("click", () => importInput.click());
+    importInput.addEventListener("change", () => {
+      const file = importInput.files && importInput.files[0];
+      if (file) extractSupervisorRows(file);
+      importInput.value = "";
+    });
+  }
+
+>>>>>>> 6114a99 (Initial commit)
   // ── Render ────────────────────────────────────────────────────
   function renderAllRows() {
     tbody.innerHTML = "";
@@ -171,7 +194,11 @@
       });
     }
 
+<<<<<<< HEAD
     // Numeric-only enforcement for site_id and sap_notification
+=======
+    // Numeric-only enforcement for SAP Notification.
+>>>>>>> 6114a99 (Initial commit)
     tr.querySelectorAll("[data-numeric='1']").forEach(inp => {
       inp.addEventListener("input", function () {
         const v = this.value.replace(/[^0-9]/g, "");
@@ -208,9 +235,14 @@
                placeholder="Field Service" data-field="task" />
       </td>
       <td class="col-site">
+<<<<<<< HEAD
         <input type="text" inputmode="numeric" pattern="[0-9]*"
                value="${esc(task.site_id)}"
                placeholder="Site ID" data-field="site_id" data-numeric="1" />
+=======
+        <input type="text" value="${esc(task.site_id)}"
+               placeholder="Site ID" data-field="site_id" />
+>>>>>>> 6114a99 (Initial commit)
       </td>
       <td class="col-approach">
         <input type="text" value="${esc(task.approach)}"
@@ -339,6 +371,99 @@
     reportForm.submit();
   }
 
+<<<<<<< HEAD
+=======
+  async function extractSupervisorRows(file) {
+    const allowed = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+    if (!allowed.includes(file.type)) {
+      showErrors(["Unsupported file type. Please upload PNG, JPG, JPEG, or WEBP."]);
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      showErrors(["The image could not be processed. Please upload a clearer screenshot."]);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      if (loadingOv) loadingOv.style.display = "flex";
+      const response = await fetch("/api/supervisor-image/extract", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = await response.json();
+      console.log("OCR RAW TEXT:", payload.raw_text || "");
+      console.log("PARSED ROWS:", payload.rows || []);
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || "The image could not be processed. Please upload a clearer screenshot.");
+      }
+      if (!payload.rows || !payload.rows.length) {
+        throw new Error("No valid report data was found in the uploaded image.");
+      }
+      console.log("FINAL EXTRACTED DATA:", payload.rows);
+      collectData();
+      tasks = mergeSupervisorRowsIntoEditableTable(tasks, payload.rows);
+      renderAllRows();
+      renumber();
+      hideErrors();
+    } catch (err) {
+      showErrors([err.message || "The image could not be processed. Please upload a clearer screenshot."]);
+    } finally {
+      if (loadingOv) loadingOv.style.display = "none";
+    }
+  }
+
+  function taskFromSupervisorRow(row) {
+    return {
+      ...emptyTask(),
+      site_id: String(row.siteId || "").trim(),
+      sap_notification: String(row.sapNotification || "").trim(),
+      problem: String(row.issue || "").trim(),
+    };
+  }
+
+  function mergeSupervisorRowsIntoEditableTable(existingRows, extractedRows) {
+    const nextRows = existingRows.map(row => ({ ...row, _id: nextId++ }));
+    let searchFrom = 0;
+
+    extractedRows.forEach(row => {
+      const targetIndex = findNextEmptySupervisorSlot(nextRows, searchFrom);
+      if (targetIndex >= 0) {
+        nextRows[targetIndex] = fillSupervisorColumns(nextRows[targetIndex], row);
+        searchFrom = targetIndex + 1;
+      } else {
+        nextRows.push({ ...taskFromSupervisorRow(row), _id: nextId++ });
+      }
+    });
+
+    return nextRows;
+  }
+
+  function findNextEmptySupervisorSlot(rows, startIndex) {
+    for (let i = startIndex; i < rows.length; i++) {
+      if (
+        !String(rows[i].site_id || "").trim() &&
+        !String(rows[i].sap_notification || "").trim() &&
+        !String(rows[i].problem || "").trim()
+      ) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  function fillSupervisorColumns(task, row) {
+    return {
+      ...task,
+      site_id: String(row.siteId || "").trim(),
+      sap_notification: String(row.sapNotification || "").trim(),
+      problem: String(row.issue || "").trim(),
+    };
+  }
+
+>>>>>>> 6114a99 (Initial commit)
   // ── Helpers ───────────────────────────────────────────────────
   function emptyTask() {
     return {

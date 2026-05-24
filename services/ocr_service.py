@@ -13,6 +13,10 @@ The rest of the application only ever calls this one function.
 """
 
 import os
+<<<<<<< HEAD
+=======
+import shutil
+>>>>>>> 6114a99 (Initial commit)
 
 # ── Optional: set Tesseract path on Windows ───────────────────────────────────
 # import pytesseract
@@ -76,6 +80,7 @@ def _ocr_with_pytesseract(image_path: str) -> str:
         System: tesseract binary installed
     """
     import pytesseract
+<<<<<<< HEAD
     from PIL import Image, ImageEnhance, ImageFilter
 
     img = Image.open(image_path)
@@ -88,6 +93,89 @@ def _ocr_with_pytesseract(image_path: str) -> str:
     config = "--psm 6 --oem 3"  # assume uniform block of text
     text = pytesseract.image_to_string(img, config=config)
     return text.strip()
+=======
+
+    if not shutil.which("tesseract"):
+        raise RuntimeError(
+            "Tesseract OCR is not installed or is not available in PATH. "
+            "Install it with: brew install tesseract"
+        )
+
+    images = _build_preprocessed_images(image_path)
+    configs = [
+        "--oem 3 --psm 6 -c preserve_interword_spaces=1",
+        "--oem 3 --psm 4 -c preserve_interword_spaces=1",
+        "--oem 3 --psm 11 -c preserve_interword_spaces=1",
+        "--oem 3 --psm 12 -c preserve_interword_spaces=1",
+    ]
+
+    candidates: list[str] = []
+    for label, img in images:
+        for config in configs:
+            try:
+                text = pytesseract.image_to_string(img, config=config).strip()
+            except Exception as exc:
+                print(f"[OCR] pytesseract variant failed label={label} config={config!r}: {exc}")
+                continue
+            if text and text not in candidates:
+                print(f"[OCR] candidate label={label} config={config!r} chars={len(text)}")
+                candidates.append(text)
+
+    if not candidates:
+        return ""
+
+    # Keep all distinct OCR attempts. Table screenshots can be read better by
+    # different PSM modes, and the parser can use any matching row from the
+    # combined text.
+    combined = "\n\n".join(candidates)
+    print("OCR RAW TEXT:", combined)
+    return combined.strip()
+
+
+def _build_preprocessed_images(image_path: str):
+    """
+    Create OCR-friendly image variants for screenshots with tables.
+
+    The variants target common failures: low contrast, thin text, table borders,
+    small screenshots, and colored/anti-aliased UI captures.
+    """
+    from PIL import Image, ImageEnhance, ImageFilter, ImageOps
+
+    original = Image.open(image_path)
+    if original.mode not in ("RGB", "L"):
+        original = original.convert("RGB")
+
+    variants = []
+
+    def upscale(img, min_width=1600):
+        width, height = img.size
+        if width >= min_width:
+            return img
+        scale = min_width / max(width, 1)
+        return img.resize((int(width * scale), int(height * scale)), Image.Resampling.LANCZOS)
+
+    base = upscale(original)
+    variants.append(("upscaled-original", base))
+
+    gray = ImageOps.grayscale(base)
+    gray = ImageOps.autocontrast(gray)
+    gray = ImageEnhance.Contrast(gray).enhance(2.2)
+    gray = ImageEnhance.Sharpness(gray).enhance(2.0)
+    gray = gray.filter(ImageFilter.SHARPEN)
+    variants.append(("gray-contrast-sharp", gray))
+
+    threshold = gray.point(lambda px: 255 if px > 178 else 0)
+    variants.append(("threshold-178", threshold))
+
+    softer_threshold = gray.filter(ImageFilter.MedianFilter(size=3))
+    softer_threshold = softer_threshold.point(lambda px: 255 if px > 155 else 0)
+    variants.append(("median-threshold-155", softer_threshold))
+
+    inverted_guard = ImageOps.autocontrast(ImageOps.invert(gray))
+    variants.append(("inverted-contrast", inverted_guard))
+
+    return variants
+>>>>>>> 6114a99 (Initial commit)
 
 
 def _ocr_with_easyocr(image_path: str) -> str:

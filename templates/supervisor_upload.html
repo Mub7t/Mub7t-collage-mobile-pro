@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Fill From Supervisor Image — RL Report Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="page-upload">
+
+  <header class="topbar">
+    <a href="{{ url_for('upload') }}" class="topbar-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      Back
+    </a>
+    <span class="topbar-title">RL Maintenance Report Generator</span>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-container">
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">
+            <span>{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()">&#x2715;</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main class="page-content">
+    <div class="card upload-card">
+      <h2 class="card-title">Auto Fill From Supervisor Image</h2>
+      <p class="card-subtitle">
+        Upload a supervisor email screenshot and let AI fill the report table automatically.
+      </p>
+
+      {% if debug_error %}
+      <div class="banner banner-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+        <div>
+          <strong>{{ debug_error }}</strong>
+          {% if debug_raw_text %}
+          The OCR engine returned text, but no valid table rows were matched.
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if debug_raw_text %}
+      <details class="ocr-preview-details" open>
+        <summary class="ocr-preview-summary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+               style="width:14px;height:14px;flex-shrink:0;">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+          OCR Text Preview
+          <span class="ocr-preview-hint">— development debug output</span>
+        </summary>
+        <pre class="ocr-preview-text">{{ debug_raw_text }}</pre>
+      </details>
+      {% endif %}
+
+      <form id="upload-form" action="{{ url_for('supervisor_image_preview') }}" method="POST"
+            enctype="multipart/form-data">
+
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="image-input" name="image"
+                 accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp"
+                 class="drop-zone__input" />
+
+          <div class="drop-zone__prompt" id="drop-prompt">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="3"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <p class="drop-zone__text">
+              Drag &amp; drop supervisor email image here<br>
+              <span>or click to browse</span>
+            </p>
+            <p class="drop-zone__hint">PNG, JPG, JPEG, WEBP &mdash; max 50 MB</p>
+          </div>
+
+          <div class="drop-zone__preview" id="image-preview" style="display:none;">
+            <img id="preview-img" src="" alt="Uploaded supervisor screenshot preview" />
+            <button type="button" class="preview-remove" id="remove-img" title="Remove">&#x2715;</button>
+          </div>
+        </div>
+
+        <div class="upload-actions">
+          <a href="{{ url_for('upload') }}" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary btn-xl" id="extract-btn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            Extract and Fill Editable Table
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </main>
+
+  <div class="loading-overlay" id="loading-overlay" style="display:none;">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <p class="loading-text">Extracting supervisor rows&hellip;</p>
+      <p class="loading-sub">This may take a few seconds.</p>
+    </div>
+  </div>
+
+  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations</footer>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

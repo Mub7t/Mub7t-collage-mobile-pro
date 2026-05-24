@@ -35,6 +35,7 @@
   <main class="page-content">
     <div class="card upload-card">
 
+<<<<<<< HEAD
       
       <!-- 
 
@@ -120,6 +121,49 @@
           </svg>
           Create Report Manually
         </a>
+=======
+      <h2 class="card-title">Prepare Report</h2>
+      <p class="card-subtitle">
+        Choose how you want to create the daily maintenance report.
+      </p>
+
+      <div class="report-option-grid">
+        <a href="{{ url_for('manual_report') }}" class="report-option-card">
+          <span class="upload-option-badge upload-option-badge--secondary">Option A</span>
+          <span class="report-option-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </span>
+          <span class="report-option-card__title">Create Report Manually</span>
+          <span class="report-option-card__desc">
+            Open the report editor with a blank row and fill the daily report table by hand.
+          </span>
+        </a>
+
+        <a href="{{ url_for('manual_report') }}" class="report-option-card report-option-card--primary">
+          <span class="upload-option-badge">Option B</span>
+          <span class="report-option-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="14" rx="2"/>
+              <path d="M7 8h10"/>
+              <path d="M7 12h4"/>
+              <path d="M14 12h3"/>
+              <path d="M8 22h8"/>
+              <path d="M12 18v4"/>
+            </svg>
+          </span>
+          <span class="report-option-card__title">Auto Fill From Supervisor Image</span>
+          <span class="report-option-card__desc">
+            Open the editable report table, then upload a supervisor screenshot to fill Site ID, Problem, and SAP only.
+          </span>
+        </a>
+      </div>
+
+      <div class="upload-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-ghost">&#8592; Back</a>
+>>>>>>> 6114a99 (Initial commit)
       </div>
 
     </div>
