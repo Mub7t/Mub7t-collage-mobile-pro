@@ -54,6 +54,13 @@ login_manager.login_message = "Please log in to access this page."
 login_manager.init_app(app)
 
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    if request.path.startswith("/api/"):
+        return jsonify({"success": False, "error": "Authentication required."}), 401
+    return redirect(url_for("login", next=request.url))
+
+
 class User(UserMixin):
     def __init__(self, username):
         self.id           = username
@@ -245,12 +252,16 @@ def supervisor_image_upload():
 
 def _extract_supervisor_image_file(file) -> tuple[str, list[dict[str, str]]]:
     filepath = _save_uploaded_image(file)
+    app.logger.info(
+        "[OCR API] Saved uploaded supervisor image path=%s size=%s",
+        filepath,
+        os.path.getsize(filepath) if os.path.isfile(filepath) else "missing",
+    )
     raw_text, rows = extract_supervisor_rows_from_image(filepath)
-    print("OCR RAW TEXT:", raw_text)
+    app.logger.info("[OCR API] OCR raw text chars=%s", len(raw_text or ""))
     if not raw_text:
         raise ValueError("The image could not be processed. Please upload a clearer screenshot.")
-    print("PARSED ROWS:", rows)
-    print("FINAL EXTRACTED DATA:", rows)
+    app.logger.info("[OCR API] Parsed supervisor rows count=%s", len(rows or []))
     return raw_text, rows
 
 
@@ -393,28 +404,27 @@ def api_extract():
 @app.route("/api/supervisor-image/extract", methods=["POST"])
 @login_required
 def api_supervisor_image_extract():
-    if "image" not in request.files or request.files["image"].filename == "":
-        return jsonify({"error": "The image could not be processed. Please upload a clearer screenshot."}), 400
-
-    file = request.files["image"]
-    if not allowed_file(file.filename):
-        return jsonify({"error": "Unsupported file type. Please upload PNG, JPG, JPEG, or WEBP."}), 400
-
     try:
+        app.logger.info("[OCR API] /api/supervisor-image/extract request received")
+
+        if "image" not in request.files or request.files["image"].filename == "":
+            raise ValueError("The image could not be processed. Please upload a clearer screenshot.")
+
+        file = request.files["image"]
+        app.logger.info("[OCR API] Uploaded filename=%s content_type=%s", file.filename, file.content_type)
+
+        if not allowed_file(file.filename):
+            raise ValueError("Unsupported file type. Please upload PNG, JPG, JPEG, or WEBP.")
+
         raw_text, rows = _extract_supervisor_image_file(file)
-    except ValueError as exc:
-        return jsonify({"error": str(exc), "raw_text": "", "rows": []}), 422
+
+        if not rows:
+            raise ValueError("No valid report data was found in the uploaded image.")
+
+        return jsonify({"success": True, "raw_text": raw_text, "rows": rows})
     except Exception as exc:
-        return jsonify({"error": str(exc), "raw_text": "", "rows": []}), 500
-
-    if not rows:
-        return jsonify({
-            "error": "No valid report data was found in the uploaded image.",
-            "raw_text": raw_text,
-            "rows": [],
-        }), 422
-
-    return jsonify({"success": True, "rows": rows, "raw_text": raw_text})
+        app.logger.exception("[OCR API] Supervisor image extraction failed")
+        return jsonify({"success": False, "error": str(exc)}), 500
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -528,9 +538,11 @@ def combine_photos_preview_image(filename: str):
 
 @app.errorhandler(413)
 def too_large(_):
+    if request.path.startswith("/api/"):
+        return jsonify({"success": False, "error": "Total file size too large. Maximum is 100 MB."}), 413
     flash("Total file size too large. Maximum is 100 MB.", "error")
     return redirect(url_for("upload"))
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    app.run(debug=True, port=5000)
