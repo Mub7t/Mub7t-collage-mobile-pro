@@ -393,13 +393,13 @@
 
     try {
       if (loadingOv) loadingOv.style.display = "flex";
-      const response = await fetch("/api/supervisor-image/extract", {
+      const response = await fetch("/api/auto-fill-report", {
         method: "POST",
         body: formData,
         signal: controller.signal,
       });
       const payload = await readJsonResponse(response);
-      console.log("OCR RAW TEXT:", payload.raw_text || "");
+      console.log("AUTO FILL RESPONSE:", payload);
       console.log("PARSED ROWS:", payload.rows || []);
       if (!response.ok || !payload.success) {
         throw new Error(payload.error || "The image could not be processed. Please upload a clearer screenshot.");
@@ -443,6 +443,10 @@
       site_id: String(row.siteId || "").trim(),
       sap_notification: String(row.sapNotification || "").trim(),
       problem: String(row.issue || "").trim(),
+      vendor: String(row.systemVendor || "N/A").trim() || "N/A",
+      action_taken: String(row.actionTaken || "").trim(),
+      current_status: normalizeStatus(row.status),
+      comments: String(row.notes || "Waiting for RM confirmation").trim() || "Waiting for RM confirmation",
     };
   }
 
@@ -482,7 +486,20 @@
       site_id: String(row.siteId || "").trim(),
       sap_notification: String(row.sapNotification || "").trim(),
       problem: String(row.issue || "").trim(),
+      vendor: String(row.systemVendor || task.vendor || "N/A").trim() || "N/A",
+      action_taken: String(row.actionTaken || task.action_taken || "").trim(),
+      current_status: normalizeStatus(row.status || task.current_status),
+      comments: String(row.notes || task.comments || "Waiting for RM confirmation").trim() || "Waiting for RM confirmation",
     };
+  }
+
+  function normalizeStatus(status) {
+    const value = String(status || "").trim().toLowerCase();
+    if (value === "pending") return "Pending";
+    if (value === "solved" || value === "resolved" || value === "closed" || value === "complete" || value === "completed") {
+      return "Solved";
+    }
+    return "Solved";
   }
 
   // ── Helpers ───────────────────────────────────────────────────

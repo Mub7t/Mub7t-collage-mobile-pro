@@ -6,6 +6,7 @@ import os
 import re
 import json
 import uuid
+import traceback
 from datetime import datetime
 
 from flask import (
@@ -22,6 +23,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from services.ocr_service            import extract_text_from_image
 from services.parser_service         import parse_email_text
 from services.photo_combiner_service import combine_photos
+from services.openai_report_service  import extract_report_from_image
 from services.supervisor_image_service import (
     extract_supervisor_rows_from_image,
     rows_to_report_tasks,
@@ -126,6 +128,21 @@ def _format_site_id(site_id: str) -> str:
     if value.upper().startswith("RYDRL"):
         return value
     return f"RYDRL {value}"
+
+
+def _report_fields_to_rows(report: dict[str, str]) -> list[dict[str, str]]:
+    if not any(str(report.get(key, "")).strip() for key in report):
+        return []
+
+    return [{
+        "sapNotification": str(report.get("ticket_number", "")).strip(),
+        "siteId": str(report.get("site_code", "")).strip(),
+        "issue": str(report.get("problem", "")).strip(),
+        "systemVendor": str(report.get("system_vendor", "")).strip(),
+        "actionTaken": str(report.get("action", "")).strip(),
+        "status": str(report.get("status", "")).strip(),
+        "notes": str(report.get("notes", "")).strip(),
+    }]
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -432,6 +449,44 @@ def api_supervisor_image_extract():
         return jsonify({"success": True, "raw_text": raw_text, "rows": rows})
     except Exception as exc:
         app.logger.exception("[OCR API] Supervisor image extraction failed")
+        return jsonify({"success": False, "error": str(exc)}), 500
+
+
+@app.route("/api/auto-fill-report", methods=["POST"])
+@login_required
+def api_auto_fill_report():
+    try:
+        app.logger.info("[OpenAI Auto Fill] Request received")
+
+        if "image" not in request.files or request.files["image"].filename == "":
+            raise ValueError("No image provided.")
+
+        file = request.files["image"]
+        app.logger.info(
+            "[OpenAI Auto Fill] Uploaded filename=%s content_type=%s",
+            file.filename,
+            file.content_type,
+        )
+
+        if not allowed_file(file.filename):
+            raise ValueError("Invalid image type. Please upload PNG, JPG, JPEG, or WEBP.")
+
+        image_path = _save_uploaded_image(file)
+        app.logger.info(
+            "[OpenAI Auto Fill] Image saved path=%s size=%s",
+            image_path,
+            os.path.getsize(image_path) if os.path.isfile(image_path) else "missing",
+        )
+
+        report = extract_report_from_image(image_path)
+        app.logger.info("[OpenAI Auto Fill] API response received")
+        app.logger.info("[OpenAI Auto Fill] JSON parsing status=success")
+
+        rows = _report_fields_to_rows(report)
+        return jsonify({"success": True, **report, "rows": rows})
+    except Exception as exc:
+        app.logger.exception("[OpenAI Auto Fill] Failed")
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(exc)}), 500
 
 
