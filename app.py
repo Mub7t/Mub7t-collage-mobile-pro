@@ -193,7 +193,7 @@ def _report_fields_to_rows(report: dict) -> list[dict[str, str]]:
             "systemVendor": str(task.get("vendor", "")).strip(),
             "approach": str(task.get("approach", "")).strip(),
             "actionTaken": str(task.get("action_taken", "")).strip(),
-            "status": str(task.get("current_status", "")).strip(),
+            "status": str(task.get("current_status") or task.get("status") or "").strip(),
             "notes": str(task.get("comment", "")).strip(),
         }
         if any(row.values()):

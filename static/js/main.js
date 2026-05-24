@@ -465,7 +465,7 @@
       approach: String(task.approach || "N/A").trim() || "N/A",
       vendor: String(task.vendor || "N/A").trim() || "N/A",
       action_taken: String(task.action_taken || "").trim(),
-      current_status: normalizeStatus(task.current_status),
+      current_status: normalizeStatus(task.current_status || task.status),
       comments: String(task.comment || "Waiting for RM confirmation").trim() || "Waiting for RM confirmation",
     };
   }
