@@ -253,16 +253,24 @@ def supervisor_image_upload():
 def _extract_supervisor_image_file(file) -> tuple[str, list[dict[str, str]]]:
     filepath = _save_uploaded_image(file)
     app.logger.info(
-        "[OCR API] Saved uploaded supervisor image path=%s size=%s",
+        "[OCR API] image saved path=%s size=%s",
         filepath,
         os.path.getsize(filepath) if os.path.isfile(filepath) else "missing",
     )
-    raw_text, rows = extract_supervisor_rows_from_image(filepath)
-    app.logger.info("[OCR API] OCR raw text chars=%s", len(raw_text or ""))
-    if not raw_text:
-        raise ValueError("The image could not be processed. Please upload a clearer screenshot.")
-    app.logger.info("[OCR API] Parsed supervisor rows count=%s", len(rows or []))
-    return raw_text, rows
+    app.logger.info("[OCR API] OCR started")
+    try:
+        raw_text, rows = extract_supervisor_rows_from_image(filepath)
+        app.logger.info(
+            "[OCR API] OCR finished raw_text_chars=%s rows=%s",
+            len(raw_text or ""),
+            len(rows or []),
+        )
+        if not raw_text:
+            raise ValueError("The image could not be processed. Please upload a clearer screenshot.")
+        return raw_text, rows
+    except Exception:
+        app.logger.exception("[OCR API] OCR failed with exception")
+        raise
 
 
 @app.route("/supervisor-image/preview", methods=["POST"])
@@ -405,7 +413,7 @@ def api_extract():
 @login_required
 def api_supervisor_image_extract():
     try:
-        app.logger.info("[OCR API] /api/supervisor-image/extract request received")
+        app.logger.info("[OCR API] OCR request received")
 
         if "image" not in request.files or request.files["image"].filename == "":
             raise ValueError("The image could not be processed. Please upload a clearer screenshot.")

@@ -387,11 +387,16 @@
     const formData = new FormData();
     formData.append("image", file);
 
+    const timeoutMs = 45 * 1000;
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
     try {
       if (loadingOv) loadingOv.style.display = "flex";
       const response = await fetch("/api/supervisor-image/extract", {
         method: "POST",
         body: formData,
+        signal: controller.signal,
       });
       const payload = await readJsonResponse(response);
       console.log("OCR RAW TEXT:", payload.raw_text || "");
@@ -409,8 +414,13 @@
       renumber();
       hideErrors();
     } catch (err) {
-      showErrors([err.message || "The image could not be processed. Please upload a clearer screenshot."]);
+      if (err && err.name === "AbortError") {
+        showErrors(["OCR is taking too long on the server. Please use manual entry or try a clearer image."]);
+      } else {
+        showErrors([err.message || "The image could not be processed. Please upload a clearer screenshot."]);
+      }
     } finally {
+      window.clearTimeout(timeoutId);
       if (loadingOv) loadingOv.style.display = "none";
     }
   }
