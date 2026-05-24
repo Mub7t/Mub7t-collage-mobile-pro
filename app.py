@@ -18,6 +18,7 @@ from flask_login import (
 )
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.exceptions import HTTPException
 
 from services.ocr_service            import extract_text_from_image
 from services.parser_service         import parse_email_text
@@ -52,6 +53,13 @@ login_manager = LoginManager()
 login_manager.login_view = "login"
 login_manager.login_message = "Please log in to access this page."
 login_manager.init_app(app)
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    if request.path.startswith("/api/"):
+        return jsonify({"success": False, "error": "Authentication required."}), 401
+    return redirect(url_for("login", next=request.url))
 
 
 class User(UserMixin):
@@ -119,6 +127,12 @@ def _format_site_id(site_id: str) -> str:
     if value.upper().startswith("RYDRL"):
         return value
     return f"RYDRL {value}"
+
+
+def _json_error(message: str, status_code: int = 500, **extra):
+    payload = {"success": False, "error": message}
+    payload.update(extra)
+    return jsonify(payload), status_code
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -374,45 +388,58 @@ def report_preview():
 @app.route("/api/extract", methods=["POST"])
 @login_required
 def api_extract():
-    if "image" not in request.files:
-        return jsonify({"error": "No image provided"}), 400
-    file = request.files["image"]
-    if not allowed_file(file.filename):
-        return jsonify({"error": "Unsupported file type"}), 400
-    ext  = file.filename.rsplit(".", 1)[1].lower()
-    path = os.path.join(app.config["UPLOAD_FOLDER"], f"{uuid.uuid4().hex}.{ext}")
-    file.save(path)
     try:
+        if "image" not in request.files or request.files["image"].filename == "":
+            return _json_error("No image provided", 400)
+
+        file = request.files["image"]
+        if not allowed_file(file.filename):
+            return _json_error("Unsupported file type", 400)
+
+        ext  = file.filename.rsplit(".", 1)[1].lower()
+        path = os.path.join(app.config["UPLOAD_FOLDER"], f"{uuid.uuid4().hex}.{ext}")
+        file.save(path)
         raw_text = extract_text_from_image(path)
         parsed   = parse_email_text(raw_text)
         return jsonify({"success": True, "data": parsed, "raw_text": raw_text})
     except Exception as exc:
-        return jsonify({"error": str(exc)}), 500
+        return _json_error(str(exc), 500)
 
 
 @app.route("/api/supervisor-image/extract", methods=["POST"])
 @login_required
 def api_supervisor_image_extract():
-    if "image" not in request.files or request.files["image"].filename == "":
-        return jsonify({"error": "The image could not be processed. Please upload a clearer screenshot."}), 400
-
-    file = request.files["image"]
-    if not allowed_file(file.filename):
-        return jsonify({"error": "Unsupported file type. Please upload PNG, JPG, JPEG, or WEBP."}), 400
-
     try:
+        if "image" not in request.files or request.files["image"].filename == "":
+            return _json_error(
+                "The image could not be processed. Please upload a clearer screenshot.",
+                400,
+                raw_text="",
+                rows=[],
+            )
+
+        file = request.files["image"]
+        if not allowed_file(file.filename):
+            return _json_error(
+                "Unsupported file type. Please upload PNG, JPG, JPEG, or WEBP.",
+                400,
+                raw_text="",
+                rows=[],
+            )
+
         raw_text, rows = _extract_supervisor_image_file(file)
     except ValueError as exc:
-        return jsonify({"error": str(exc), "raw_text": "", "rows": []}), 422
+        return _json_error(str(exc), 422, raw_text="", rows=[])
     except Exception as exc:
-        return jsonify({"error": str(exc), "raw_text": "", "rows": []}), 500
+        return _json_error(str(exc), 500, raw_text="", rows=[])
 
     if not rows:
-        return jsonify({
-            "error": "No valid report data was found in the uploaded image.",
-            "raw_text": raw_text,
-            "rows": [],
-        }), 422
+        return _json_error(
+            "No valid report data was found in the uploaded image.",
+            422,
+            raw_text=raw_text,
+            rows=[],
+        )
 
     return jsonify({"success": True, "rows": rows, "raw_text": raw_text})
 
@@ -528,8 +555,18 @@ def combine_photos_preview_image(filename: str):
 
 @app.errorhandler(413)
 def too_large(_):
+    if request.path.startswith("/api/"):
+        return _json_error("Total file size too large. Maximum is 100 MB.", 413)
     flash("Total file size too large. Maximum is 100 MB.", "error")
     return redirect(url_for("upload"))
+
+
+@app.errorhandler(Exception)
+def api_exception(exc):
+    if request.path.startswith("/api/"):
+        status_code = exc.code if isinstance(exc, HTTPException) else 500
+        return _json_error(str(exc), status_code)
+    raise exc
 
 
 if __name__ == "__main__":
