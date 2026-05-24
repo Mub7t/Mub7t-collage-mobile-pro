@@ -15,47 +15,118 @@ import json
 import logging
 import mimetypes
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
-log = logging.getLogger(__name__)
+try:
+    from dotenv import load_dotenv
+    import dotenv as _dotenv_package
+    DOTENV_IMPORT_STATUS = "success"
+    DOTENV_PACKAGE_PATH = getattr(_dotenv_package, "__file__", "")
+except ModuleNotFoundError as exc:
+    DOTENV_IMPORT_STATUS = f"failed: {exc}"
+    DOTENV_PACKAGE_PATH = ""
 
-REPORT_FIELDS = (
-    "site_code",
-    "ticket_number",
-    "system_vendor",
+    def load_dotenv(dotenv_path=None, override=False):
+        path = Path(dotenv_path) if dotenv_path else Path(".env")
+        if not path.is_file():
+            return False
+        loaded_any = False
+        for raw_line in path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if not key:
+                continue
+            if override or key not in os.environ:
+                os.environ[key] = value
+                loaded_any = True
+        return loaded_any
+
+log = logging.getLogger(__name__)
+SERVICE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SERVICE_DIR.parent
+ENV_PATH = PROJECT_ROOT / ".env"
+
+print("[OpenAI Report] PYTHON_EXECUTABLE:", sys.executable)
+print("[OpenAI Report] DOTENV_IMPORT_STATUS:", DOTENV_IMPORT_STATUS)
+print("[OpenAI Report] DOTENV_PACKAGE_PATH:", DOTENV_PACKAGE_PATH)
+print("[OpenAI Report] ENV_PATH:", ENV_PATH)
+print("[OpenAI Report] ENV_PATH_EXISTS:", ENV_PATH.exists())
+
+TASK_FIELDS = (
+    "sap_notification",
+    "site_id",
     "problem",
-    "action",
-    "status",
-    "notes",
+    "vendor",
+    "approach",
+    "action_taken",
+    "current_status",
+    "comment",
 )
 
 REPORT_SCHEMA = {
     "type": "object",
     "additionalProperties": False,
     "properties": {
-        "site_code": {"type": "string"},
-        "ticket_number": {"type": "string"},
-        "system_vendor": {"type": "string"},
-        "problem": {"type": "string"},
-        "action": {"type": "string"},
-        "status": {"type": "string"},
-        "notes": {"type": "string"},
+        "tasks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "sap_notification": {"type": "string"},
+                    "site_id": {"type": "string"},
+                    "problem": {"type": "string"},
+                    "vendor": {"type": "string"},
+                    "approach": {"type": "string"},
+                    "action_taken": {"type": "string"},
+                    "current_status": {"type": "string"},
+                    "comment": {"type": "string"},
+                },
+                "required": list(TASK_FIELDS),
+            },
+        },
     },
-    "required": list(REPORT_FIELDS),
+    "required": ["tasks"],
 }
 
 SYSTEM_PROMPT = """
 You are an intelligent maintenance reporting assistant.
-Extract structured maintenance assignment details from the uploaded image.
+Extract ALL visible maintenance task rows from the uploaded supervisor assignment image.
 
-Return JSON only with these exact keys:
-site_code, ticket_number, system_vendor, problem, action, status, notes.
+Return JSON only in this exact structure:
+{
+  "tasks": [
+    {
+      "sap_notification": "",
+      "site_id": "",
+      "problem": "",
+      "vendor": "",
+      "approach": "",
+      "action_taken": "",
+      "current_status": "",
+      "comment": ""
+    }
+  ]
+}
 
 Rules:
+- Extract every visible table row, not just the first row.
+- Each table row must become one object in the tasks array.
+- If there are 3 visible task rows, return 3 task objects.
+- If there are 10 visible task rows, return 10 task objects.
+- Map SAP Notification, Notification, Ticket Number, or SAP number to sap_notification.
+- Map Site ID, Site Code, or Site to site_id.
+- Map Issue, Problem, Fault, or Description to problem.
 - Never invent information.
 - If a field is missing, hidden, cropped, ambiguous, or unclear, return an empty string.
-- Preserve ticket/site identifiers exactly as shown when readable.
+- Preserve SAP numbers exactly as shown when readable.
+- Preserve Site ID formatting as much as possible, for example RYDRL 4694 WB or RYDRL4694-EB.
 - Understand maintenance terminology, assignment screenshots, ticket tables,
   technical issue descriptions, vendors, status labels, and field-service workflow.
 - Do not include markdown, explanations, confidence scores, or extra keys.
@@ -66,7 +137,7 @@ class OpenAIReportExtractionError(RuntimeError):
     """Raised when OpenAI Vision extraction cannot return valid report JSON."""
 
 
-def extract_report_from_image(image_path: str, timeout_seconds: float = 40.0) -> dict[str, str]:
+def extract_report_from_image(image_path: str, timeout_seconds: float = 40.0) -> dict[str, list[dict[str, str]]]:
     """
     Extract maintenance report fields from an uploaded image using OpenAI Vision.
 
@@ -77,7 +148,7 @@ def extract_report_from_image(image_path: str, timeout_seconds: float = 40.0) ->
     timeout_seconds:
         OpenAI request timeout. Keep below the frontend timeout.
     """
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = _get_openai_api_key()
     if not api_key:
         raise OpenAIReportExtractionError("OPENAI_API_KEY is not configured.")
 
@@ -116,8 +187,8 @@ def extract_report_from_image(image_path: str, timeout_seconds: float = 40.0) ->
                         {
                             "type": "input_text",
                             "text": (
-                                "Analyze this maintenance assignment or ticket image. "
-                                "Extract only the requested maintenance report fields as JSON."
+                                "Analyze this maintenance supervisor assignment table image. "
+                                "Extract every visible row as a separate task object in the tasks array."
                             ),
                         },
                         {
@@ -182,7 +253,7 @@ def _encode_image_data_url(path: Path, mime_type: str) -> str:
     return f"data:{mime_type};base64,{encoded}"
 
 
-def _parse_report_json(output_text: str) -> dict[str, str]:
+def _parse_report_json(output_text: str) -> dict[str, list[dict[str, str]]]:
     log.info("[OpenAI Report] JSON parsing started")
     if not output_text or not output_text.strip():
         raise OpenAIReportExtractionError("OpenAI returned an empty response.")
@@ -194,17 +265,56 @@ def _parse_report_json(output_text: str) -> dict[str, str]:
         raise OpenAIReportExtractionError(f"OpenAI returned invalid JSON: {exc}") from exc
 
     report = _normalize_report(parsed)
-    log.info("[OpenAI Report] JSON parsing succeeded")
+    log.info("[OpenAI Report] JSON parsing succeeded tasks=%s", len(report["tasks"]))
+    log.info("[OpenAI Report] final parsed JSON structure=%s", report)
     return report
 
 
-def _normalize_report(value: Any) -> dict[str, str]:
-    if not isinstance(value, dict):
-        raise OpenAIReportExtractionError("OpenAI JSON response was not an object.")
+def _normalize_report(value: Any) -> dict[str, list[dict[str, str]]]:
+    if isinstance(value, list):
+        raw_tasks = value
+    elif isinstance(value, dict) and isinstance(value.get("tasks"), list):
+        raw_tasks = value["tasks"]
+    elif isinstance(value, dict) and isinstance(value.get("tasks"), dict):
+        raw_tasks = [value["tasks"]]
+    elif isinstance(value, dict):
+        raw_tasks = [value]
+    else:
+        raise OpenAIReportExtractionError("OpenAI JSON response was not an object or tasks array.")
 
-    normalized: dict[str, str] = {}
-    for field in REPORT_FIELDS:
-        raw_value = value.get(field, "")
-        normalized[field] = raw_value.strip() if isinstance(raw_value, str) else ""
+    tasks: list[dict[str, str]] = []
+    for raw_task in raw_tasks:
+        if not isinstance(raw_task, dict):
+            continue
 
-    return normalized
+        task = {}
+        for field in TASK_FIELDS:
+            raw_value = raw_task.get(field, "")
+            task[field] = raw_value.strip() if isinstance(raw_value, str) else ""
+
+        if any(task.values()):
+            tasks.append(task)
+
+    log.info("[OpenAI Report] number of tasks extracted=%s", len(tasks))
+    return {"tasks": tasks}
+
+
+def _get_openai_api_key() -> str:
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if api_key:
+        log.info("[OpenAI Report] OPENAI_API_KEY already loaded length=%s", len(api_key))
+        return api_key
+
+    loaded = load_dotenv(dotenv_path=ENV_PATH, override=False)
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    print("[OpenAI Report] DOTENV_FALLBACK_LOADED:", loaded)
+    print("[OpenAI Report] OPENAI_API_KEY_LOADED:", bool(api_key))
+    print("[OpenAI Report] OPENAI_API_KEY_LENGTH:", len(api_key))
+    log.info(
+        "[OpenAI Report] dotenv fallback loaded=%s path=%s exists=%s key_loaded=%s",
+        loaded,
+        ENV_PATH,
+        ENV_PATH.exists(),
+        bool(api_key),
+    )
+    return api_key

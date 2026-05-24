@@ -400,16 +400,21 @@
       });
       const payload = await readJsonResponse(response);
       console.log("AUTO FILL RESPONSE:", payload);
-      console.log("PARSED ROWS:", payload.rows || []);
       if (!response.ok || !payload.success) {
         throw new Error(payload.error || "The image could not be processed. Please upload a clearer screenshot.");
       }
-      if (!payload.rows || !payload.rows.length) {
+
+      const extractedTasks = Array.isArray(payload.tasks) && payload.tasks.length
+        ? payload.tasks.map(taskFromOpenAITask)
+        : (payload.rows || []).map(taskFromSupervisorRow);
+
+      console.log("PARSED TASKS:", extractedTasks);
+      if (!extractedTasks.length) {
         throw new Error("No valid report data was found in the uploaded image.");
       }
-      console.log("FINAL EXTRACTED DATA:", payload.rows);
+      console.log("FINAL EXTRACTED DATA:", extractedTasks);
       collectData();
-      tasks = mergeSupervisorRowsIntoEditableTable(tasks, payload.rows);
+      tasks = mergeAutoFillTasksIntoEditableTable(tasks, extractedTasks);
       renderAllRows();
       renumber();
       hideErrors();
@@ -443,6 +448,7 @@
       site_id: String(row.siteId || "").trim(),
       sap_notification: String(row.sapNotification || "").trim(),
       problem: String(row.issue || "").trim(),
+      approach: String(row.approach || "N/A").trim() || "N/A",
       vendor: String(row.systemVendor || "N/A").trim() || "N/A",
       action_taken: String(row.actionTaken || "").trim(),
       current_status: normalizeStatus(row.status),
@@ -450,21 +456,44 @@
     };
   }
 
-  function mergeSupervisorRowsIntoEditableTable(existingRows, extractedRows) {
-    const nextRows = existingRows.map(row => ({ ...row, _id: nextId++ }));
-    let searchFrom = 0;
+  function taskFromOpenAITask(task) {
+    return {
+      ...emptyTask(),
+      site_id: String(task.site_id || "").trim(),
+      sap_notification: String(task.sap_notification || "").trim(),
+      problem: String(task.problem || "").trim(),
+      approach: String(task.approach || "N/A").trim() || "N/A",
+      vendor: String(task.vendor || "N/A").trim() || "N/A",
+      action_taken: String(task.action_taken || "").trim(),
+      current_status: normalizeStatus(task.current_status),
+      comments: String(task.comment || "Waiting for RM confirmation").trim() || "Waiting for RM confirmation",
+    };
+  }
 
-    extractedRows.forEach(row => {
-      const targetIndex = findNextEmptySupervisorSlot(nextRows, searchFrom);
-      if (targetIndex >= 0) {
-        nextRows[targetIndex] = fillSupervisorColumns(nextRows[targetIndex], row);
-        searchFrom = targetIndex + 1;
-      } else {
-        nextRows.push({ ...taskFromSupervisorRow(row), _id: nextId++ });
-      }
-    });
+  function mergeAutoFillTasksIntoEditableTable(existingRows, extractedTasks) {
+    const existingDataRows = existingRows
+      .filter(row => !isEmptyAutoFillRow(row))
+      .map(row => ({ ...row, _id: nextId++ }));
 
-    return nextRows;
+    return [
+      ...existingDataRows,
+      ...extractedTasks.map(task => ({ ...task, _id: nextId++ })),
+    ];
+  }
+
+  function isEmptyAutoFillRow(row) {
+    const vendor = String(row.vendor || "").trim();
+    const approach = String(row.approach || "").trim();
+    const comments = String(row.comments || "").trim();
+    return (
+      !String(row.site_id || "").trim() &&
+      !String(row.sap_notification || "").trim() &&
+      !String(row.problem || "").trim() &&
+      !String(row.action_taken || "").trim() &&
+      (!vendor || vendor === "N/A") &&
+      (!approach || approach === "N/A") &&
+      (!comments || comments === "Waiting for RM confirmation")
+    );
   }
 
   function findNextEmptySupervisorSlot(rows, startIndex) {

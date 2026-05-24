@@ -7,7 +7,51 @@ import re
 import json
 import uuid
 import traceback
+import sys
 from datetime import datetime
+from pathlib import Path
+
+try:
+    from dotenv import load_dotenv
+    import dotenv as _dotenv_package
+    DOTENV_IMPORT_STATUS = "success"
+    DOTENV_PACKAGE_PATH = getattr(_dotenv_package, "__file__", "")
+except ModuleNotFoundError as exc:
+    DOTENV_IMPORT_STATUS = f"failed: {exc}"
+    DOTENV_PACKAGE_PATH = ""
+
+    def load_dotenv(dotenv_path=None, override=False):
+        path = Path(dotenv_path) if dotenv_path else Path(".env")
+        if not path.is_file():
+            return False
+        loaded_any = False
+        for raw_line in path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if not key:
+                continue
+            if override or key not in os.environ:
+                os.environ[key] = value
+                loaded_any = True
+        return loaded_any
+
+BASE_DIR = Path(__file__).resolve().parent
+ENV_PATH = BASE_DIR / ".env"
+DOTENV_LOADED = load_dotenv(dotenv_path=ENV_PATH, override=False)
+
+print("PYTHON_EXECUTABLE:", sys.executable)
+print("PYTHON_VERSION:", sys.version)
+print("DOTENV_IMPORT_STATUS:", DOTENV_IMPORT_STATUS)
+print("DOTENV_PACKAGE_PATH:", DOTENV_PACKAGE_PATH)
+print("ENV_PATH:", ENV_PATH)
+print("ENV_PATH_EXISTS:", ENV_PATH.exists())
+print("DOTENV_LOADED:", DOTENV_LOADED)
+print("OPENAI_API_KEY_LOADED:", bool(os.getenv("OPENAI_API_KEY")))
+print("OPENAI_API_KEY_LENGTH:", len(os.getenv("OPENAI_API_KEY") or ""))
 
 from flask import (
     Flask, render_template, request, redirect,
@@ -130,19 +174,32 @@ def _format_site_id(site_id: str) -> str:
     return f"RYDRL {value}"
 
 
-def _report_fields_to_rows(report: dict[str, str]) -> list[dict[str, str]]:
-    if not any(str(report.get(key, "")).strip() for key in report):
-        return []
+def _report_fields_to_rows(report: dict) -> list[dict[str, str]]:
+    raw_tasks = report.get("tasks", []) if isinstance(report, dict) else []
+    if isinstance(raw_tasks, dict):
+        raw_tasks = [raw_tasks]
+    if not isinstance(raw_tasks, list):
+        raw_tasks = []
 
-    return [{
-        "sapNotification": str(report.get("ticket_number", "")).strip(),
-        "siteId": str(report.get("site_code", "")).strip(),
-        "issue": str(report.get("problem", "")).strip(),
-        "systemVendor": str(report.get("system_vendor", "")).strip(),
-        "actionTaken": str(report.get("action", "")).strip(),
-        "status": str(report.get("status", "")).strip(),
-        "notes": str(report.get("notes", "")).strip(),
-    }]
+    rows = []
+    for task in raw_tasks:
+        if not isinstance(task, dict):
+            continue
+
+        row = {
+            "sapNotification": str(task.get("sap_notification", "")).strip(),
+            "siteId": str(task.get("site_id", "")).strip(),
+            "issue": str(task.get("problem", "")).strip(),
+            "systemVendor": str(task.get("vendor", "")).strip(),
+            "approach": str(task.get("approach", "")).strip(),
+            "actionTaken": str(task.get("action_taken", "")).strip(),
+            "status": str(task.get("current_status", "")).strip(),
+            "notes": str(task.get("comment", "")).strip(),
+        }
+        if any(row.values()):
+            rows.append(row)
+
+    return rows
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -483,6 +540,7 @@ def api_auto_fill_report():
         app.logger.info("[OpenAI Auto Fill] JSON parsing status=success")
 
         rows = _report_fields_to_rows(report)
+        app.logger.info("[OpenAI Auto Fill] Tasks extracted=%s", len(report.get("tasks", [])))
         return jsonify({"success": True, **report, "rows": rows})
     except Exception as exc:
         app.logger.exception("[OpenAI Auto Fill] Failed")
@@ -608,4 +666,4 @@ def too_large(_):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5006)
