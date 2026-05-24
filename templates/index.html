@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RL Maintenance — Field Operations Tools</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
+  <style>
+    .service-card--purple:hover {
+      background: rgba(99,102,241,.18);
+      border-color: rgba(99,102,241,.5);
+    }
+
+    .service-card--purple .service-card__icon {
+      background: rgba(99,102,241,.22);
+    }
+
+    .service-card--purple .service-card__icon svg {
+      stroke: #818cf8;
+    }
+
+    /* Sign out button - black/white identity */
+    .logout-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.15rem;
+    }
+
+    .logout-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 120px;
+      padding: .72rem 1.15rem;
+      border-radius: 14px;
+      background: #111;
+      color: #fff;
+      border: 1px solid #111;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 800;
+      letter-spacing: -.01em;
+      box-shadow: 0 10px 24px rgba(0,0,0,.16);
+      transition: background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease;
+    }
+
+    .logout-btn:hover {
+      background: #000;
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 14px 30px rgba(0,0,0,.22);
+    }
+
+    .logout-btn:active {
+      transform: none;
+      box-shadow: 0 6px 14px rgba(0,0,0,.14);
+    }
+  </style>
+</head>
+
+<body class="page-home">
+
+  <main class="home-center">
+    <div class="home-card">
+
+      <h1 class="home-title">RL Maintenance<br>Services</h1>
+      <p class="home-subtitle">Select a tool to get started.</p>
+
+      <div class="home-services">
+
+        <a href="{{ url_for('upload') }}" class="service-card" id="prepare-btn">
+          <div class="service-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="12" y1="18" x2="12" y2="12"/>
+              <line x1="9" y1="15" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <div class="service-card__body">
+            <span class="service-card__title">Prepare Report | إعداد التقرير</span>
+            <span class="service-card__desc">إنشاء تقارير اليومية بسهولة، متوافق مع الجوال والمتصفح</span>
+          </div>
+          <div class="service-card__arrow">&#8594;</div>
+        </a>
+
+        <a href="{{ url_for('combine_photos_page') }}" class="service-card service-card--teal" id="combine-btn">
+          <div class="service-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+              <rect x="13" y="3" width="8" height="8" rx="1.5"/>
+              <rect x="3" y="13" width="8" height="8" rx="1.5"/>
+              <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+            </svg>
+          </div>
+          <div class="service-card__body">
+            <span class="service-card__title">Combine Photos | تجميع الصور</span>
+            <span class="service-card__desc">دمج عدة صور في صورة واحدة مضغوطة وسهلة المشاركة</span>
+          </div>
+          <div class="service-card__arrow">&#8594;</div>
+        </a>
+
+        <a href="{{ url_for('preventive_table') }}" class="service-card service-card--purple" id="pm-table-btn">
+          <div class="service-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <line x1="3" y1="9" x2="21" y2="9"/>
+              <line x1="3" y1="15" x2="21" y2="15"/>
+              <line x1="9" y1="3" x2="9" y2="21"/>
+            </svg>
+          </div>
+          <div class="service-card__body">
+            <span class="service-card__title">Preventive Maintenance Table | جدول الصيانة الوقائية</span>
+            <span class="service-card__desc">Create a structured inspection table for traffic signal components.</span>
+          </div>
+          <div class="service-card__arrow">&#8594;</div>
+        </a>
+
+      </div>
+
+      <div class="logout-wrap">
+        <a href="{{ url_for('logout') }}" class="logout-btn">Sign out</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    RL Maintenance Team &mdash; Field Operations
+  </footer>
+
+</body>
+</html>

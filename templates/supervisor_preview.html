@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Review Extracted Rows — RL Report Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="page-review">
+
+  <header class="topbar">
+    <a href="{{ url_for('supervisor_image_upload') }}" class="topbar-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+      Back
+    </a>
+    <span class="topbar-title">RL Maintenance Report Generator</span>
+  </header>
+
+  <main class="page-content preview-content">
+    <section class="card preview-action-bar">
+      <div class="preview-action-info">
+        <span class="preview-badge preview-badge--ok">{{ rows|length }} row{{ '' if rows|length == 1 else 's' }} extracted</span>
+        <span class="preview-meta">Review the extracted SAP Notification, Site ID, and Issue before creating the report.</span>
+      </div>
+      <div class="preview-action-btns">
+        <a href="{{ url_for('supervisor_image_upload') }}" class="btn btn-ghost">Cancel</a>
+        <form action="{{ url_for('supervisor_image_confirm') }}" method="POST">
+          <input type="hidden" name="rows_json" value="{{ rows_json | e }}" />
+          <button type="submit" class="btn btn-primary">Fill Editable Table</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="card supervisor-preview-card">
+      <h2 class="card-title">Extracted Rows</h2>
+      <div class="table-scroll">
+        <table class="supervisor-preview-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>SAP Notification</th>
+              <th>Site ID</th>
+              <th>Issue</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr>
+              <td>{{ loop.index }}</td>
+              <td>{{ row.sapNotification }}</td>
+              <td>{{ row.siteId }}</td>
+              <td>{{ row.issue }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {% if raw_text %}
+    <details class="ocr-preview-details">
+      <summary class="ocr-preview-summary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+             style="width:14px;height:14px;flex-shrink:0;">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+        OCR Text Preview
+        <span class="ocr-preview-hint">— click to see what was read from the image</span>
+      </summary>
+      <pre class="ocr-preview-text">{{ raw_text }}</pre>
+    </details>
+    {% endif %}
+  </main>
+
+  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations</footer>
+</body>
+</html>

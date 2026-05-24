@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preview Combined Image — RL Operations</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body class="page-combine">
+
+  <header class="topbar">
+    <a href="{{ url_for('index') }}" class="topbar-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Home
+    </a>
+    <span class="topbar-title">RL Maintenance — Combine Photos</span>
+  </header>
+
+  <main class="page-content combine-content">
+
+    <div class="preview-summary card">
+      <div class="preview-meta-row">
+        <span class="preview-badge preview-badge--ok">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               style="width:13px;height:13px;" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Image Ready
+        </span>
+        <span class="preview-meta">{{ photo_count }} photo{{ 's' if photo_count != 1 else '' }} combined</span>
+        {% if site_name %}<span class="preview-meta">Site: <strong>{{ site_name }}</strong></span>{% endif %}
+        <span class="preview-meta">File size: <strong>{{ file_size }}</strong></span>
+      </div>
+      <div class="preview-actions">
+        <a href="{{ url_for('combine_photos_page') }}" class="btn btn-ghost">&#8592; Go Back and Edit</a>
+        <a href="{{ url_for('combine_photos_download', filename=filename) }}"
+           class="btn btn-teal btn-xl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download Image
+        </a>
+      </div>
+    </div>
+
+    <div class="preview-image-card card">
+      <h2 class="card-title">Preview</h2>
+      <p class="card-subtitle">Review the combined image below before downloading.</p>
+      <div class="preview-image-wrap">
+        <img src="{{ url_for('combine_photos_preview_image', filename=filename) }}"
+             alt="Combined site photos preview"
+             class="preview-image"
+             loading="lazy" />
+      </div>
+    </div>
+
+    <div class="generate-bar">
+      <a href="{{ url_for('combine_photos_page') }}" class="btn btn-ghost">&#8592; Go Back and Edit</a>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+      <a href="{{ url_for('combine_photos_download', filename=filename) }}"
+         class="btn btn-teal btn-xl">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download Image
+      </a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations</footer>
+</body>
+</html>
