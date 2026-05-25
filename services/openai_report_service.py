@@ -11,6 +11,7 @@ maintenance fields used by the Flask app.
 from __future__ import annotations
 
 import base64
+import csv
 import json
 import logging
 import mimetypes
@@ -52,6 +53,7 @@ log = logging.getLogger(__name__)
 SERVICE_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SERVICE_DIR.parent
 ENV_PATH = PROJECT_ROOT / ".env"
+SITE_VENDOR_CSV_PATH = PROJECT_ROOT / "ai_training" / "site_vendors.csv"
 
 print("[OpenAI Report] PYTHON_EXECUTABLE:", sys.executable)
 print("[OpenAI Report] DOTENV_IMPORT_STATUS:", DOTENV_IMPORT_STATUS)
@@ -147,8 +149,13 @@ Rules:
   Example row:
   10737932 | PM01 | 5/24/2026 | Rear Plate Image Clarity Issue | 70457992 | 5/24/2026 | 22085 | 0100-RA01-RUR-RUH-000RYDRL4646-EB
   should return problem Rear Plate Image Clarity Issue, sap_notification 70457992, site_id RYDRL4646, approach EB.
+  Ignore PM01, PM02, PM03, or any PM code in the second column; it is a maintenance type/code, not the approach.
+  For this Excel-like raw table format, extract approach only from the letters immediately after the dash
+  following the final Site ID in the location string, for example RYDRL4175-B -> site_id RYDRL4175, approach B.
 - Map Work Order #, SAP Notification, Notification, Ticket Number, or SAP number to sap_notification.
 - Map Site / Approach, Site ID, Site Code, or Site to site_id and approach.
+- Do not guess, infer, or extract vendor from the image. Return vendor as an empty string.
+  Vendor is assigned by backend code from ai_training/site_vendors.csv after extraction.
 - Split combined Site / Approach values:
   RYDRL 4646 SB -> site_id RYDRL4646, approach SB.
   RYDRL4683 EB -> site_id RYDRL4683, approach EB.
@@ -348,11 +355,102 @@ def _normalize_report(value: Any) -> dict[str, list[dict[str, str]]]:
         if task["current_status"] and not task["status"]:
             task["status"] = task["current_status"]
 
+        task["vendor"] = get_vendor_for_site(task["site_id"])
+
         if any(task.values()):
             tasks.append(task)
 
     log.info("[OpenAI Report] number of tasks extracted=%s", len(tasks))
     return {"tasks": tasks}
+
+
+def get_vendor_for_site(site_id: str) -> str:
+    base_site_id = normalize_site_id_for_vendor(site_id)
+    log.info(
+        "[Vendor Detection] lookup site_id=%r normalized_site_id=%r",
+        site_id,
+        base_site_id,
+    )
+    if not base_site_id:
+        log.info("[Vendor Detection] fallback vendor=Idemia reason=empty_normalized_site_id")
+        return "Idemia"
+
+    vendor_map = load_site_vendor_map()
+    vendor = vendor_map.get(base_site_id)
+    if vendor:
+        log.info(
+            "[Vendor Detection] matched normalized_site_id=%s vendor=%s",
+            base_site_id,
+            vendor,
+        )
+        return vendor
+
+    log.info(
+        "[Vendor Detection] fallback vendor=Idemia normalized_site_id=%s loaded_records=%s",
+        base_site_id,
+        len(vendor_map),
+    )
+    return "Idemia"
+
+
+def load_site_vendor_map() -> dict[str, str]:
+    log.info("[Vendor Detection] loading CSV path=%s", SITE_VENDOR_CSV_PATH)
+    log.info("[Vendor Detection] CSV exists=%s", SITE_VENDOR_CSV_PATH.is_file())
+    print("[Vendor Detection] CSV_PATH:", SITE_VENDOR_CSV_PATH)
+    print("[Vendor Detection] CSV_EXISTS:", SITE_VENDOR_CSV_PATH.is_file())
+
+    if not SITE_VENDOR_CSV_PATH.is_file():
+        log.warning("[Vendor Detection] site vendor CSV not found path=%s", SITE_VENDOR_CSV_PATH)
+        print("[Vendor Detection] RECORDS_LOADED:", 0)
+        return {}
+
+    vendor_map: dict[str, str] = {}
+    try:
+        with SITE_VENDOR_CSV_PATH.open("r", encoding="utf-8-sig", newline="") as csv_file:
+            reader = csv.reader(csv_file)
+            rows = [
+                [cell.strip() for cell in row]
+                for row in reader
+                if row and any(cell.strip() for cell in row)
+            ]
+
+        if rows and _is_site_vendor_header(rows[0]):
+            rows = rows[1:]
+
+        for row in rows:
+            if len(row) < 2:
+                continue
+            key = normalize_site_id_for_vendor(row[0])
+            vendor = str(row[1] or "").strip()
+            if key and vendor:
+                vendor_map[key] = vendor
+    except Exception:
+        log.exception("[Vendor Detection] failed to load site vendor CSV path=%s", SITE_VENDOR_CSV_PATH)
+        print("[Vendor Detection] RECORDS_LOADED:", 0)
+        return {}
+
+    sample_mappings = list(vendor_map.items())[:5]
+    log.info("[Vendor Detection] records loaded=%s sample=%s", len(vendor_map), sample_mappings)
+    print("[Vendor Detection] RECORDS_LOADED:", len(vendor_map))
+    print("[Vendor Detection] SAMPLE_MAPPINGS:", sample_mappings)
+    return vendor_map
+
+
+def _is_site_vendor_header(row: list[str]) -> bool:
+    if len(row) < 2:
+        return False
+
+    first = re.sub(r"[^a-z0-9]", "", row[0].lower())
+    second = re.sub(r"[^a-z0-9]", "", row[1].lower())
+    return first in {"siteid", "site", "sitecode"} and second == "vendor"
+
+
+def normalize_site_id_for_vendor(site_id: str) -> str:
+    value = str(site_id or "").upper()
+    match = re.search(r"RYDRL[\s-]*(\d{3,5})", value)
+    if not match:
+        return ""
+    return f"RYDRL{match.group(1)}"
 
 
 def _read_task_field(raw_task: dict[str, Any], field: str) -> Any:
