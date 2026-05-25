@@ -8,16 +8,37 @@
 </head>
 <body class="page-upload">
 
-  <header class="topbar">
-    <a href="{{ url_for('index') }}" class="topbar-home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-      Home
-    </a>
-    <span class="topbar-title">RL Maintenance Report Generator</span>
-  </header>
+  <div class="ops-shell">
+    <aside class="ops-sidebar" aria-label="Primary navigation">
+      <a href="{{ url_for('index') }}" class="ops-brand">
+        <span class="ops-brand-mark">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+        </span>
+        <span>
+          <strong>RL Maintenance</strong>
+          <small>Field Operations</small>
+        </span>
+      </a>
+      <nav class="ops-nav">
+        <a href="{{ url_for('index') }}" class="ops-nav-link">Overview</a>
+        <a href="{{ url_for('upload') }}" class="ops-nav-link is-active">Prepare Report</a>
+        <a href="{{ url_for('combine_photos_page') }}" class="ops-nav-link">Combine Photos</a>
+        <a href="{{ url_for('preventive_table') }}" class="ops-nav-link">PM Table</a>
+      </nav>
+      <a href="{{ url_for('logout') }}" class="ops-sidebar-logout">Sign out</a>
+    </aside>
+
+    <div class="ops-main">
+      <header class="topbar ops-topbar">
+        <a href="{{ url_for('index') }}" class="topbar-home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Home
+        </a>
+        <span class="topbar-title">RL Maintenance Report Generator</span>
+      </header>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -32,8 +53,8 @@
     {% endif %}
   {% endwith %}
 
-  <main class="page-content">
-    <div class="card upload-card">
+      <main class="page-content">
+        <div class="card upload-card">
 
       <h2 class="card-title">Prepare Report</h2>
       <p class="card-subtitle">
@@ -78,8 +99,8 @@
         <a href="{{ url_for('index') }}" class="btn btn-ghost">&#8592; Back</a>
       </div>
 
-    </div>
-  </main>
+        </div>
+      </main>
 
   <!-- Loading overlay -->
   <div class="loading-overlay" id="loading-overlay" style="display:none;">
@@ -90,7 +111,9 @@
     </div>
   </div>
 
-  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations</footer>
+      <footer class="site-footer">RL Maintenance Team &mdash; Field Operations</footer>
+    </div>
+  </div>
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

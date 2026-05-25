@@ -5,69 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RL Maintenance — Field Operations Tools</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-
-  <style>
-    .service-card--purple:hover {
-      background: rgba(99,102,241,.18);
-      border-color: rgba(99,102,241,.5);
-    }
-
-    .service-card--purple .service-card__icon {
-      background: rgba(99,102,241,.22);
-    }
-
-    .service-card--purple .service-card__icon svg {
-      stroke: #818cf8;
-    }
-
-    /* Sign out button - black/white identity */
-    .logout-wrap {
-      display: flex;
-      justify-content: center;
-      margin-top: 1.15rem;
-    }
-
-    .logout-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 120px;
-      padding: .72rem 1.15rem;
-      border-radius: 14px;
-      background: #111;
-      color: #fff;
-      border: 1px solid #111;
-      text-decoration: none;
-      font-size: .9rem;
-      font-weight: 800;
-      letter-spacing: -.01em;
-      box-shadow: 0 10px 24px rgba(0,0,0,.16);
-      transition: background .2s ease, color .2s ease, transform .15s ease, box-shadow .2s ease;
-    }
-
-    .logout-btn:hover {
-      background: #000;
-      color: #fff;
-      transform: translateY(-1px);
-      box-shadow: 0 14px 30px rgba(0,0,0,.22);
-    }
-
-    .logout-btn:active {
-      transform: none;
-      box-shadow: 0 6px 14px rgba(0,0,0,.14);
-    }
-  </style>
 </head>
 
 <body class="page-home">
 
-  <main class="home-center">
-    <div class="home-card">
+  <div class="ops-shell">
+    <aside class="ops-sidebar" aria-label="Primary navigation">
+      <a href="{{ url_for('index') }}" class="ops-brand">
+        <span class="ops-brand-mark">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+        </span>
+        <span>
+          <strong>RL Maintenance</strong>
+          <small>Field Operations</small>
+        </span>
+      </a>
+      <nav class="ops-nav">
+        <a href="{{ url_for('index') }}" class="ops-nav-link is-active">Overview</a>
+        <a href="{{ url_for('upload') }}" class="ops-nav-link">Prepare Report</a>
+        <a href="{{ url_for('combine_photos_page') }}" class="ops-nav-link">Combine Photos</a>
+        <a href="{{ url_for('preventive_table') }}" class="ops-nav-link">PM Table</a>
+      </nav>
+      <a href="{{ url_for('logout') }}" class="ops-sidebar-logout">Sign out</a>
+    </aside>
 
-      <h1 class="home-title">RL Maintenance<br>Services</h1>
-      <p class="home-subtitle">Select a tool to get started.</p>
+    <div class="ops-main">
+      <header class="ops-topbar">
+        <div>
+          <span class="ops-kicker">Operations Console</span>
+          <h1>Workspace</h1>
+        </div>
+        <div class="ops-topbar-actions">
+          <span class="ops-status-dot"></span>
+          <span>AI assisted</span>
+        </div>
+      </header>
 
-      <div class="home-services">
+      <main class="home-center">
+        <div class="home-card">
+          <section class="home-hero">
+            <div class="home-logo-mark">
+              <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RL Maintenance">
+            </div>
+            <div class="home-hero-copy">
+              <span class="home-eyebrow">Field Operations</span>
+              <h1 class="home-title">RL Maintenance Services</h1>
+              <p class="home-subtitle">Daily reporting tools for supervisors and technicians.</p>
+            </div>
+          </section>
+
+          <section class="home-insights" aria-label="Operations overview">
+            <div class="insight-card insight-card--main">
+              <div>
+                <span class="insight-label">Active workspace</span>
+                <strong>Reports</strong>
+              </div>
+              <span class="insight-status">Ready</span>
+            </div>
+            <div class="insight-card insight-card--dark">
+              <span class="insight-label">Tools</span>
+              <strong>3</strong>
+            </div>
+            <div class="insight-card insight-card--soft">
+              <span class="insight-label">Output</span>
+              <strong>Copy</strong>
+            </div>
+          </section>
+
+          <div class="home-services" aria-label="Available services">
 
         <a href="{{ url_for('upload') }}" class="service-card" id="prepare-btn">
           <div class="service-card__icon">
@@ -117,18 +122,16 @@
           <div class="service-card__arrow">&#8594;</div>
         </a>
 
-      </div>
+          </div>
 
-      <div class="logout-wrap">
-        <a href="{{ url_for('logout') }}" class="logout-btn">Sign out</a>
-      </div>
+        </div>
+      </main>
 
+      <footer class="site-footer">
+        RL Maintenance Team &mdash; Field Operations
+      </footer>
     </div>
-  </main>
-
-  <footer class="site-footer">
-    RL Maintenance Team &mdash; Field Operations
-  </footer>
+  </div>
 
 </body>
 </html>
