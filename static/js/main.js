@@ -443,12 +443,13 @@
   }
 
   function taskFromSupervisorRow(row) {
+    const siteApproach = splitSiteAndApproach(row.siteId, row.approach);
     return {
       ...emptyTask(),
-      site_id: String(row.siteId || "").trim(),
+      site_id: siteApproach.site_id,
       sap_notification: String(row.sapNotification || "").trim(),
       problem: String(row.issue || "").trim(),
-      approach: String(row.approach || "N/A").trim() || "N/A",
+      approach: siteApproach.approach || "N/A",
       vendor: String(row.systemVendor || "N/A").trim() || "N/A",
       action_taken: String(row.actionTaken || "").trim(),
       current_status: normalizeStatus(row.status),
@@ -457,12 +458,13 @@
   }
 
   function taskFromOpenAITask(task) {
+    const siteApproach = splitSiteAndApproach(task.site_id, task.approach);
     return {
       ...emptyTask(),
-      site_id: String(task.site_id || "").trim(),
+      site_id: siteApproach.site_id,
       sap_notification: String(task.sap_notification || "").trim(),
       problem: String(task.problem || "").trim(),
-      approach: String(task.approach || "N/A").trim() || "N/A",
+      approach: siteApproach.approach || "N/A",
       vendor: String(task.vendor || "N/A").trim() || "N/A",
       action_taken: String(task.action_taken || "").trim(),
       current_status: normalizeStatus(task.current_status || task.status),
@@ -494,6 +496,44 @@
       (!approach || approach === "N/A") &&
       (!comments || comments === "Waiting for RM confirmation")
     );
+  }
+
+  function splitSiteAndApproach(siteValue, approachValue) {
+    let siteId = "";
+    let approach = cleanApproach(approachValue);
+
+    [siteValue, approachValue].forEach(value => {
+      const parsed = parseSiteAndApproach(value);
+      if (parsed.site_id) siteId = parsed.site_id;
+      if (parsed.approach && !approach) approach = parsed.approach;
+    });
+
+    if (!siteId) {
+      siteId = String(siteValue || "").trim().replace(/\s+/g, "").toUpperCase();
+    }
+
+    return { site_id: siteId, approach };
+  }
+
+  function parseSiteAndApproach(value) {
+    const text = String(value || "");
+    const matches = [...text.matchAll(/RYDRL\s*(\d{3,5})(?:(?:\s*-\s*|\s+)([A-Z]{1,3}))?/gi)];
+    if (!matches.length) return { site_id: "", approach: "" };
+
+    const match = matches[matches.length - 1];
+    return {
+      site_id: `RYDRL${match[1]}`,
+      approach: cleanApproach(match[2] || ""),
+    };
+  }
+
+  function cleanApproach(value) {
+    const text = String(value || "").trim().toUpperCase();
+    const allowed = new Set(["A", "B", "C", "D", "EB", "WB", "NB", "SB"]);
+    if (allowed.has(text)) return text;
+
+    const parsed = parseSiteAndApproach(text);
+    return parsed.approach || "";
   }
 
   function findNextEmptySupervisorSlot(rows, startIndex) {

@@ -71,8 +71,12 @@ TASK_FIELDS = (
     "comment",
 )
 
-SITE_ID_PATTERN = re.compile(r"RYDRL\s*\d{3,5}(?:(?:\s*-\s*|\s+)[A-Z]{1,3})?", re.IGNORECASE)
+SITE_APPROACH_PATTERN = re.compile(
+    r"RYDRL\s*(\d{3,5})(?:(?:\s*-\s*|\s+)([A-Z]{1,3}))?",
+    re.IGNORECASE,
+)
 SAP_PATTERN = re.compile(r"\b\d{7,12}\b")
+APPROACH_VALUES = {"A", "B", "C", "D", "EB", "WB", "NB", "SB"}
 
 REPORT_SCHEMA = {
     "type": "object",
@@ -142,17 +146,24 @@ Rules:
   Identify the problem/issue text, the SAP/work order number, and the site code from each row.
   Example row:
   10737932 | PM01 | 5/24/2026 | Rear Plate Image Clarity Issue | 70457992 | 5/24/2026 | 22085 | 0100-RA01-RUR-RUH-000RYDRL4646-EB
-  should return problem Rear Plate Image Clarity Issue, sap_notification 70457992, site_id RYDRL4646-EB.
+  should return problem Rear Plate Image Clarity Issue, sap_notification 70457992, site_id RYDRL4646, approach EB.
 - Map Work Order #, SAP Notification, Notification, Ticket Number, or SAP number to sap_notification.
-- Map Site / Approach, Site ID, Site Code, or Site to site_id when the value is a site code.
+- Map Site / Approach, Site ID, Site Code, or Site to site_id and approach.
+- Split combined Site / Approach values:
+  RYDRL 4646 SB -> site_id RYDRL4646, approach SB.
+  RYDRL4683 EB -> site_id RYDRL4683, approach EB.
+  RYDRL4646-EB -> site_id RYDRL4646, approach EB.
+  RYDRL 4177 B -> site_id RYDRL4177, approach B.
 - Map Issue, Problem name, Problem, Fault, or Description to problem.
 - Map visible Status values such as Pending or Solved to both status and current_status.
 - Never invent information.
 - If a field is missing, hidden, cropped, ambiguous, or unclear, return an empty string.
 - Preserve SAP numbers exactly as shown when readable.
-- Preserve Site ID formatting as much as possible, for example RYDRL 4694 WB or RYDRL4694-EB.
+- Remove spaces inside the base Site ID, for example RYDRL 4646 becomes RYDRL4646.
+- Site ID must contain only the base site code without direction or approach suffix.
+- Approach must contain only the direction or approach suffix, such as A, B, C, D, EB, WB, NB, or SB.
 - If a Site ID appears inside a long technical location string, extract only the final site code,
-  for example RYDRL4646-EB, RYDRL4177-B, or RYDRL4201-D.
+  then split it, for example RYDRL4646-EB -> site_id RYDRL4646, approach EB.
 - Understand maintenance terminology, assignment screenshots, ticket tables,
   technical issue descriptions, vendors, status labels, and field-service workflow.
 - Do not include markdown, explanations, confidence scores, or extra keys.
@@ -323,11 +334,14 @@ def _normalize_report(value: Any) -> dict[str, list[dict[str, str]]]:
                 value_text = ""
             else:
                 value_text = str(raw_value).strip()
-            if field == "site_id":
-                value_text = _clean_site_id(value_text)
-            elif field == "sap_notification":
+            if field == "sap_notification":
                 value_text = _clean_sap_notification(value_text)
             task[field] = value_text
+
+        task["site_id"], task["approach"] = _split_site_and_approach(
+            task["site_id"],
+            task["approach"],
+        )
 
         if task["status"] and not task["current_status"]:
             task["current_status"] = task["status"]
@@ -369,18 +383,50 @@ def _read_task_field(raw_task: dict[str, Any], field: str) -> Any:
     return raw_task.get(field, "")
 
 
-def _clean_site_id(value: str) -> str:
+def _split_site_and_approach(site_value: str, approach_value: str = "") -> tuple[str, str]:
+    site_id = ""
+    approach = _clean_approach(approach_value)
+
+    for value in (site_value, approach_value):
+        parsed_site_id, parsed_approach = _parse_site_approach(value)
+        if parsed_site_id:
+            site_id = parsed_site_id
+        if parsed_approach and not approach:
+            approach = parsed_approach
+
+    if not site_id:
+        site_id = re.sub(r"\s+", "", site_value.strip()).upper() if site_value else ""
+
+    return site_id, approach
+
+
+def _parse_site_approach(value: str) -> tuple[str, str]:
+    if not value:
+        return "", ""
+
+    matches = list(SITE_APPROACH_PATTERN.finditer(value))
+    if not matches:
+        return "", ""
+
+    match = matches[-1]
+    site_id = f"RYDRL{match.group(1)}"
+    approach = _clean_approach(match.group(2) or "")
+    return site_id, approach
+
+
+def _clean_approach(value: str) -> str:
     if not value:
         return ""
 
-    matches = SITE_ID_PATTERN.findall(value)
-    if matches:
-        site_id = matches[-1].strip()
-        site_id = re.sub(r"\s*-\s*", "-", site_id)
-        site_id = re.sub(r"\s+", " ", site_id)
-        return site_id
+    text = str(value).strip().upper()
+    if text in APPROACH_VALUES:
+        return text
 
-    return value.strip()
+    parsed_site_id, parsed_approach = _parse_site_approach(text)
+    if parsed_site_id and parsed_approach:
+        return parsed_approach
+
+    return ""
 
 
 def _clean_sap_notification(value: str) -> str:
