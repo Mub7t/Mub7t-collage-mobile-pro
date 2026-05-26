@@ -277,7 +277,9 @@
     @media print {
       @page { size: A4 landscape; margin: 1cm; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; box-sizing: border-box; }
-      body > *:not(main)                      { display: none !important; }
+      body > *:not(.ops-shell)                { display: none !important; }
+      .ops-shell > *:not(.ops-main)           { display: none !important; }
+      .ops-main > *:not(main)                 { display: none !important; }
       main > *:not(#pm-table-view)            { display: none !important; }
       #pm-table-view > *:not(#pm-print-area) { display: none !important; }
       html, body {
@@ -299,20 +301,41 @@
     }
   </style>
 </head>
-<body class="page-preview">
+<body class="page-preview page-preventive">
 
-  <header class="topbar">
-    <a href="{{ url_for('index') }}" class="topbar-home">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-      Home
-    </a>
-    <span class="topbar-title">PM Table — Preventive Maintenance</span>
-  </header>
+  <div class="ops-shell">
+    <aside class="ops-sidebar" aria-label="Primary navigation">
+      <a href="{{ url_for('index') }}" class="ops-brand">
+        <span class="ops-brand-mark">
+          <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+        </span>
+        <span>
+          <strong>RL Maintenance</strong>
+          <small>Field Operations</small>
+        </span>
+      </a>
+      <nav class="ops-nav">
+        <a href="{{ url_for('index') }}" class="ops-nav-link">Overview</a>
+        <a href="{{ url_for('upload') }}" class="ops-nav-link">Prepare Report</a>
+        <a href="{{ url_for('combine_photos_page') }}" class="ops-nav-link">Combine Photos</a>
+        <a href="{{ url_for('preventive_table') }}" class="ops-nav-link is-active">PM Table</a>
+      </nav>
+      <a href="{{ url_for('logout') }}" class="ops-sidebar-logout">Sign out</a>
+    </aside>
 
-  <main class="page-content pm-content">
+    <div class="ops-main">
+      <header class="topbar ops-topbar">
+        <a href="{{ url_for('index') }}" class="topbar-home">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+          Home
+        </a>
+        <span class="topbar-title">PM Table — Preventive Maintenance</span>
+      </header>
+
+      <main class="page-content pm-content">
 
     <!-- ══════════════════════════════════════════════════════════
          MODEL SELECTION SCREEN
@@ -514,11 +537,13 @@
 
     </div><!-- end #pm-table-view -->
 
-  </main>
+      </main>
 
-  <div id="pm-clipboard-html" style="display:none;"></div>
+      <div id="pm-clipboard-html" style="display:none;"></div>
 
-  <footer class="site-footer">RL Maintenance Team &mdash; Field Operations &mdash; Developed by Mubarak Al-Dawsari</footer>
+      <footer class="site-footer">RL Maintenance Team &mdash; Field Operations &mdash; Developed by Mubarak Al-Dawsari</footer>
+    </div>
+  </div>
 
   <!-- Extract modal -->
   <div id="extract-modal" class="pm-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
